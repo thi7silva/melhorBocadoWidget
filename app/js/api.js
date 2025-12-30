@@ -23,19 +23,31 @@ var WidgetAPI = (function () {
 
   /**
    * Chama uma Custom API do Zoho Creator
-   * @param {string} apiName - Link name da API
+   * @param {Object} endpointConfig - Configuração do endpoint (NAME, PUBLIC_KEY)
    * @param {string} method - HTTP method (GET, POST, etc)
    * @param {Object} params - Parâmetros da API
    * @returns {Promise} Promise com o resultado
    */
-  function invokeAPI(apiName, method, params) {
+  function invokeAPI(endpointConfig, method, params) {
     return new Promise(function (resolve, reject) {
       if (!isSDKAvailable()) {
         reject(new Error("SDK do Zoho não está disponível"));
         return;
       }
 
-      // Monta a query string manualmente (evita bug do SDK com objetos)
+      var apiName = endpointConfig.NAME;
+      var publicKey = endpointConfig.PUBLIC_KEY;
+
+      if (!apiName || !publicKey) {
+        reject(
+          new Error("Configuração de API inválida (Nome ou Key faltando)")
+        );
+        return;
+      }
+
+      console.log("Publickey", publicKey);
+
+      // Monta a query string manualmente
       var queryString = "";
       if (params && typeof params === "object") {
         var pairs = [];
@@ -54,22 +66,41 @@ var WidgetAPI = (function () {
       var config = {
         api_name: apiName,
         http_method: method,
-        public_key: WidgetConfig.API.PUBLIC_KEY,
-        query_params: queryString,
+        public_key: publicKey,
+        query_params: queryString || null,
       };
 
-      WidgetUI.log("API Call: " + apiName + " | Params: " + queryString);
+      // HACK: Para consultaCondicoesPagamento, adicionar publickey na query string
+      if (apiName === "consultaCondicoesPagamento") {
+        var separator = config.query_params ? "&" : "";
+
+        console.log("Separator", separator);
+        config.query_params += separator + "publickey=" + publicKey;
+      }
+
+      // LOG: Exibe o erro como string JSON, não como [object Object]
+      var logError = function (err) {
+        try {
+          return JSON.stringify(err);
+        } catch (e) {
+          return err.toString();
+        }
+      };
+
+      console.log(config);
+
+      WidgetUI.log(
+        "API Call (SDK): " + apiName + " | Config: " + JSON.stringify(config)
+      );
 
       ZOHO.CREATOR.DATA.invokeCustomApi(config)
         .then(function (response) {
-          WidgetUI.log("API Response recebida", "success");
-
-          // Extrai dados do response (tratamento robusto)
+          WidgetUI.log("API Response recebida (SDK)", "success");
           var data = extractData(response);
           resolve(data);
         })
         .catch(function (error) {
-          WidgetUI.log("API Error: " + JSON.stringify(error), "error");
+          WidgetUI.log("SDK Error: " + logError(error), "error");
           reject(error);
         });
     });
@@ -159,6 +190,37 @@ var WidgetAPI = (function () {
   }
 
   /**
+   * Busca lista de condições de pagamento
+   * @returns {Promise<Array>} Lista de condições normalizadas
+   */
+  function buscarCondicoesPagamento() {
+    return invokeAPI(
+      WidgetConfig.API.ENDPOINTS.CONSULTA_CONDICAO_PAGAMENTO,
+      "GET",
+      {}
+    ).then(function (data) {
+      var lista = [];
+
+      // Verifica a estrutura do retorno (success: true, data: [...])
+      if (data && data.data && Array.isArray(data.data)) {
+        lista = data.data;
+      } else if (Array.isArray(data)) {
+        lista = data;
+      }
+
+      // Mapeia para formato padronizado
+      return lista.map(function (item) {
+        return {
+          ID: String(item.ID), // Importante converter para string
+          Codigo: item.condicaoCodigo,
+          Descricao: item.condicaoDescricao,
+          Display: item.condicaoDisplay || item.condicaoDescricao, // Fallback se não tiver display
+        };
+      });
+    });
+  }
+
+  /**
    * Cria um novo pedido
    * @param {Object} pedido - Dados do pedido
    * @returns {Promise} Resultado da criação
@@ -173,6 +235,7 @@ var WidgetAPI = (function () {
     invokeAPI: invokeAPI,
     buscarClientes: buscarClientes,
     buscarProdutos: buscarProdutos,
+    buscarCondicoesPagamento: buscarCondicoesPagamento,
     criarPedido: criarPedido,
   };
 })();

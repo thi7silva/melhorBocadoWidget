@@ -148,6 +148,38 @@ var WidgetApp = (function () {
   }
 
   /**
+   * Carrega condições de pagamento
+   */
+  function carregarCondicoesPagamento() {
+    // Se já está online, busca na API
+    if (state.online) {
+      WidgetAPI.buscarCondicoesPagamento()
+        .then(function (condicoes) {
+          WidgetUI.log(
+            "Condições de pagamento carregadas: " + condicoes.length
+          );
+          WidgetUI.renderPaymentConditions(condicoes);
+        })
+        .catch(function (err) {
+          var errMsg = err;
+          try {
+            errMsg = JSON.stringify(err);
+          } catch (e) {}
+          WidgetUI.log("Erro ao buscar condições de pgto: " + errMsg, "error");
+          // Fallback para mock se falhar? Ou mostra erro?
+          // Por enquanto deixamos vazio ou mostramos erro visualmente se necessário
+        });
+    } else {
+      // Mock offline
+      var mockCondicoes = [
+        { ID: "1", Display: "À Vista (Mock)" },
+        { ID: "2", Display: "30 Dias (Mock)" },
+      ];
+      WidgetUI.renderPaymentConditions(mockCondicoes);
+    }
+  }
+
+  /**
    * Seleciona um cliente e avança para a etapa de pedido
    */
   function selecionarCliente(cliente) {
@@ -156,6 +188,11 @@ var WidgetApp = (function () {
 
     WidgetUI.log("Cliente selecionado: " + cliente.Nome, "success");
     WidgetUI.mostrarEtapaPedido(cliente);
+
+    // Carrega condições de pgto com pequeno delay para evitar conflito
+    setTimeout(function () {
+      carregarCondicoesPagamento();
+    }, 500);
   }
 
   /**
@@ -184,6 +221,7 @@ var WidgetApp = (function () {
     selecionarCliente: selecionarCliente,
     voltarParaCliente: voltarParaCliente,
     getState: getState,
+    carregarCondicoesPagamento: carregarCondicoesPagamento,
   };
 })();
 

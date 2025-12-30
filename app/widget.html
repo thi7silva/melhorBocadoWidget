@@ -169,7 +169,19 @@
         <!-- Sidebar: Dados do Cliente -->
         <aside class="cliente-sidebar">
           <div class="sidebar-header">
-            <h3>Cliente</h3>
+            <h3>Configurações do Pedido</h3>
+            <button
+              onclick="WidgetApp.carregarCondicoesPagamento()"
+              style="
+                font-size: 10px;
+                padding: 2px 5px;
+                background: #eee;
+                border: 1px solid #ccc;
+                cursor: pointer;
+              "
+            >
+              Debug API
+            </button>
             <button
               type="button"
               class="btn-trocar"
@@ -314,39 +326,12 @@
                   <div class="custom-options">
                     <div
                       class="custom-option"
-                      onclick="WidgetUI.selectCustomOption(this, 'avista')"
+                      style="
+                        pointer-events: none;
+                        color: var(--color-text-muted);
+                      "
                     >
-                      À Vista
-                    </div>
-                    <div
-                      class="custom-option"
-                      onclick="WidgetUI.selectCustomOption(this, '7dd')"
-                    >
-                      7 Dias
-                    </div>
-                    <div
-                      class="custom-option"
-                      onclick="WidgetUI.selectCustomOption(this, '14dd')"
-                    >
-                      14 Dias
-                    </div>
-                    <div
-                      class="custom-option"
-                      onclick="WidgetUI.selectCustomOption(this, '21dd')"
-                    >
-                      21 Dias
-                    </div>
-                    <div
-                      class="custom-option"
-                      onclick="WidgetUI.selectCustomOption(this, '28dd')"
-                    >
-                      28 Dias
-                    </div>
-                    <div
-                      class="custom-option"
-                      onclick="WidgetUI.selectCustomOption(this, '30-60')"
-                    >
-                      30/60 Dias
+                      Carregando...
                     </div>
                   </div>
                   <input

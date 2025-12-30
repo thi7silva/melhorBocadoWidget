@@ -408,6 +408,48 @@ var WidgetUI = (function () {
     }
   });
 
+  /**
+   * Renderiza a lista de condições de pagamento no select customizado
+   * @param {Array} condicoes - Lista de condições vindas da API
+   */
+  function renderPaymentConditions(condicoes) {
+    var wrapper = document
+      .querySelector("#condicao-pagamento")
+      .closest(".custom-select-wrapper");
+    if (!wrapper) return;
+
+    var optionsContainer = wrapper.querySelector(".custom-options");
+    var triggerText = wrapper.querySelector(".selected-value");
+
+    // Limpa opções atuais
+    optionsContainer.innerHTML = "";
+    triggerText.textContent = "Selecione...";
+    document.getElementById("condicao-pagamento").value = "";
+
+    // Adiciona novas opções
+    if (condicoes && condicoes.length > 0) {
+      condicoes.forEach(function (cond) {
+        var div = document.createElement("div");
+        div.className = "custom-option";
+        div.textContent = cond.Display; // Usa o campo Display retornado pela API
+
+        // Adiciona evento onclick
+        div.onclick = function () {
+          WidgetUI.selectCustomOption(this, cond.ID);
+        };
+
+        optionsContainer.appendChild(div);
+      });
+    } else {
+      var emptyDiv = document.createElement("div");
+      emptyDiv.className = "custom-option";
+      emptyDiv.textContent = "Nenhuma condição encontrada";
+      emptyDiv.style.color = "var(--color-text-muted)";
+      emptyDiv.style.pointerEvents = "none";
+      optionsContainer.appendChild(emptyDiv);
+    }
+  }
+
   // API Pública do Módulo
   return {
     init: init,
@@ -425,5 +467,6 @@ var WidgetUI = (function () {
     selectOption: selectOption,
     toggleSelect: toggleSelect,
     selectCustomOption: selectCustomOption,
+    renderPaymentConditions: renderPaymentConditions,
   };
 })();

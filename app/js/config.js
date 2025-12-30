@@ -10,14 +10,24 @@ var WidgetConfig = {
   // CONFIGURAÇÕES DA API
   // ============================================
   API: {
-    // Public Key da API Custom do Zoho Creator
-    PUBLIC_KEY: "J39jfTQGHMzBYRSVaPfwbjatX",
-
-    // Nomes das APIs (Link Names das funções publicadas)
+    // Configuração de Endpoints e suas respectivas Public Keys
     ENDPOINTS: {
-      CONSULTA_CLIENTE: "consultaCliente",
-      CONSULTA_PRODUTO: "consultaProduto",
-      CRIAR_PEDIDO: "criarPedido",
+      CONSULTA_CLIENTE: {
+        NAME: "consultaCliente",
+        PUBLIC_KEY: "J39jfTQGHMzBYRSVaPfwbjatX", // Chave existente
+      },
+      CONSULTA_PRODUTO: {
+        NAME: "consultaProduto",
+        PUBLIC_KEY: "J39jfTQGHMzBYRSVaPfwbjatX", // Assumindo a mesma por enquanto, ajustar se necessário
+      },
+      CRIAR_PEDIDO: {
+        NAME: "criarPedido",
+        PUBLIC_KEY: "J39jfTQGHMzBYRSVaPfwbjatX", // Assumindo a mesma por enquanto
+      },
+      CONSULTA_CONDICAO_PAGAMENTO: {
+        NAME: "consultaCondicoesPagamento",
+        PUBLIC_KEY: "HXP79EOmkeUTFneJVNHK2GqTv",
+      },
     },
   },
 
