@@ -199,6 +199,10 @@ var WidgetApp = (function () {
    * Volta para a seleção de cliente
    */
   function voltarParaCliente() {
+    // Fecha o modal se estiver aberto
+    WidgetUI.fecharModal("modal-cancelar");
+
+    // Limpa o estado
     state.clienteSelecionado = null;
     state.etapaAtual = "cliente";
     state.itensPedido = [];
@@ -208,10 +212,100 @@ var WidgetApp = (function () {
   }
 
   /**
+   * Abre o modal de confirmação de cancelamento
+   */
+  function confirmarCancelamento() {
+    WidgetUI.abrirModal("modal-cancelar");
+  }
+
+  /**
+   * Volta para a aba anterior
+   */
+  function voltarAba() {
+    var activeTab = WidgetUI.getActiveTab();
+
+    if (activeTab === "produtos") {
+      WidgetUI.switchTab("config");
+      WidgetUI.log("Voltando para configurações");
+    }
+  }
+
+  /**
    * Retorna o estado atual
    */
   function getState() {
     return state;
+  }
+
+  /**
+   * Ação do botão principal do footer
+   * Avança para produtos ou gera o pedido conforme a aba ativa
+   */
+  function footerAction() {
+    var activeTab = WidgetUI.getActiveTab();
+
+    if (activeTab === "config") {
+      // Avança para a aba de produtos
+      WidgetUI.switchTab("produtos");
+      WidgetUI.log("Avançando para seleção de produtos");
+    } else if (activeTab === "produtos") {
+      // Gera o pedido
+      gerarPedido();
+    }
+  }
+
+  /**
+   * Gera o pedido e exibe os dados no console
+   */
+  function gerarPedido() {
+    WidgetUI.log("Gerando pedido...", "success");
+
+    // Coleta dados do formulário
+    var dadosPedido = {
+      // Cliente
+      cliente: state.clienteSelecionado,
+
+      // Configurações do pedido
+      enderecoEntrega: document.getElementById("endereco-entrega")?.value || "",
+      condicaoPagamento:
+        document.getElementById("condicao-pagamento")?.value || "",
+      tipoFrete: getSelectedOption("frete"),
+      natureza: getSelectedOption("natureza"),
+      numeroPedidoCliente:
+        document.getElementById("numero-pedido-cliente")?.value || "",
+      observacoes: document.getElementById("observacoes")?.value || "",
+
+      // Produtos (por enquanto vazio)
+      itens: state.itensPedido,
+
+      // Metadados
+      dataGeracao: new Date().toISOString(),
+      totalPedido: 0, // TODO: calcular quando tiver produtos
+    };
+
+    // Exibe no console
+    console.log("=".repeat(50));
+    console.log("📦 DADOS DO PEDIDO:");
+    console.log("=".repeat(50));
+    console.log(JSON.stringify(dadosPedido, null, 2));
+    console.log("=".repeat(50));
+
+    // Log no painel de debug
+    WidgetUI.log("Pedido gerado! Verifique o console (F12)", "success");
+
+    return dadosPedido;
+  }
+
+  /**
+   * Obtém o valor selecionado de um grupo de option-cards
+   * @param {string} group - Nome do grupo (ex: 'frete', 'natureza')
+   * @returns {string} Valor selecionado ou string vazia
+   */
+  function getSelectedOption(group) {
+    var activeCard = document.querySelector(
+      '.option-card.active[data-group="' + group + '"]'
+    );
+    return activeCard ? activeCard.getAttribute("data-value") : "";
   }
 
   // API Pública do Módulo
@@ -220,8 +314,12 @@ var WidgetApp = (function () {
     searchClients: searchClients,
     selecionarCliente: selecionarCliente,
     voltarParaCliente: voltarParaCliente,
+    confirmarCancelamento: confirmarCancelamento,
+    voltarAba: voltarAba,
     getState: getState,
     carregarCondicoesPagamento: carregarCondicoesPagamento,
+    footerAction: footerAction,
+    gerarPedido: gerarPedido,
   };
 })();
 

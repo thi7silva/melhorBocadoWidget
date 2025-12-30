@@ -333,6 +333,65 @@ var WidgetUI = (function () {
 
     if (selectedBtn) selectedBtn.classList.add("active");
     if (selectedContent) selectedContent.classList.add("active");
+
+    // Atualiza o botão do footer conforme a aba
+    updateFooterButton(tabId);
+  }
+
+  /**
+   * Atualiza o botão do footer conforme a aba ativa
+   * @param {string} tabId - ID da aba atual ('config' ou 'produtos')
+   */
+  function updateFooterButton(tabId) {
+    var btnText = document.getElementById("btn-footer-text");
+    var btnIcon = document.getElementById("btn-footer-icon");
+    var btnVoltar = document.getElementById("btn-voltar");
+
+    if (!btnText || !btnIcon) return;
+
+    if (tabId === "config") {
+      // Aba de configurações: botão "Avançar", esconde Voltar
+      btnText.textContent = "Avançar";
+      btnIcon.innerHTML = '<polyline points="9 18 15 12 9 6"></polyline>';
+      if (btnVoltar) btnVoltar.classList.add("hidden");
+    } else if (tabId === "produtos") {
+      // Aba de produtos: botão "Gerar Pedido", mostra Voltar
+      btnText.textContent = "Gerar Pedido";
+      btnIcon.innerHTML =
+        '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>';
+      if (btnVoltar) btnVoltar.classList.remove("hidden");
+    }
+  }
+
+  /**
+   * Retorna a aba ativa atual
+   * @returns {string} ID da aba ativa
+   */
+  function getActiveTab() {
+    var activeTab = document.querySelector(".tab-btn.active");
+    return activeTab ? activeTab.getAttribute("data-tab") : "config";
+  }
+
+  /**
+   * Abre um modal
+   * @param {string} modalId - ID do modal
+   */
+  function abrirModal(modalId) {
+    var modal = document.getElementById(modalId);
+    if (modal) {
+      modal.classList.remove("hidden");
+    }
+  }
+
+  /**
+   * Fecha um modal
+   * @param {string} modalId - ID do modal
+   */
+  function fecharModal(modalId) {
+    var modal = document.getElementById(modalId);
+    if (modal) {
+      modal.classList.add("hidden");
+    }
   }
 
   /**
@@ -468,5 +527,8 @@ var WidgetUI = (function () {
     toggleSelect: toggleSelect,
     selectCustomOption: selectCustomOption,
     renderPaymentConditions: renderPaymentConditions,
+    getActiveTab: getActiveTab,
+    abrirModal: abrirModal,
+    fecharModal: fecharModal,
   };
 })();
