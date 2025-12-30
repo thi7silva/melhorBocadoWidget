@@ -86,27 +86,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Botão Debug discreto -->
-      <button
-        type="button"
-        class="btn-debug-corner"
-        onclick="WidgetUI.toggleDebug()"
-        title="Debug"
-      >
-        <svg
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-          <path d="M2 17l10 5 10-5"></path>
-          <path d="M2 12l10 5 10-5"></path>
-        </svg>
-      </button>
     </div>
 
     <!-- ========================================
@@ -140,48 +119,16 @@
           </svg>
           <div class="vendedor-info">
             <span class="vendedor-label">Vendedor</span>
-            <span class="vendedor-nome" id="vendedor-nome">Joshua Lucas</span>
+            <span class="vendedor-nome" id="vendedor-nome">-</span>
           </div>
         </div>
-
-        <button
-          type="button"
-          class="btn-debug"
-          onclick="WidgetUI.toggleDebug()"
-          title="Debug"
-        >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-            <path d="M2 17l10 5 10-5"></path>
-            <path d="M2 12l10 5 10-5"></path>
-          </svg>
-        </button>
       </header>
 
       <div class="pedido-layout">
         <!-- Sidebar: Dados do Cliente -->
         <aside class="cliente-sidebar">
           <div class="sidebar-header">
-            <h3>Configurações do Pedido</h3>
-            <button
-              onclick="WidgetApp.carregarCondicoesPagamento()"
-              style="
-                font-size: 10px;
-                padding: 2px 5px;
-                background: #eee;
-                border: 1px solid #ccc;
-                cursor: pointer;
-              "
-            >
-              Debug API
-            </button>
+            <h3>Pedido</h3>
             <button
               type="button"
               class="btn-trocar"

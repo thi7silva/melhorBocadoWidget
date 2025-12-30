@@ -35,8 +35,12 @@ var WidgetConfig = {
   // CONFIGURAÇÕES DE UI
   // ============================================
   UI: {
-    // Mostrar painel de debug (desabilitar em produção)
-    DEBUG_ENABLED: true,
+    /**
+     * Habilita o painel de debug no widget.
+     * IMPORTANTE: Definir como FALSE em produção!
+     * Para desenvolvimento local, altere para TRUE.
+     */
+    DEBUG_ENABLED: false,
 
     // Tempo de exibição de mensagens de status (ms)
     STATUS_TIMEOUT: 5000,

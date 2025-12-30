@@ -45,8 +45,6 @@ var WidgetAPI = (function () {
         return;
       }
 
-      console.log("Publickey", publicKey);
-
       // Monta a query string manualmente
       var queryString = "";
       if (params && typeof params === "object") {
@@ -70,12 +68,9 @@ var WidgetAPI = (function () {
         query_params: queryString || null,
       };
 
-      // HACK: Para consultaCondicoesPagamento, adicionar publickey na query string
-      if (apiName === "consultaCondicoesPagamento") {
-        var separator = config.query_params ? "&" : "";
-
-        console.log("Separator", separator);
-        config.query_params += separator + "publickey=" + publicKey;
+      if (!queryString) {
+        // Remove a propriedade query_params se queryString estiver vazia
+        delete config.query_params;
       }
 
       // LOG: Exibe o erro como string JSON, não como [object Object]
@@ -86,8 +81,6 @@ var WidgetAPI = (function () {
           return err.toString();
         }
       };
-
-      console.log(config);
 
       WidgetUI.log(
         "API Call (SDK): " + apiName + " | Config: " + JSON.stringify(config)
