@@ -293,6 +293,12 @@ var WidgetUI = (function () {
     if (elements.clienteDocumento) {
       elements.clienteDocumento.textContent = formatCpfCnpj(cliente.CPF_CNPJ);
     }
+
+    // Preenche endereço de entrega
+    var enderecoInput = document.getElementById("endereco-entrega");
+    if (enderecoInput && cliente.Endereco) {
+      enderecoInput.value = cliente.Endereco;
+    }
   }
 
   /**
@@ -303,6 +309,104 @@ var WidgetUI = (function () {
       elements.debugPanel.classList.toggle("hidden");
     }
   }
+
+  /**
+   * Troca entre tabs
+   */
+  function switchTab(tabId) {
+    // Desativa todas as tabs
+    var tabBtns = document.querySelectorAll(".tab-btn");
+    var tabContents = document.querySelectorAll(".tab-content");
+
+    tabBtns.forEach(function (btn) {
+      btn.classList.remove("active");
+    });
+    tabContents.forEach(function (content) {
+      content.classList.remove("active");
+    });
+
+    // Ativa a tab selecionada
+    var selectedBtn = document.querySelector(
+      '.tab-btn[data-tab="' + tabId + '"]'
+    );
+    var selectedContent = document.getElementById("tab-" + tabId);
+
+    if (selectedBtn) selectedBtn.classList.add("active");
+    if (selectedContent) selectedContent.classList.add("active");
+  }
+
+  /**
+   * Seleciona option card (genérico para frete, natureza, etc.)
+   */
+  function selectOption(element) {
+    var group = element.getAttribute("data-group");
+    var value = element.getAttribute("data-value");
+
+    // Remove active de todos os cards do mesmo grupo
+    var cards = document.querySelectorAll(
+      '.option-card[data-group="' + group + '"]'
+    );
+    cards.forEach(function (card) {
+      card.classList.remove("active");
+    });
+
+    // Adiciona active no selecionado
+    element.classList.add("active");
+  }
+
+  /**
+   * Abre um modal
+   */
+  /**
+   * Abre/Fecha Select
+   */
+  function toggleSelect(element) {
+    // Fecha outros selects
+    var allSelects = document.querySelectorAll(".custom-select-wrapper");
+    allSelects.forEach(function (s) {
+      if (s !== element) s.classList.remove("open");
+    });
+
+    element.classList.toggle("open");
+  }
+
+  /**
+   * Seleciona opção do Select Customizado
+   */
+  function selectCustomOption(optionElement, value) {
+    var wrapper = optionElement.closest(".custom-select-wrapper");
+    var trigger = wrapper.querySelector(
+      ".custom-select-trigger .selected-value"
+    );
+    var hiddenInput = wrapper.querySelector("input[type='hidden']");
+    var options = wrapper.querySelectorAll(".custom-option");
+
+    // Atualiza visual
+    options.forEach(function (opt) {
+      opt.classList.remove("selected");
+    });
+    optionElement.classList.add("selected");
+
+    // Atualiza valores
+    trigger.textContent = optionElement.textContent;
+    hiddenInput.value = value;
+
+    // Armazena no estado (exemplo)
+    if (typeof WidgetApp !== "undefined" && WidgetApp.getState) {
+      var key = hiddenInput.id;
+      WidgetApp.getState()[key] = value;
+    }
+  }
+
+  // Fecha selects ao clicar fora
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest(".custom-select-wrapper")) {
+      var allSelects = document.querySelectorAll(".custom-select-wrapper");
+      allSelects.forEach(function (s) {
+        s.classList.remove("open");
+      });
+    }
+  });
 
   // API Pública do Módulo
   return {
@@ -317,5 +421,9 @@ var WidgetUI = (function () {
     mostrarEtapaPedido: mostrarEtapaPedido,
     formatCpfCnpj: formatCpfCnpj,
     toggleDebug: toggleDebug,
+    switchTab: switchTab,
+    selectOption: selectOption,
+    toggleSelect: toggleSelect,
+    selectCustomOption: selectCustomOption,
   };
 })();

@@ -113,7 +113,7 @@
          ETAPA 2: CRIAÇÃO DO PEDIDO
          ======================================== -->
     <div id="step-pedido" class="step-pedido-wrapper hidden">
-      <!-- Header para etapa de pedido -->
+      <!-- Header do Pedido -->
       <header class="app-header">
         <img
           src="https://melhorbocado.com.br/wp-content/uploads/2023/12/logo.png"
@@ -122,7 +122,26 @@
         />
         <div class="header-text">
           <h1>Novo Pedido</h1>
-          <p id="header-subtitle">Adicione os produtos ao pedido</p>
+          <p id="header-subtitle">Configure os detalhes do pedido</p>
+        </div>
+
+        <!-- Vendedor -->
+        <div class="header-vendedor">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <div class="vendedor-info">
+            <span class="vendedor-label">Vendedor</span>
+            <span class="vendedor-nome" id="vendedor-nome">Joshua Lucas</span>
+          </div>
         </div>
 
         <button
@@ -150,7 +169,7 @@
         <!-- Sidebar: Dados do Cliente -->
         <aside class="cliente-sidebar">
           <div class="sidebar-header">
-            <h3>Cliente Selecionado</h3>
+            <h3>Cliente</h3>
             <button
               type="button"
               class="btn-trocar"
@@ -158,8 +177,8 @@
               title="Trocar cliente"
             >
               <svg
-                width="18"
-                height="18"
+                width="16"
+                height="16"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -194,11 +213,284 @@
           </div>
         </aside>
 
-        <!-- Área Principal: Itens do Pedido -->
+        <!-- Área Principal com Tabs -->
         <main class="pedido-main">
-          <div class="card">
-            <h2 class="card-title">Itens do Pedido</h2>
+          <!-- Tabs Navigation -->
+          <div class="tabs-nav">
+            <button
+              type="button"
+              class="tab-btn active"
+              data-tab="config"
+              onclick="WidgetUI.switchTab('config')"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="12" cy="12" r="3"></circle>
+                <path
+                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+                ></path>
+              </svg>
+              Configurações
+            </button>
+            <button
+              type="button"
+              class="tab-btn"
+              data-tab="produtos"
+              onclick="WidgetUI.switchTab('produtos')"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"
+                ></path>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <path d="M16 10a4 4 0 0 1-8 0"></path>
+              </svg>
+              Produtos
+            </button>
+          </div>
 
+          <!-- Tab: Configurações -->
+          <div id="tab-config" class="tab-content active">
+            <div class="config-grid">
+              <!-- Endereço de Entrega -->
+              <div class="form-group full-width">
+                <label for="endereco-entrega">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"
+                    ></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                  </svg>
+                  Endereço de Entrega
+                </label>
+                <input
+                  type="text"
+                  id="endereco-entrega"
+                  class="form-input"
+                  readonly
+                  placeholder="Endereço será preenchido com dados do cliente"
+                />
+              </div>
+
+              <!-- Condição de Pagamento (Select Customizado) -->
+              <div class="form-group">
+                <label>Condição de Pagamento</label>
+                <div
+                  class="custom-select-wrapper"
+                  onclick="WidgetUI.toggleSelect(this)"
+                >
+                  <div class="custom-select-trigger">
+                    <span class="selected-value">Selecione...</span>
+                    <svg
+                      class="custom-select-arrow"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </div>
+                  <div class="custom-options">
+                    <div
+                      class="custom-option"
+                      onclick="WidgetUI.selectCustomOption(this, 'avista')"
+                    >
+                      À Vista
+                    </div>
+                    <div
+                      class="custom-option"
+                      onclick="WidgetUI.selectCustomOption(this, '7dd')"
+                    >
+                      7 Dias
+                    </div>
+                    <div
+                      class="custom-option"
+                      onclick="WidgetUI.selectCustomOption(this, '14dd')"
+                    >
+                      14 Dias
+                    </div>
+                    <div
+                      class="custom-option"
+                      onclick="WidgetUI.selectCustomOption(this, '21dd')"
+                    >
+                      21 Dias
+                    </div>
+                    <div
+                      class="custom-option"
+                      onclick="WidgetUI.selectCustomOption(this, '28dd')"
+                    >
+                      28 Dias
+                    </div>
+                    <div
+                      class="custom-option"
+                      onclick="WidgetUI.selectCustomOption(this, '30-60')"
+                    >
+                      30/60 Dias
+                    </div>
+                  </div>
+                  <input
+                    type="hidden"
+                    id="condicao-pagamento"
+                    name="condicao-pagamento"
+                  />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Tipo de Frete</label>
+                <div class="option-cards">
+                  <div
+                    class="option-card active"
+                    data-value="cif"
+                    data-group="frete"
+                    onclick="WidgetUI.selectOption(this)"
+                  >
+                    <div class="option-card-icon">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <rect x="1" y="3" width="15" height="13"></rect>
+                        <polygon
+                          points="16 8 20 8 23 11 23 16 16 16 16 8"
+                        ></polygon>
+                        <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                        <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                      </svg>
+                    </div>
+                    <span class="option-card-label">CIF</span>
+                  </div>
+                  <div
+                    class="option-card"
+                    data-value="fob"
+                    data-group="frete"
+                    onclick="WidgetUI.selectOption(this)"
+                  >
+                    <div class="option-card-icon">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+                        ></path>
+                        <polyline
+                          points="3.27 6.96 12 12.01 20.73 6.96"
+                        ></polyline>
+                        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                      </svg>
+                    </div>
+                    <span class="option-card-label">FOB</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Natureza do Pedido (Cards) -->
+              <div class="form-group">
+                <label>Natureza</label>
+                <div class="option-cards">
+                  <div
+                    class="option-card active"
+                    data-value="venda"
+                    data-group="natureza"
+                    onclick="WidgetUI.selectOption(this)"
+                  >
+                    <div class="option-card-icon">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path
+                          d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"
+                        ></path>
+                      </svg>
+                    </div>
+                    <span class="option-card-label">Venda</span>
+                  </div>
+                  <div
+                    class="option-card"
+                    data-value="bonificacao"
+                    data-group="natureza"
+                    onclick="WidgetUI.selectOption(this)"
+                  >
+                    <div class="option-card-icon">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path d="M20 12v10H4V12"></path>
+                        <path d="M2 7h20v5H2z"></path>
+                        <path d="M12 22V7"></path>
+                        <path
+                          d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"
+                        ></path>
+                        <path
+                          d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"
+                        ></path>
+                      </svg>
+                    </div>
+                    <span class="option-card-label">Bonificação</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Nº Pedido Cliente (Input Simples) -->
+              <div class="form-group">
+                <label for="numero-pedido-cliente">Nº Pedido Cliente</label>
+                <input
+                  type="text"
+                  id="numero-pedido-cliente"
+                  class="form-input"
+                  placeholder="Informe o número do pedido (opcional)"
+                />
+              </div>
+
+              <!-- Observações -->
+              <div class="form-group full-width">
+                <label for="observacoes">Observações</label>
+                <textarea
+                  id="observacoes"
+                  class="form-textarea"
+                  rows="2"
+                  placeholder="Observações adicionais (opcional)"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab: Produtos -->
+          <div id="tab-produtos" class="tab-content">
             <div class="pedido-placeholder">
               <svg
                 viewBox="0 0 24 24"
@@ -218,6 +510,37 @@
           </div>
         </main>
       </div>
+
+      <!-- Footer com ações -->
+      <footer class="pedido-footer">
+        <div class="footer-info">
+          <span class="total-label">Total do Pedido:</span>
+          <span class="total-valor">R$ 0,00</span>
+        </div>
+        <div class="footer-actions">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            onclick="WidgetApp.voltarParaCliente()"
+          >
+            Cancelar
+          </button>
+          <button type="button" class="btn btn-primary">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            Gerar Pedido
+          </button>
+        </div>
+      </footer>
     </div>
 
     <!-- Debug Log (Oculto por padrão) -->
