@@ -1,0 +1,12 @@
+{
+  "service": "CREATOR",
+  "cspDomains": {
+    "connect-src": [
+      "https://www.zohoapis.com",
+      "https://*.zohoapis.com",
+      "https://creator.zoho.com",
+      "https://*.zoho.com"
+    ]
+  },
+  "config": []
+}
