@@ -12,8 +12,10 @@ var WidgetApp = (function () {
   var state = {
     initialized: false,
     online: false,
+    etapaAtual: "cliente", // "cliente" ou "pedido"
     clientes: [],
-    selectedClient: null,
+    clienteSelecionado: null,
+    itensPedido: [],
   };
 
   /**
@@ -91,7 +93,6 @@ var WidgetApp = (function () {
   function iniciarModoOnline() {
     WidgetUI.setStatus("Conectado! Digite para buscar clientes.", "success");
 
-    // Esconde status após 3 segundos
     setTimeout(function () {
       WidgetUI.hideStatus();
     }, 3000);
@@ -127,7 +128,6 @@ var WidgetApp = (function () {
         .catch(function (err) {
           WidgetUI.log("Erro na busca: " + err, "error");
           WidgetUI.setStatus("Erro ao buscar clientes.", "error");
-          // Fallback para mock
           useMockClients(query);
         });
     } else {
@@ -148,33 +148,42 @@ var WidgetApp = (function () {
   }
 
   /**
-   * Define o cliente selecionado
+   * Seleciona um cliente e avança para a etapa de pedido
    */
-  function setSelectedClient(cliente) {
-    state.selectedClient = cliente;
-    WidgetUI.log(
-      "Cliente selecionado: " + cliente.Nome + " (ID: " + cliente.ID + ")"
-    );
+  function selecionarCliente(cliente) {
+    state.clienteSelecionado = cliente;
+    state.etapaAtual = "pedido";
+
+    WidgetUI.log("Cliente selecionado: " + cliente.Nome, "success");
+    WidgetUI.mostrarEtapaPedido(cliente);
   }
 
   /**
-   * Limpa seleção de cliente
+   * Volta para a seleção de cliente
    */
-  function clearClient() {
-    state.selectedClient = null;
-    WidgetUI.clearClientSelection();
-    WidgetUI.log("Seleção de cliente limpa");
+  function voltarParaCliente() {
+    state.clienteSelecionado = null;
+    state.etapaAtual = "cliente";
+    state.itensPedido = [];
+
+    WidgetUI.log("Voltando para seleção de cliente");
+    WidgetUI.mostrarEtapaCliente();
+  }
+
+  /**
+   * Retorna o estado atual
+   */
+  function getState() {
+    return state;
   }
 
   // API Pública do Módulo
   return {
     init: init,
     searchClients: searchClients,
-    setSelectedClient: setSelectedClient,
-    clearClient: clearClient,
-    getState: function () {
-      return state;
-    },
+    selecionarCliente: selecionarCliente,
+    voltarParaCliente: voltarParaCliente,
+    getState: getState,
   };
 })();
 

@@ -12,8 +12,108 @@
     <link rel="stylesheet" href="css/widget.css" />
   </head>
   <body>
-    <div class="app-container">
-      <!-- Header com Logo -->
+    <!-- Alert/Status Global -->
+    <div id="status" class="alert-box loading visible">
+      <div class="alert-icon">
+        <div class="spinner-brand"></div>
+      </div>
+      <div class="alert-text">
+        <span class="alert-title">Aguarde</span>
+        <span class="alert-message">Conectando ao sistema...</span>
+      </div>
+    </div>
+
+    <!-- ========================================
+         ETAPA 1: SELEÇÃO DE CLIENTE 
+         ======================================== -->
+    <div id="step-cliente" class="step-cliente-wrapper">
+      <div class="selection-card">
+        <!-- Header com Branding -->
+        <div class="card-branding">
+          <img
+            src="https://melhorbocado.com.br/wp-content/uploads/2023/12/logo.png"
+            alt="Melhor Bocado"
+            class="card-branding-logo"
+          />
+          <h1>Novo Pedido</h1>
+          <p>Selecione o cliente para iniciar</p>
+        </div>
+
+        <!-- Corpo do Card -->
+        <div class="card-body">
+          <div class="card-body-header">
+            <h2>Buscar Cliente</h2>
+            <p>Digite o nome, razão social ou CNPJ</p>
+          </div>
+
+          <!-- Campo de Busca -->
+          <div class="search-container">
+            <svg
+              class="search-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input
+              type="text"
+              id="search-cliente"
+              class="search-input"
+              placeholder="Digite para buscar..."
+              autocomplete="off"
+            />
+          </div>
+
+          <!-- Lista de Clientes -->
+          <div id="client-list" class="client-list">
+            <div class="empty-state">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              <p>Digite para buscar clientes</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botão Debug discreto -->
+      <button
+        type="button"
+        class="btn-debug-corner"
+        onclick="WidgetUI.toggleDebug()"
+        title="Debug"
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+          <path d="M2 17l10 5 10-5"></path>
+          <path d="M2 12l10 5 10-5"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- ========================================
+         ETAPA 2: CRIAÇÃO DO PEDIDO
+         ======================================== -->
+    <div id="step-pedido" class="step-pedido-wrapper hidden">
+      <!-- Header para etapa de pedido -->
       <header class="app-header">
         <img
           src="https://melhorbocado.com.br/wp-content/uploads/2023/12/logo.png"
@@ -22,92 +122,117 @@
         />
         <div class="header-text">
           <h1>Novo Pedido</h1>
-          <p>Selecione o cliente para iniciar</p>
-        </div>
-      </header>
-
-      <!-- Status/Alertas -->
-      <div id="status" class="status-message loading visible">
-        <div class="spinner"></div>
-        <span>Conectando ao sistema...</span>
-      </div>
-
-      <!-- Card Principal - Seleção de Cliente -->
-      <div class="card">
-        <h2 class="card-title">Selecionar Cliente</h2>
-
-        <!-- Badge do Cliente Selecionado -->
-        <div id="selected-client" class="selected-client-badge">
-          <div class="client-avatar" id="selected-avatar">MB</div>
-          <div class="info">
-            <div class="name" id="selected-name">Nome do Cliente</div>
-            <div class="details" id="selected-details">CPF/CNPJ</div>
-          </div>
-          <button
-            type="button"
-            class="btn-clear"
-            onclick="WidgetApp.clearClient()"
-            title="Limpar seleção"
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
+          <p id="header-subtitle">Adicione os produtos ao pedido</p>
         </div>
 
-        <!-- Campo de Busca -->
-        <div class="search-container">
+        <button
+          type="button"
+          class="btn-debug"
+          onclick="WidgetUI.toggleDebug()"
+          title="Debug"
+        >
           <svg
-            class="search-icon"
+            width="20"
+            height="20"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
             stroke-width="2"
           >
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+            <path d="M2 17l10 5 10-5"></path>
+            <path d="M2 12l10 5 10-5"></path>
           </svg>
-          <input
-            type="text"
-            id="search-cliente"
-            class="search-input"
-            placeholder="Buscar cliente por nome, razão social ou CNPJ..."
-            autocomplete="off"
-          />
-        </div>
+        </button>
+      </header>
 
-        <!-- Lista de Clientes -->
-        <div id="client-list" class="client-list">
-          <!-- Clientes serão carregados aqui dinamicamente -->
-          <div class="empty-state">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
+      <div class="pedido-layout">
+        <!-- Sidebar: Dados do Cliente -->
+        <aside class="cliente-sidebar">
+          <div class="sidebar-header">
+            <h3>Cliente Selecionado</h3>
+            <button
+              type="button"
+              class="btn-trocar"
+              onclick="WidgetApp.voltarParaCliente()"
+              title="Trocar cliente"
             >
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="9" cy="7" r="4"></circle>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-            </svg>
-            <p>Digite para buscar clientes</p>
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M1 4v6h6"></path>
+                <path d="M23 20v-6h-6"></path>
+                <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10"></path>
+                <path d="M3.51 15a9 9 0 0 0 14.85 3.36L23 14"></path>
+              </svg>
+              Trocar
+            </button>
           </div>
-        </div>
-      </div>
 
-      <!-- Debug Log (remover em produção) -->
-      <div id="debug" class="debug-panel">
-        <strong style="color: #81c784">Debug Log</strong>
+          <div class="cliente-dados">
+            <div class="cliente-avatar-lg" id="cliente-avatar-lg">MB</div>
+
+            <div class="cliente-info-group">
+              <label>Razão Social</label>
+              <p id="cliente-razao">-</p>
+            </div>
+
+            <div class="cliente-info-group">
+              <label>Nome Fantasia</label>
+              <p id="cliente-fantasia">-</p>
+            </div>
+
+            <div class="cliente-info-group">
+              <label>CNPJ/CPF</label>
+              <p id="cliente-documento">-</p>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Área Principal: Itens do Pedido -->
+        <main class="pedido-main">
+          <div class="card">
+            <h2 class="card-title">Itens do Pedido</h2>
+
+            <div class="pedido-placeholder">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <path
+                  d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"
+                ></path>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <path d="M16 10a4 4 0 0 1-8 0"></path>
+              </svg>
+              <p>Área de produtos do pedido</p>
+              <span class="hint">(Próxima etapa de desenvolvimento)</span>
+            </div>
+          </div>
+        </main>
       </div>
+    </div>
+
+    <!-- Debug Log (Oculto por padrão) -->
+    <div id="debug-panel" class="debug-panel hidden">
+      <div class="debug-header">
+        <strong>Debug Log</strong>
+        <button
+          type="button"
+          class="btn-close-debug"
+          onclick="WidgetUI.toggleDebug()"
+        >
+          ×
+        </button>
+      </div>
+      <div id="debug" class="debug-content"></div>
     </div>
 
     <!-- Scripts -->

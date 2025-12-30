@@ -119,8 +119,10 @@ var WidgetAPI = (function () {
       // IMPORTANTE: Converte ID para STRING para evitar perda de precisão com números grandes
       return lista.map(function (c) {
         return {
-          ID: String(c.ID), // Forçar string para evitar problemas de precisão
+          ID: String(c.ID),
           Nome: c.nomeFantasia || c.razaoSocial || "Sem Nome",
+          RazaoSocial: c.razaoSocial || "-",
+          NomeFantasia: c.nomeFantasia || "-",
           CPF_CNPJ: c.cnpjCpf || "",
         };
       });

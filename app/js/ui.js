@@ -16,15 +16,26 @@ var WidgetUI = (function () {
    */
   function init() {
     elements = {
+      // Status e Debug
       status: document.getElementById("status"),
-      statusText: document.querySelector("#status span"),
+      alertTitle: document.querySelector("#status .alert-title"),
+      alertMessage: document.querySelector("#status .alert-message"),
+      alertIcon: document.querySelector("#status .alert-icon"),
       debug: document.getElementById("debug"),
+      debugPanel: document.getElementById("debug-panel"),
+      headerSubtitle: document.getElementById("header-subtitle"),
+
+      // Etapa 1: Seleção de Cliente
+      stepCliente: document.getElementById("step-cliente"),
       searchInput: document.getElementById("search-cliente"),
       clientList: document.getElementById("client-list"),
-      selectedBadge: document.getElementById("selected-client"),
-      selectedAvatar: document.getElementById("selected-avatar"),
-      selectedName: document.getElementById("selected-name"),
-      selectedDetails: document.getElementById("selected-details"),
+
+      // Etapa 2: Pedido
+      stepPedido: document.getElementById("step-pedido"),
+      clienteAvatarLg: document.getElementById("cliente-avatar-lg"),
+      clienteRazao: document.getElementById("cliente-razao"),
+      clienteFantasia: document.getElementById("cliente-fantasia"),
+      clienteDocumento: document.getElementById("cliente-documento"),
     };
 
     // Setup do campo de busca
@@ -93,23 +104,38 @@ var WidgetUI = (function () {
   /**
    * Define o status exibido na tela
    */
-  function setStatus(msg, type) {
+  function setStatus(msg, type, title) {
     if (!elements.status) return;
 
-    elements.status.className = "status-message " + type + " visible";
+    // Títulos padrão por tipo
+    var defaultTitles = {
+      loading: "Aguarde",
+      success: "Sucesso",
+      error: "Erro",
+    };
 
-    // Spinner apenas para loading
-    var spinner = elements.status.querySelector(".spinner");
-    if (spinner) {
-      spinner.style.display = type === "loading" ? "block" : "none";
+    // Atualiza classes
+    elements.status.className = "alert-box " + type + " visible";
+
+    // Atualiza textos
+    if (elements.alertTitle) {
+      elements.alertTitle.textContent = title || defaultTitles[type] || "";
+    }
+    if (elements.alertMessage) {
+      elements.alertMessage.textContent = msg;
     }
 
-    if (elements.statusText) {
-      elements.statusText.textContent = msg;
-    } else {
-      // Fallback se não tiver span
-      var span = elements.status.querySelector("span");
-      if (span) span.textContent = msg;
+    // Atualiza ícone baseado no tipo
+    if (elements.alertIcon) {
+      if (type === "loading") {
+        elements.alertIcon.innerHTML = '<div class="spinner-brand"></div>';
+      } else if (type === "success") {
+        elements.alertIcon.innerHTML =
+          '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4caf50" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
+      } else if (type === "error") {
+        elements.alertIcon.innerHTML =
+          '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f44336" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>';
+      }
     }
   }
 
@@ -119,6 +145,15 @@ var WidgetUI = (function () {
   function hideStatus() {
     if (elements.status) {
       elements.status.classList.remove("visible");
+    }
+  }
+
+  /**
+   * Atualiza o subtítulo do header
+   */
+  function setHeaderSubtitle(text) {
+    if (elements.headerSubtitle) {
+      elements.headerSubtitle.textContent = text;
     }
   }
 
@@ -140,8 +175,8 @@ var WidgetUI = (function () {
    * Formata CPF/CNPJ para exibição
    */
   function formatCpfCnpj(value) {
-    if (!value) return "";
-    var digits = value.replace(/\D/g, "");
+    if (!value) return "-";
+    var digits = String(value).replace(/\D/g, "");
     if (digits.length === 11) {
       return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
     } else if (digits.length === 14) {
@@ -190,7 +225,7 @@ var WidgetUI = (function () {
         "</div>";
 
       item.addEventListener("click", function () {
-        selectClient(cliente);
+        WidgetApp.selecionarCliente(cliente);
       });
 
       elements.clientList.appendChild(item);
@@ -218,54 +253,55 @@ var WidgetUI = (function () {
   }
 
   /**
-   * Seleciona um cliente e mostra o badge
+   * Mostra a etapa de seleção de cliente
    */
-  function selectClient(cliente) {
-    WidgetApp.setSelectedClient(cliente);
-
-    // PRIMEIRO: Limpa TODAS as seleções
-    var items = elements.clientList.querySelectorAll(".client-item");
-    items.forEach(function (item) {
-      item.classList.remove("selected");
-    });
-
-    // DEPOIS: Aplica seleção no item correto (forçando comparação como string)
-    var clienteIdStr = String(cliente.ID);
-    items.forEach(function (item) {
-      if (String(item.getAttribute("data-id")) === clienteIdStr) {
-        item.classList.add("selected");
-      }
-    });
-
-    // Mostra badge
-    if (elements.selectedBadge) {
-      elements.selectedBadge.classList.add("visible");
+  function mostrarEtapaCliente() {
+    if (elements.stepCliente) {
+      elements.stepCliente.classList.remove("hidden");
     }
-    if (elements.selectedAvatar) {
-      elements.selectedAvatar.textContent = getInitials(cliente.Nome);
+    if (elements.stepPedido) {
+      elements.stepPedido.classList.add("hidden");
     }
-    if (elements.selectedName) {
-      elements.selectedName.textContent = cliente.Nome;
-    }
-    if (elements.selectedDetails) {
-      elements.selectedDetails.textContent = formatCpfCnpj(cliente.CPF_CNPJ);
-    }
-
-    log("Cliente selecionado: " + cliente.Nome, "success");
+    setHeaderSubtitle("Selecione o cliente para iniciar");
   }
 
   /**
-   * Limpa a seleção de cliente
+   * Mostra a etapa de pedido com dados do cliente
    */
-  function clearClientSelection() {
-    if (elements.selectedBadge) {
-      elements.selectedBadge.classList.remove("visible");
+  function mostrarEtapaPedido(cliente) {
+    if (elements.stepCliente) {
+      elements.stepCliente.classList.add("hidden");
+    }
+    if (elements.stepPedido) {
+      elements.stepPedido.classList.remove("hidden");
     }
 
-    var items = elements.clientList.querySelectorAll(".client-item");
-    items.forEach(function (item) {
-      item.classList.remove("selected");
-    });
+    setHeaderSubtitle("Adicione os produtos ao pedido");
+
+    // Preenche dados do cliente na sidebar
+    if (elements.clienteAvatarLg) {
+      elements.clienteAvatarLg.textContent = getInitials(cliente.Nome);
+    }
+    if (elements.clienteRazao) {
+      elements.clienteRazao.textContent =
+        cliente.RazaoSocial || cliente.Nome || "-";
+    }
+    if (elements.clienteFantasia) {
+      elements.clienteFantasia.textContent =
+        cliente.NomeFantasia || cliente.Nome || "-";
+    }
+    if (elements.clienteDocumento) {
+      elements.clienteDocumento.textContent = formatCpfCnpj(cliente.CPF_CNPJ);
+    }
+  }
+
+  /**
+   * Alterna visibilidade do painel de debug
+   */
+  function toggleDebug() {
+    if (elements.debugPanel) {
+      elements.debugPanel.classList.toggle("hidden");
+    }
   }
 
   // API Pública do Módulo
@@ -274,8 +310,12 @@ var WidgetUI = (function () {
     log: log,
     setStatus: setStatus,
     hideStatus: hideStatus,
+    setHeaderSubtitle: setHeaderSubtitle,
     renderClientList: renderClientList,
     showEmptyState: showEmptyState,
-    clearClientSelection: clearClientSelection,
+    mostrarEtapaCliente: mostrarEtapaCliente,
+    mostrarEtapaPedido: mostrarEtapaPedido,
+    formatCpfCnpj: formatCpfCnpj,
+    toggleDebug: toggleDebug,
   };
 })();
