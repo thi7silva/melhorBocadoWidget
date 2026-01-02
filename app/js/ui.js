@@ -703,6 +703,29 @@ var WidgetUI = (function () {
     }
   }
 
+  /**
+   * Mostra o loading de transição
+   */
+  function mostrarLoadingTransicao() {
+    var overlay = document.getElementById("loading-overlay");
+    if (overlay) {
+      overlay.classList.remove("hidden");
+    }
+  }
+
+  /**
+   * Esconde o loading de transição
+   */
+  function esconderLoadingTransicao() {
+    var overlay = document.getElementById("loading-overlay");
+    if (overlay) {
+      // Pequeno delay para suavizar a transição
+      setTimeout(function () {
+        overlay.classList.add("hidden");
+      }, 300);
+    }
+  }
+
   // API Pública do Módulo
   return {
     init: init,
@@ -724,6 +747,8 @@ var WidgetUI = (function () {
     preencherDetalheCliente: preencherDetalheCliente,
     selecionarFreteAutomatico: selecionarFreteAutomatico,
     toggleEndereco: toggleEndereco,
+    mostrarLoadingTransicao: mostrarLoadingTransicao,
+    esconderLoadingTransicao: esconderLoadingTransicao,
     getActiveTab: getActiveTab,
     abrirModal: abrirModal,
     fecharModal: fecharModal,

@@ -187,10 +187,9 @@ var WidgetApp = (function () {
     state.etapaAtual = "pedido";
 
     WidgetUI.log("Cliente selecionado: " + cliente.Nome, "success");
-    WidgetUI.setStatus("Carregando detalhes do cliente...", "loading");
 
-    // Mostra a etapa do pedido
-    WidgetUI.mostrarEtapaPedido(cliente);
+    // Mostra loading de transição
+    WidgetUI.mostrarLoadingTransicao();
 
     // Busca detalhes completos do cliente
     if (state.online) {
@@ -231,7 +230,9 @@ var WidgetApp = (function () {
             }
           }
 
-          WidgetUI.hideStatus();
+          // Mostra a etapa do pedido e esconde loading
+          WidgetUI.mostrarEtapaPedido(cliente);
+          WidgetUI.esconderLoadingTransicao();
         })
         .catch(function (err) {
           var errMsg = err;
@@ -239,13 +240,17 @@ var WidgetApp = (function () {
             errMsg = JSON.stringify(err);
           } catch (e) {}
           WidgetUI.log("Erro ao buscar detalhes: " + errMsg, "error");
-          WidgetUI.setStatus("Erro ao carregar detalhes do cliente", "error");
 
-          // Mesmo com erro, tenta carregar condições de pagamento
+          // Mesmo com erro, mostra a tela e tenta carregar condições
+          WidgetUI.mostrarEtapaPedido(cliente);
+          WidgetUI.esconderLoadingTransicao();
+          WidgetUI.setStatus("Erro ao carregar detalhes do cliente", "error");
           carregarCondicoesPagamento();
         });
     } else {
-      // Modo offline
+      // Modo offline - mostra a tela e esconde loading
+      WidgetUI.mostrarEtapaPedido(cliente);
+      WidgetUI.esconderLoadingTransicao();
       carregarCondicoesPagamento();
     }
   }
