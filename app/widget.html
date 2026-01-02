@@ -102,15 +102,42 @@
          ======================================== -->
     <div id="step-pedido" class="step-pedido-wrapper hidden">
       <!-- Header do Pedido -->
-      <header class="app-header">
+      <header class="app-header app-header-pedido">
         <img
           src="https://melhorbocado.com.br/wp-content/uploads/2023/12/logo.png"
           alt="Melhor Bocado"
           class="header-logo"
         />
-        <div class="header-text">
-          <h1>Novo Pedido</h1>
-          <p id="header-subtitle">Configure os detalhes do pedido</p>
+
+        <!-- Info do Cliente -->
+        <div
+          class="header-cliente"
+          onclick="WidgetApp.voltarParaCliente()"
+          title="Clique para trocar cliente"
+        >
+          <div class="header-cliente-avatar" id="header-cliente-avatar">MB</div>
+          <div class="header-cliente-info">
+            <span class="header-cliente-nome" id="header-cliente-nome"
+              >Nome do Cliente</span
+            >
+            <span class="header-cliente-doc" id="header-cliente-doc"
+              >00.000.000/0000-00</span
+            >
+          </div>
+          <svg
+            class="header-cliente-trocar"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M1 4v6h6"></path>
+            <path d="M23 20v-6h-6"></path>
+            <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10"></path>
+            <path d="M3.51 15a9 9 0 0 0 14.85 3.36L23 14"></path>
+          </svg>
         </div>
 
         <!-- Vendedor -->
@@ -155,56 +182,9 @@
         </button>
       </header>
 
-      <div class="pedido-layout">
-        <!-- Sidebar: Dados do Cliente -->
-        <aside class="cliente-sidebar">
-          <div class="sidebar-header">
-            <h3>Pedido</h3>
-            <button
-              type="button"
-              class="btn-trocar"
-              onclick="WidgetApp.voltarParaCliente()"
-              title="Trocar cliente"
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path d="M1 4v6h6"></path>
-                <path d="M23 20v-6h-6"></path>
-                <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10"></path>
-                <path d="M3.51 15a9 9 0 0 0 14.85 3.36L23 14"></path>
-              </svg>
-              Trocar
-            </button>
-          </div>
-
-          <div class="cliente-dados">
-            <div class="cliente-avatar-lg" id="cliente-avatar-lg">MB</div>
-
-            <div class="cliente-info-group">
-              <label>Razão Social</label>
-              <p id="cliente-razao">-</p>
-            </div>
-
-            <div class="cliente-info-group">
-              <label>Nome Fantasia</label>
-              <p id="cliente-fantasia">-</p>
-            </div>
-
-            <div class="cliente-info-group">
-              <label>CNPJ/CPF</label>
-              <p id="cliente-documento">-</p>
-            </div>
-          </div>
-        </aside>
-
+      <div class="pedido-layout pedido-layout-full">
         <!-- Área Principal com Tabs -->
-        <main class="pedido-main">
+        <main class="pedido-main pedido-main-full">
           <!-- Tabs Navigation -->
           <div class="tabs-nav">
             <button
@@ -568,12 +548,120 @@
 
           <!-- Tab: Produtos -->
           <div id="tab-produtos" class="tab-content">
-            <div class="pedido-placeholder">
+            <div class="produtos-layout">
+              <!-- Área Principal de Categorias/Produtos -->
+              <div class="produtos-main">
+                <!-- Header da Seção -->
+                <div class="produtos-header">
+                  <div class="produtos-header-info">
+                    <h2>Selecione os Produtos</h2>
+                    <p>
+                      Escolha uma categoria para ver os produtos disponíveis
+                    </p>
+                  </div>
+                  <div class="produtos-search">
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input
+                      type="text"
+                      id="search-produtos"
+                      placeholder="Buscar categoria ou produto..."
+                    />
+                  </div>
+                </div>
+
+                <!-- Grid de Categorias -->
+                <div id="categorias-grid" class="categorias-grid">
+                  <!-- Loading das categorias -->
+                  <div class="categorias-loading">
+                    <div class="loading-spinner"></div>
+                    <p>Carregando categorias...</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Sidebar do Carrinho -->
+              <aside class="carrinho-sidebar">
+                <div class="carrinho-header">
+                  <div class="carrinho-titulo">
+                    <svg
+                      width="22"
+                      height="22"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <circle cx="9" cy="21" r="1"></circle>
+                      <circle cx="20" cy="21" r="1"></circle>
+                      <path
+                        d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"
+                      ></path>
+                    </svg>
+                    <h3>Meu Pedido</h3>
+                  </div>
+                  <span class="carrinho-badge" id="carrinho-count">0</span>
+                </div>
+
+                <div class="carrinho-itens" id="carrinho-itens">
+                  <!-- Estado vazio -->
+                  <div class="carrinho-vazio">
+                    <svg
+                      width="48"
+                      height="48"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                    >
+                      <path
+                        d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"
+                      ></path>
+                      <line x1="3" y1="6" x2="21" y2="6"></line>
+                      <path d="M16 10a4 4 0 0 1-8 0"></path>
+                    </svg>
+                    <p>Seu carrinho está vazio</p>
+                    <span>Selecione produtos para adicionar</span>
+                  </div>
+                </div>
+
+                <div class="carrinho-resumo">
+                  <div class="carrinho-subtotal">
+                    <span>Subtotal</span>
+                    <span id="carrinho-subtotal">R$ 0,00</span>
+                  </div>
+                  <div class="carrinho-total">
+                    <span>Total</span>
+                    <span id="carrinho-total">R$ 0,00</span>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </main>
+      </div>
+
+      <!-- Modal de Seleção de Produtos -->
+      <div id="modal-produtos" class="modal-overlay hidden">
+        <div class="modal-produtos-container">
+          <div class="modal-produtos-header">
+            <div class="modal-produtos-titulo">
               <svg
+                width="24"
+                height="24"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="1.5"
+                stroke-width="2"
               >
                 <path
                   d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"
@@ -581,11 +669,68 @@
                 <line x1="3" y1="6" x2="21" y2="6"></line>
                 <path d="M16 10a4 4 0 0 1-8 0"></path>
               </svg>
-              <p>Área de produtos do pedido</p>
-              <span class="hint">(Próxima etapa de desenvolvimento)</span>
+              <div>
+                <h3 id="modal-categoria-nome">Categoria</h3>
+                <p id="modal-produtos-count">0 produtos disponíveis</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="modal-close-btn"
+              onclick="WidgetUI.fecharModal('modal-produtos')"
+            >
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+
+          <div class="modal-produtos-body">
+            <!-- Lista de Produtos -->
+            <div id="modal-produtos-lista" class="produtos-lista">
+              <!-- Carregando -->
+              <div class="produtos-loading">
+                <div class="loading-spinner"></div>
+                <p>Carregando produtos...</p>
+              </div>
             </div>
           </div>
-        </main>
+
+          <div class="modal-produtos-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onclick="WidgetUI.fecharModal('modal-produtos')"
+            >
+              Continuar Comprando
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="WidgetProdutos.confirmarSelecao()"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Adicionar ao Pedido
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Footer com ações -->
@@ -703,6 +848,7 @@
     <script src="js/config.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/api.js"></script>
+    <script src="js/produtos.js"></script>
     <script src="js/app.js"></script>
   </body>
 </html>

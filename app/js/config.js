@@ -32,6 +32,10 @@ var WidgetConfig = {
         NAME: "detalheCliente",
         PUBLIC_KEY: "ng2VsZfqvC1v2Z6BWY7DpVUeJ",
       },
+      CONSULTA_SUBTITULOS: {
+        NAME: "consultaSubTitulos",
+        PUBLIC_KEY: "ZpKF60KBpdXEm2ZyjA9HE8bSs",
+      },
     },
   },
 

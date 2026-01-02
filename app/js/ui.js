@@ -276,22 +276,19 @@ var WidgetUI = (function () {
       elements.stepPedido.classList.remove("hidden");
     }
 
-    setHeaderSubtitle("Adicione os produtos ao pedido");
+    // Preenche dados do cliente no header
+    var headerAvatar = document.getElementById("header-cliente-avatar");
+    var headerNome = document.getElementById("header-cliente-nome");
+    var headerDoc = document.getElementById("header-cliente-doc");
 
-    // Preenche dados do cliente na sidebar
-    if (elements.clienteAvatarLg) {
-      elements.clienteAvatarLg.textContent = getInitials(cliente.Nome);
+    if (headerAvatar) {
+      headerAvatar.textContent = getInitials(cliente.Nome);
     }
-    if (elements.clienteRazao) {
-      elements.clienteRazao.textContent =
-        cliente.RazaoSocial || cliente.Nome || "-";
+    if (headerNome) {
+      headerNome.textContent = cliente.NomeFantasia || cliente.Nome || "-";
     }
-    if (elements.clienteFantasia) {
-      elements.clienteFantasia.textContent =
-        cliente.NomeFantasia || cliente.Nome || "-";
-    }
-    if (elements.clienteDocumento) {
-      elements.clienteDocumento.textContent = formatCpfCnpj(cliente.CPF_CNPJ);
+    if (headerDoc) {
+      headerDoc.textContent = formatCpfCnpj(cliente.CPF_CNPJ);
     }
 
     // Preenche endereço de entrega
@@ -336,6 +333,11 @@ var WidgetUI = (function () {
 
     // Atualiza o botão do footer conforme a aba
     updateFooterButton(tabId);
+
+    // Se for a aba de produtos, carrega as categorias
+    if (tabId === "produtos" && typeof WidgetProdutos !== "undefined") {
+      WidgetProdutos.carregarCategorias();
+    }
   }
 
   /**
@@ -726,6 +728,31 @@ var WidgetUI = (function () {
     }
   }
 
+  /**
+   * Expande ou colapsa a sidebar do cliente
+   */
+  function toggleSidebarCliente() {
+    var sidebar = document.getElementById("cliente-sidebar");
+    var dadosContainer = document.getElementById("cliente-dados-container");
+    var toggleIcon = document.getElementById("sidebar-toggle-icon");
+
+    if (!sidebar) return;
+
+    var isCollapsed = sidebar.classList.contains("collapsed");
+
+    if (isCollapsed) {
+      // Expandir
+      sidebar.classList.remove("collapsed");
+      if (dadosContainer) dadosContainer.style.display = "flex";
+      if (toggleIcon) toggleIcon.style.transform = "rotate(180deg)";
+    } else {
+      // Colapsar
+      sidebar.classList.add("collapsed");
+      if (dadosContainer) dadosContainer.style.display = "none";
+      if (toggleIcon) toggleIcon.style.transform = "rotate(0deg)";
+    }
+  }
+
   // API Pública do Módulo
   return {
     init: init,
@@ -747,6 +774,7 @@ var WidgetUI = (function () {
     preencherDetalheCliente: preencherDetalheCliente,
     selecionarFreteAutomatico: selecionarFreteAutomatico,
     toggleEndereco: toggleEndereco,
+    toggleSidebarCliente: toggleSidebarCliente,
     mostrarLoadingTransicao: mostrarLoadingTransicao,
     esconderLoadingTransicao: esconderLoadingTransicao,
     getActiveTab: getActiveTab,
