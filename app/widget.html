@@ -612,7 +612,17 @@
                     </svg>
                     <h3>Meu Pedido</h3>
                   </div>
-                  <span class="carrinho-badge" id="carrinho-count">0</span>
+                  <div class="carrinho-acoes">
+                    <button
+                      class="carrinho-edit-btn"
+                      id="carrinho-edit-btn"
+                      onclick="WidgetProdutos.toggleModoEdicao()"
+                      style="display: none"
+                    >
+                      Editar
+                    </button>
+                    <span class="carrinho-badge" id="carrinho-count">0</span>
+                  </div>
                 </div>
 
                 <div class="carrinho-itens" id="carrinho-itens">

@@ -3114,3 +3114,94 @@ body {
   text-transform: uppercase;
   vertical-align: middle;
 }
+
+/* ============================================
+   CARRINHO EXPANDIDO (MODO EDIÇÃO)
+   ============================================ */
+
+.carrinho-acoes {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.carrinho-edit-btn {
+  background: none;
+  border: none;
+  font-size: 0.8rem;
+  color: var(--color-primary);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.carrinho-edit-btn:hover {
+  text-decoration: none;
+  color: var(--color-primary-dark);
+}
+
+.carrinho-item.expandido {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.carrinho-item-header {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+}
+
+.carrinho-remover {
+  background: none;
+  border: none;
+  color: var(--color-error);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.carrinho-remover:hover {
+  background: rgba(220, 53, 69, 0.1);
+}
+
+.carrinho-detalhes-impostos {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  width: 100%;
+}
+
+.imposto-linha {
+  display: flex;
+  justify-content: space-between;
+}
+
+.carrinho-controles {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.produto-quantidade.pequeno {
+  height: 28px;
+}
+
+.produto-quantidade.pequeno .btn-qtd {
+  width: 28px;
+  height: 28px;
+}
+
+.produto-quantidade.pequeno .input-qtd {
+  width: 40px;
+  font-size: 0.9rem;
+}
