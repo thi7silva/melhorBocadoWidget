@@ -279,6 +279,7 @@ var WidgetUI = (function () {
     // Preenche dados do cliente no header
     var headerAvatar = document.getElementById("header-cliente-avatar");
     var headerNome = document.getElementById("header-cliente-nome");
+    var headerRazao = document.getElementById("header-cliente-razao");
     var headerDoc = document.getElementById("header-cliente-doc");
 
     if (headerAvatar) {
@@ -286,6 +287,9 @@ var WidgetUI = (function () {
     }
     if (headerNome) {
       headerNome.textContent = cliente.NomeFantasia || cliente.Nome || "-";
+    }
+    if (headerRazao) {
+      headerRazao.textContent = cliente.RazaoSocial || "";
     }
     if (headerDoc) {
       headerDoc.textContent = formatCpfCnpj(cliente.CPF_CNPJ);

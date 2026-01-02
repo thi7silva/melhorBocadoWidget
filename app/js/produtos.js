@@ -106,15 +106,14 @@ var WidgetProdutos = (function () {
     var html = "";
 
     categoriasOrdenadas.forEach(function (cat, index) {
-      var nomeKey = cat.Nome.toLowerCase();
-      var icone = icones.default;
-
-      // Tenta encontrar ícone correspondente
-      Object.keys(icones).forEach(function (key) {
-        if (nomeKey.indexOf(key) >= 0) {
-          icone = icones[key];
-        }
-      });
+      // Pega as iniciais do nome da categoria (máximo 2 letras)
+      var iniciais = cat.Nome.split(" ")
+        .map(function (p) {
+          return p.charAt(0);
+        })
+        .slice(0, 2)
+        .join("")
+        .toUpperCase();
 
       // Cores alternadas para os cards
       var cores = [
@@ -132,11 +131,13 @@ var WidgetProdutos = (function () {
       var corIndex = index % cores.length;
 
       html += `
-        <div class="categoria-card" onclick="WidgetProdutos.selecionarCategoria('${cat.ID}', '${cat.Nome}')" data-id="${cat.ID}">
+        <div class="categoria-card" onclick="WidgetProdutos.selecionarCategoria('${
+          cat.ID
+        }', '${cat.Nome}')" data-id="${
+        cat.ID
+      }" data-nome="${cat.Nome.toLowerCase()}">
           <div class="categoria-icon" style="background: ${cores[corIndex]}">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              ${icone}
-            </svg>
+            ${iniciais}
           </div>
           <div class="categoria-info">
             <h4>${cat.Nome}</h4>
@@ -152,6 +153,31 @@ var WidgetProdutos = (function () {
     });
 
     grid.innerHTML = html;
+
+    // Inicializa busca de categorias
+    inicializarBuscaCategorias();
+  }
+
+  /**
+   * Inicializa o campo de busca de categorias
+   */
+  function inicializarBuscaCategorias() {
+    var searchInput = document.getElementById("search-produtos");
+    if (!searchInput) return;
+
+    searchInput.addEventListener("input", function () {
+      var termo = this.value.toLowerCase().trim();
+      var cards = document.querySelectorAll(".categoria-card");
+
+      cards.forEach(function (card) {
+        var nome = card.getAttribute("data-nome") || "";
+        if (termo === "" || nome.indexOf(termo) >= 0) {
+          card.style.display = "";
+        } else {
+          card.style.display = "none";
+        }
+      });
+    });
   }
 
   /**
@@ -177,6 +203,10 @@ var WidgetProdutos = (function () {
         </div>
       `;
     }
+
+    // Limpa campo de busca
+    var searchInput = document.getElementById("search-modal-produtos");
+    if (searchInput) searchInput.value = "";
 
     WidgetUI.abrirModal("modal-produtos");
 
@@ -463,6 +493,33 @@ var WidgetProdutos = (function () {
     return valor.toFixed(2).replace(".", ",");
   }
 
+  /**
+   * Filtra produtos no modal de acordo com o termo de busca
+   */
+  function filtrarProdutos(termo) {
+    termo = termo.toLowerCase().trim();
+    var cards = document.querySelectorAll(
+      "#modal-produtos-lista .produto-card"
+    );
+
+    cards.forEach(function (card) {
+      var nome = card.querySelector(".produto-nome");
+      var codigo = card.querySelector(".produto-codigo");
+      var textoNome = nome ? nome.textContent.toLowerCase() : "";
+      var textoCodigo = codigo ? codigo.textContent.toLowerCase() : "";
+
+      if (
+        termo === "" ||
+        textoNome.indexOf(termo) >= 0 ||
+        textoCodigo.indexOf(termo) >= 0
+      ) {
+        card.style.display = "";
+      } else {
+        card.style.display = "none";
+      }
+    });
+  }
+
   // API Pública do Módulo
   return {
     init: init,
@@ -473,6 +530,7 @@ var WidgetProdutos = (function () {
     confirmarSelecao: confirmarSelecao,
     removerDoCarrinho: removerDoCarrinho,
     renderizarCarrinho: renderizarCarrinho,
+    filtrarProdutos: filtrarProdutos,
     getCarrinho: getCarrinho,
   };
 })();
