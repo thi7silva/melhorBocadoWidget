@@ -577,7 +577,7 @@
                     <input
                       type="text"
                       id="search-produtos"
-                      placeholder="Buscar categoria ou produto..."
+                      placeholder="Buscar categoria..."
                     />
                   </div>
                 </div>
@@ -858,6 +858,146 @@
             onclick="WidgetApp.voltarParaCliente()"
           >
             Sim, Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Edição do Carrinho (Tabela Completa) -->
+    <div id="modal-carrinho" class="modal-overlay hidden">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-produtos-header">
+          <div class="modal-produtos-titulo">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"
+              ></path>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+            <div>
+              <h3>Detalhes do Pedido</h3>
+              <p style="margin: 0">Gerenciamento de itens</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            class="modal-close-btn"
+            onclick="WidgetUI.fecharModal('modal-carrinho')"
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <div class="modal-body no-padding">
+          <div class="carrinho-table-wrapper">
+            <table class="carrinho-table">
+              <thead>
+                <tr>
+                  <th style="width: 40%">Produto</th>
+                  <th class="text-right">Unitário</th>
+                  <th class="text-right">IPI</th>
+                  <th class="text-right">ST</th>
+                  <th class="text-center" style="width: 120px">Qtd</th>
+                  <th class="text-right">Total</th>
+                  <th class="text-center" style="width: 50px"></th>
+                </tr>
+              </thead>
+              <tbody id="modal-carrinho-tbody">
+                <!-- Itens renderizados via JS -->
+              </tbody>
+              <tfoot>
+                <tr class="bg-gray">
+                  <td colspan="5" class="text-right font-bold">
+                    Total do Pedido:
+                  </td>
+                  <td
+                    class="text-right font-bold text-lg"
+                    id="modal-carrinho-total"
+                  >
+                    R$ 0,00
+                  </td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            onclick="WidgetUI.fecharModal('modal-carrinho')"
+          >
+            Fechar
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            onclick="WidgetUI.fecharModal('modal-carrinho')"
+          >
+            Concluir Edição
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Confirmação Genérico -->
+    <div
+      id="modal-confirmacao"
+      class="modal-overlay hidden"
+      style="z-index: 2000"
+    >
+      <div class="modal-dialog" style="max-width: 400px">
+        <div class="modal-icon">
+          <svg
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#ff9800"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+        </div>
+        <h3 id="modal-confirmacao-titulo">Confirmação</h3>
+        <p
+          id="modal-confirmacao-msg"
+          class="text-center"
+          style="margin-bottom: 24px; color: var(--color-text-muted)"
+        >
+          Tem certeza?
+        </p>
+        <div class="modal-actions">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            onclick="WidgetUI.fecharModal('modal-confirmacao')"
+          >
+            Cancelar
+          </button>
+          <button type="button" class="btn btn-primary" id="btn-confirmar-acao">
+            Confirmar
           </button>
         </div>
       </div>

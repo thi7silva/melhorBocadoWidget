@@ -434,7 +434,8 @@ var WidgetProdutos = (function () {
   }
 
   /**
-   * Renderiza o carrinho
+  /**
+   * Renderiza o carrinho (Modo Compacto na Sidebar)
    */
   function renderizarCarrinho() {
     var itensEl = document.getElementById("carrinho-itens");
@@ -447,17 +448,14 @@ var WidgetProdutos = (function () {
       countEl.textContent = state.carrinho.length;
     }
 
-    // Mostra/esconde botão de edição
+    // Botão de editar sempre "Editar"
     if (editBtn) {
       if (state.carrinho.length > 0) {
         editBtn.style.display = "block";
-        editBtn.textContent = state.modoEdicao ? "Concluir" : "Editar";
-        editBtn.className = state.modoEdicao
-          ? "carrinho-edit-btn ativo"
-          : "carrinho-edit-btn";
+        editBtn.textContent = "Editar";
+        editBtn.className = "carrinho-edit-btn";
       } else {
         editBtn.style.display = "none";
-        state.modoEdicao = false; // Reseta se esvaziar
       }
     }
 
@@ -485,103 +483,23 @@ var WidgetProdutos = (function () {
     var total = 0;
 
     state.carrinho.forEach(function (item) {
-      // Recalcula totais do item
       var subtotal = item.Preco * item.Quantidade;
-      var totalIPI = (item.IPI || 0) * item.Quantidade;
-      var totalST = (item.ST || 0) * item.Quantidade;
-
-      // Atualiza o subtotal no objeto se necessário
       item.Subtotal = subtotal;
-
       total += subtotal;
 
-      if (state.modoEdicao) {
-        // MODO EXPANDIDO / EDIÇÃO
-        html += `
-          <div class="carrinho-item expandido">
-            <div class="carrinho-item-header">
-              <span class="carrinho-item-nome">${item.Nome}</span>
-              <button class="carrinho-remover" onclick="WidgetProdutos.removerDoCarrinho('${
-                item.ID
-              }')" title="Remover item">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="3 6 5 6 21 6"></polyline>
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                </svg>
-              </button>
-            </div>
-            
-            <div class="carrinho-detalhes-impostos">
-              <div class="imposto-linha">
-                <span>Unit:</span> <span>R$ ${formatarMoeda(
-                  item.PrecoBase
-                )}</span>
-              </div>
-              ${
-                item.IPI > 0
-                  ? `
-              <div class="imposto-linha">
-                <span>IPI:</span> <span>R$ ${formatarMoeda(
-                  item.IPI
-                )} (Tot: R$ ${formatarMoeda(totalIPI)})</span>
-              </div>`
-                  : ""
-              }
-              ${
-                item.ST > 0
-                  ? `
-              <div class="imposto-linha">
-                <span>ST:</span> <span>R$ ${formatarMoeda(
-                  item.ST
-                )} (Tot: R$ ${formatarMoeda(totalST)})</span>
-              </div>`
-                  : ""
-              }
-            </div>
-
-            <div class="carrinho-controles">
-               <div class="produto-quantidade pequeno">
-                <button class="btn-qtd" onclick="WidgetProdutos.editarQuantidadeCarrinho('${
-                  item.ID
-                }', -1)">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                  </svg>
-                </button>
-                <input type="number" readonly value="${
-                  item.Quantidade
-                }" class="input-qtd" />
-                <button class="btn-qtd btn-qtd-add" onclick="WidgetProdutos.editarQuantidadeCarrinho('${
-                  item.ID
-                }', 1)">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                  </svg>
-                </button>
-              </div>
-              <div class="carrinho-item-total">
-                R$ ${formatarMoeda(subtotal)}
-              </div>
-            </div>
+      html += `
+        <div class="carrinho-item">
+          <div class="carrinho-item-info">
+            <span class="carrinho-item-nome">${item.Nome}</span>
+            <span class="carrinho-item-preco">${
+              item.Quantidade
+            }x R$ ${formatarMoeda(item.Preco)}</span>
           </div>
-        `;
-      } else {
-        // MODO COMPACTO (VIEW)
-        html += `
-          <div class="carrinho-item">
-            <div class="carrinho-item-info">
-              <span class="carrinho-item-nome">${item.Nome}</span>
-              <span class="carrinho-item-preco">${
-                item.Quantidade
-              }x R$ ${formatarMoeda(item.Preco)}</span>
-            </div>
-            <span class="carrinho-item-subtotal">R$ ${formatarMoeda(
-              subtotal
-            )}</span>
-          </div>
-        `;
-      }
+          <span class="carrinho-item-subtotal">R$ ${formatarMoeda(
+            subtotal
+          )}</span>
+        </div>
+      `;
     });
 
     itensEl.innerHTML = html;
@@ -598,11 +516,99 @@ var WidgetProdutos = (function () {
   }
 
   /**
-   * Alterna o modo de edição do carrinho
+   * Abre o modal de edição do carrinho
    */
   function toggleModoEdicao() {
-    state.modoEdicao = !state.modoEdicao;
-    renderizarCarrinho();
+    renderizarCarrinhoModal();
+    WidgetUI.abrirModal("modal-carrinho");
+  }
+
+  /**
+   * Renderiza a tabela do modal de carrinho
+   */
+  function renderizarCarrinhoModal() {
+    var tbody = document.getElementById("modal-carrinho-tbody");
+    var totalEl = document.getElementById("modal-carrinho-total");
+
+    if (!tbody) return;
+
+    var html = "";
+    var totalGeral = 0;
+
+    state.carrinho.forEach(function (item) {
+      var subtotal = item.Preco * item.Quantidade;
+      var totalIPI = (item.IPI || 0) * item.Quantidade;
+      var totalST = (item.ST || 0) * item.Quantidade;
+
+      totalGeral += subtotal;
+
+      html += `
+        <tr>
+          <td>
+            <div class="font-bold">${item.Nome}</div>
+            <div class="text-xs text-muted">${item.Codigo || ""}</div>
+          </td>
+          <td class="text-right">R$ ${formatarMoeda(item.PrecoBase)}</td>
+          <td class="text-right">
+             ${item.IPI > 0 ? `<div>${formatarMoeda(item.IPI)}</div>` : "-"}
+          </td>
+          <td class="text-right">
+             ${item.ST > 0 ? `<div>${formatarMoeda(item.ST)}</div>` : "-"}
+          </td>
+          <td class="text-center">
+             <div class="qtd-wrapper center">
+                <button class="btn-micro" onclick="WidgetProdutos.editarQuantidadeCarrinho('${
+                  item.ID
+                }', -1)">-</button>
+                <input type="number" readonly value="${
+                  item.Quantidade
+                }" class="input-micro" />
+                <button class="btn-micro" onclick="WidgetProdutos.editarQuantidadeCarrinho('${
+                  item.ID
+                }', 1)">+</button>
+             </div>
+          </td>
+          <td class="text-right font-bold">R$ ${formatarMoeda(subtotal)}</td>
+          <td class="text-center">
+            <button class="btn-icon-remove" onclick="WidgetProdutos.removerDoCarrinho('${
+              item.ID
+            }')" title="Remover item">
+               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  <line x1="10" y1="11" x2="10" y2="17"></line>
+                  <line x1="14" y1="11" x2="14" y2="17"></line>
+               </svg>
+            </button>
+          </td>
+        </tr>
+      `;
+    });
+
+    tbody.innerHTML = html;
+    if (totalEl) totalEl.textContent = "R$ " + formatarMoeda(totalGeral);
+  }
+
+  /**
+   * Abre o modal de confirmação genérico
+   */
+  function mostrarConfirmacao(titulo, mensagem, callback) {
+    var tituloEl = document.getElementById("modal-confirmacao-titulo");
+    var msgEl = document.getElementById("modal-confirmacao-msg");
+    var btnConfirm = document.getElementById("btn-confirmar-acao");
+
+    if (tituloEl) tituloEl.textContent = titulo;
+    if (msgEl) msgEl.textContent = mensagem;
+
+    if (btnConfirm) {
+      // Remove listeners antigos (cloneNode hack ou apenas sobescrever onclick)
+      btnConfirm.onclick = function () {
+        callback();
+        WidgetUI.fecharModal("modal-confirmacao");
+      };
+    }
+
+    WidgetUI.abrirModal("modal-confirmacao");
   }
 
   /**
@@ -617,29 +623,51 @@ var WidgetProdutos = (function () {
       var novaM = item.Quantidade + delta;
 
       if (novaM <= 0) {
-        if (confirm("Deseja remover este item do carrinho?")) {
-          removerDoCarrinho(produtoId);
-          return;
-        } else {
-          return;
-        }
+        mostrarConfirmacao(
+          "Remover Item",
+          "A quantidade chegou a zero. Deseja remover este item?",
+          function () {
+            var index = state.carrinho.indexOf(item);
+            if (index > -1) {
+              state.carrinho.splice(index, 1);
+              renderizarCarrinho();
+              renderizarCarrinhoModal();
+            }
+          }
+        );
+        return;
       }
 
       item.Quantidade = novaM;
       item.Subtotal = item.Preco * item.Quantidade;
+
+      // Atualiza tudo
       renderizarCarrinho();
+      renderizarCarrinhoModal();
     }
   }
 
   /**
-   * Remove um item do carrinho
+   * Remove item do carrinho
    */
   function removerDoCarrinho(produtoId) {
-    state.carrinho = state.carrinho.filter(function (item) {
-      return item.ID !== produtoId;
+    var item = state.carrinho.find(function (i) {
+      return i.ID === produtoId;
     });
-    renderizarCarrinho();
-    WidgetUI.log("Produto removido do carrinho");
+    if (!item) return;
+
+    mostrarConfirmacao(
+      "Remover Item",
+      "Deseja remover '" + item.Nome + "' do carrinho?",
+      function () {
+        var index = state.carrinho.indexOf(item);
+        if (index > -1) {
+          state.carrinho.splice(index, 1);
+          renderizarCarrinho();
+          renderizarCarrinhoModal(); // Se estiver aberto
+        }
+      }
+    );
   }
 
   /**
@@ -653,7 +681,10 @@ var WidgetProdutos = (function () {
    * Formata valor para moeda
    */
   function formatarMoeda(valor) {
-    return valor.toFixed(2).replace(".", ",");
+    return valor.toLocaleString("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
   }
 
   /**
