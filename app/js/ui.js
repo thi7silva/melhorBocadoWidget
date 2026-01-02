@@ -286,7 +286,8 @@ var WidgetUI = (function () {
       headerAvatar.textContent = getInitials(cliente.Nome);
     }
     if (headerNome) {
-      headerNome.textContent = cliente.NomeFantasia || cliente.Nome || "-";
+      headerNome.textContent =
+        cliente.NomeFantasia.toUpperCase() || cliente.Nome.toUpperCase() || "-";
     }
     if (headerRazao) {
       headerRazao.textContent = cliente.RazaoSocial || "";

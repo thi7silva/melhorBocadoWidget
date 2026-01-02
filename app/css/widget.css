@@ -2210,8 +2210,9 @@ body {
   gap: 12px;
   flex: 1;
   overflow-y: auto;
-  padding-right: 8px;
+  padding: 4px 8px 8px 0;
   min-height: 0;
+  align-content: start;
 }
 
 /* Scrollbar customizado nas categorias */
