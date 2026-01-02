@@ -284,17 +284,9 @@ var WidgetProdutos = (function () {
       if (prod.Disponivel) {
         composicaoHtml = `
             <div class="produto-composicao">
-                <span>Base: R$ ${formatarMoeda(prod.PrecoBase)}</span>
-                ${
-                  prod.ST > 0
-                    ? `<span> | ST: R$ ${formatarMoeda(prod.ST)}</span>`
-                    : ""
-                }
-                ${
-                  prod.IPI > 0
-                    ? `<span> | IPI: R$ ${formatarMoeda(prod.IPI)}</span>`
-                    : ""
-                }
+                <span>Unit: R$ ${formatarMoeda(prod.PrecoBase)}</span>
+                <span>+ IPI: R$ ${formatarMoeda(prod.IPI)}</span>
+                <span>+ ST: R$ ${formatarMoeda(prod.ST)}</span>
             </div>
           `;
       }
@@ -308,7 +300,6 @@ var WidgetProdutos = (function () {
           <div class="produto-info">
             <div class="produto-codigo">${prod.Codigo}</div>
             <div class="produto-nome">${prod.Nome} ${badgeIndisponivel}</div>
-            <div class="produto-unidade">${prod.Unidade}</div>
             ${composicaoHtml}
           </div>
           <div class="produto-preco">
