@@ -36,6 +36,10 @@ var WidgetConfig = {
         NAME: "consultaSubTitulos",
         PUBLIC_KEY: "ZpKF60KBpdXEm2ZyjA9HE8bSs",
       },
+      CONSULTA_PRECOS: {
+        NAME: "consultaPrecos",
+        PUBLIC_KEY: "hxfa2xVT9DRzdkuMZOH59kWtT",
+      },
     },
   },
 

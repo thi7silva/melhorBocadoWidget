@@ -314,178 +314,53 @@ var WidgetAPI = (function () {
   }
 
   /**
-   * Busca produtos por subtítulo (grupo) - MOCK por enquanto
+   * Busca produtos e preços por subtítulo (grupo) e cliente
    * @param {string} subtituloId - ID do subtítulo/grupo
-   * @returns {Promise<Array>} Lista de produtos
+   * @param {string} clienteId - ID do cliente
+   * @returns {Promise<Array>} Lista de produtos com preços
    */
-  function buscarProdutosPorSubtitulo(subtituloId) {
-    // MOCK: Simula produtos para cada grupo
-    var produtosMock = {
-      // BOLO
-      "4215861000000977655": [
-        {
-          ID: "PROD001",
-          Codigo: "BOL001",
-          Nome: "Bolo de Chocolate 1kg",
-          Preco: 45.9,
-          Unidade: "UN",
-        },
-        {
-          ID: "PROD002",
-          Codigo: "BOL002",
-          Nome: "Bolo de Cenoura 1kg",
-          Preco: 42.5,
-          Unidade: "UN",
-        },
-        {
-          ID: "PROD003",
-          Codigo: "BOL003",
-          Nome: "Bolo de Laranja 1kg",
-          Preco: 40.0,
-          Unidade: "UN",
-        },
-        {
-          ID: "PROD004",
-          Codigo: "BOL004",
-          Nome: "Bolo Red Velvet 1kg",
-          Preco: 55.0,
-          Unidade: "UN",
-        },
-      ],
-      // BROWNIE
-      "4215861000000977661": [
-        {
-          ID: "PROD010",
-          Codigo: "BRW001",
-          Nome: "Brownie Tradicional",
-          Preco: 8.9,
-          Unidade: "UN",
-        },
-        {
-          ID: "PROD011",
-          Codigo: "BRW002",
-          Nome: "Brownie com Nozes",
-          Preco: 10.5,
-          Unidade: "UN",
-        },
-        {
-          ID: "PROD012",
-          Codigo: "BRW003",
-          Nome: "Brownie Recheado Doce de Leite",
-          Preco: 12.0,
-          Unidade: "UN",
-        },
-      ],
-      // CROISSANT
-      "4215861000000977663": [
-        {
-          ID: "PROD020",
-          Codigo: "CRO001",
-          Nome: "Croissant Manteiga",
-          Preco: 6.5,
-          Unidade: "UN",
-        },
-        {
-          ID: "PROD021",
-          Codigo: "CRO002",
-          Nome: "Croissant Chocolate",
-          Preco: 8.0,
-          Unidade: "UN",
-        },
-        {
-          ID: "PROD022",
-          Codigo: "CRO003",
-          Nome: "Croissant Presunto e Queijo",
-          Preco: 9.5,
-          Unidade: "UN",
-        },
-      ],
-      // SALGADO
-      "4215861000000977667": [
-        {
-          ID: "PROD030",
-          Codigo: "SAL001",
-          Nome: "Coxinha de Frango",
-          Preco: 5.5,
-          Unidade: "UN",
-        },
-        {
-          ID: "PROD031",
-          Codigo: "SAL002",
-          Nome: "Empada de Palmito",
-          Preco: 6.0,
-          Unidade: "UN",
-        },
-        {
-          ID: "PROD032",
-          Codigo: "SAL003",
-          Nome: "Quibe Frito",
-          Preco: 5.0,
-          Unidade: "UN",
-        },
-        {
-          ID: "PROD033",
-          Codigo: "SAL004",
-          Nome: "Pastel de Carne",
-          Preco: 7.5,
-          Unidade: "UN",
-        },
-        {
-          ID: "PROD034",
-          Codigo: "SAL005",
-          Nome: "Esfiha de Carne",
-          Preco: 4.5,
-          Unidade: "UN",
-        },
-      ],
-      // MINI
-      "4215861000000977669": [
-        {
-          ID: "PROD040",
-          Codigo: "MIN001",
-          Nome: "Mini Croissant (10un)",
-          Preco: 25.0,
-          Unidade: "PCT",
-        },
-        {
-          ID: "PROD041",
-          Codigo: "MIN002",
-          Nome: "Mini Churros (20un)",
-          Preco: 35.0,
-          Unidade: "PCT",
-        },
-        {
-          ID: "PROD042",
-          Codigo: "MIN003",
-          Nome: "Mini Quiche (10un)",
-          Preco: 30.0,
-          Unidade: "PCT",
-        },
-      ],
+  function buscarProdutosPorSubtitulo(subtituloId, clienteId) {
+    var endpoint = WidgetConfig.API.ENDPOINTS.CONSULTA_PRECOS;
+    var params = {
+      subTitulo: subtituloId,
+      cliente: clienteId,
     };
 
-    return new Promise(function (resolve) {
-      // Simula delay de rede
-      setTimeout(function () {
-        var produtos = produtosMock[subtituloId] || [
-          {
-            ID: "PROD999",
-            Codigo: "GEN001",
-            Nome: "Produto Genérico",
-            Preco: 10.0,
-            Unidade: "UN",
-          },
-          {
-            ID: "PROD998",
-            Codigo: "GEN002",
-            Nome: "Produto Genérico 2",
-            Preco: 15.0,
-            Unidade: "UN",
-          },
-        ];
-        resolve(produtos);
-      }, 500);
-    });
+    return invokeAPI(endpoint, "GET", params)
+      .then(function (data) {
+        var lista = [];
+
+        if (data && data.success && data.data && Array.isArray(data.data)) {
+          lista = data.data;
+        } else if (Array.isArray(data)) {
+          lista = data;
+        }
+
+        // Mapeia para formato padronizado
+        // Valor total = valorUnitario + stUnitario + ipiUnitario
+        return lista.map(function (item) {
+          var valorUnitario = parseFloat(item.valorUnitario) || 0;
+          var stUnitario = parseFloat(item.stUnitario) || 0;
+          var ipiUnitario = parseFloat(item.ipiUnitario) || 0;
+          var precoTotal = valorUnitario + stUnitario + ipiUnitario;
+
+          return {
+            ID: String(item.idProduto),
+            Codigo: item.codigoProduto || "",
+            Nome: item.descricaoProduto || "Sem Nome",
+            Preco: precoTotal,
+            PrecoBase: valorUnitario,
+            ST: stUnitario,
+            IPI: ipiUnitario,
+            Unidade: item.unidade || "UN",
+            Disponivel: item.success === true,
+          };
+        });
+      })
+      .catch(function (err) {
+        WidgetUI.log("Erro ao buscar produtos: " + err, "error");
+        return [];
+      });
   }
 
   // API Pública do Módulo

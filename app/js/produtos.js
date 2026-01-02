@@ -10,12 +10,22 @@ var WidgetProdutos = (function () {
 
   // Estado do módulo
   var state = {
+    clienteId: null,
     categorias: [],
     categoriaAtual: null,
     produtosCategoria: [],
     produtosSelecionados: [], // Produtos selecionados no modal
     carrinho: [], // Itens adicionados ao pedido
   };
+
+  /**
+   * Define o ID do cliente para buscar preços personalizados
+   * @param {string} clienteId - ID do cliente
+   */
+  function setClienteId(clienteId) {
+    state.clienteId = clienteId;
+    WidgetUI.log("Cliente ID definido para produtos: " + clienteId);
+  }
 
   /**
    * Inicializa o módulo de produtos
@@ -210,8 +220,8 @@ var WidgetProdutos = (function () {
 
     WidgetUI.abrirModal("modal-produtos");
 
-    // Busca os produtos da categoria
-    WidgetAPI.buscarProdutosPorSubtitulo(categoriaId)
+    // Busca os produtos da categoria (com preços personalizados para o cliente)
+    WidgetAPI.buscarProdutosPorSubtitulo(categoriaId, state.clienteId)
       .then(function (produtos) {
         state.produtosCategoria = produtos;
         renderizarProdutosModal(produtos);
@@ -255,35 +265,71 @@ var WidgetProdutos = (function () {
       return;
     }
 
+    // Ordena: Disponíveis primeiro
+    produtos.sort(function (a, b) {
+      if (a.Disponivel && !b.Disponivel) return -1;
+      if (!a.Disponivel && b.Disponivel) return 1;
+      // Se disponibilidade igual, mantém ordem original (ou por nome se preferir)
+      return 0;
+    });
+
     var html = "";
 
     produtos.forEach(function (prod) {
+      var classeIndisponivel = !prod.Disponivel ? "indisponivel" : "";
+      var disabledAttr = !prod.Disponivel ? 'disabled="disabled"' : "";
+
+      // Composição do preço (discreto)
+      var composicaoHtml = "";
+      if (prod.Disponivel) {
+        composicaoHtml = `
+            <div class="produto-composicao">
+                <span>Base: R$ ${formatarMoeda(prod.PrecoBase)}</span>
+                ${
+                  prod.ST > 0
+                    ? `<span> | ST: R$ ${formatarMoeda(prod.ST)}</span>`
+                    : ""
+                }
+                ${
+                  prod.IPI > 0
+                    ? `<span> | IPI: R$ ${formatarMoeda(prod.IPI)}</span>`
+                    : ""
+                }
+            </div>
+          `;
+      }
+
+      var badgeIndisponivel = !prod.Disponivel
+        ? '<span class="badge-indisponivel">Indisponível</span>'
+        : "";
+
       html += `
-        <div class="produto-card" data-id="${prod.ID}">
+        <div class="produto-card ${classeIndisponivel}" data-id="${prod.ID}">
           <div class="produto-info">
             <div class="produto-codigo">${prod.Codigo}</div>
-            <div class="produto-nome">${prod.Nome}</div>
+            <div class="produto-nome">${prod.Nome} ${badgeIndisponivel}</div>
             <div class="produto-unidade">${prod.Unidade}</div>
+            ${composicaoHtml}
           </div>
           <div class="produto-preco">
             R$ ${formatarMoeda(prod.Preco)}
           </div>
           <div class="produto-quantidade">
-            <button class="btn-qtd" onclick="WidgetProdutos.alterarQuantidade('${
-              prod.ID
-            }', -1)">
+            <button class="btn-qtd" ${disabledAttr} onclick="WidgetProdutos.alterarQuantidade('${
+        prod.ID
+      }', -1)">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="5" y1="12" x2="19" y2="12"></line>
               </svg>
             </button>
             <input type="number" id="qtd-${
               prod.ID
-            }" value="0" min="0" class="input-qtd" onchange="WidgetProdutos.atualizarQuantidade('${
+            }" value="0" min="0" class="input-qtd" ${disabledAttr} onchange="WidgetProdutos.atualizarQuantidade('${
         prod.ID
       }', this.value)" />
-            <button class="btn-qtd btn-qtd-add" onclick="WidgetProdutos.alterarQuantidade('${
-              prod.ID
-            }', 1)">
+            <button class="btn-qtd btn-qtd-add" ${disabledAttr} onclick="WidgetProdutos.alterarQuantidade('${
+        prod.ID
+      }', 1)">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -523,6 +569,7 @@ var WidgetProdutos = (function () {
   // API Pública do Módulo
   return {
     init: init,
+    setClienteId: setClienteId,
     carregarCategorias: carregarCategorias,
     selecionarCategoria: selecionarCategoria,
     alterarQuantidade: alterarQuantidade,

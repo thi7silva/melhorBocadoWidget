@@ -188,6 +188,9 @@ var WidgetApp = (function () {
 
     WidgetUI.log("Cliente selecionado: " + cliente.Nome, "success");
 
+    // Define o cliente no módulo de produtos para buscar preços personalizados
+    WidgetProdutos.setClienteId(cliente.ID);
+
     // Mostra loading de transição
     WidgetUI.mostrarLoadingTransicao();
 
