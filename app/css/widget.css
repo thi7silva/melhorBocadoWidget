@@ -979,6 +979,17 @@ body {
   display: block;
 }
 
+/* Aba de produtos - sem scroll próprio, scroll é delegado ao grid de categorias */
+#tab-produtos.tab-content {
+  overflow: hidden;
+  display: none;
+}
+
+#tab-produtos.tab-content.active {
+  display: flex;
+  flex-direction: column;
+}
+
 /* ============================================
    FORMULÁRIO DE CONFIGURAÇÃO
    ============================================ */
@@ -2121,14 +2132,17 @@ body {
   display: grid;
   grid-template-columns: 1fr 320px;
   gap: 24px;
-  height: 100%;
-  min-height: 400px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .produtos-main {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
+  overflow: hidden;
+  min-height: 0;
 }
 
 /* Header da seção de produtos */
@@ -2192,10 +2206,31 @@ body {
    ============================================ */
 .categorias-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
   flex: 1;
   overflow-y: auto;
+  padding-right: 8px;
+  min-height: 0;
+}
+
+/* Scrollbar customizado nas categorias */
+.categorias-grid::-webkit-scrollbar {
+  width: 6px;
+}
+
+.categorias-grid::-webkit-scrollbar-track {
+  background: var(--color-surface);
+  border-radius: 3px;
+}
+
+.categorias-grid::-webkit-scrollbar-thumb {
+  background: var(--color-primary-light);
+  border-radius: 3px;
+}
+
+.categorias-grid::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
 }
 
 .categorias-loading,
@@ -2223,17 +2258,19 @@ body {
   opacity: 0.5;
 }
 
-/* Card de Categoria */
+/* Card de Categoria - Altura Fixa */
 .categoria-card {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px 20px;
+  gap: 14px;
+  padding: 14px 16px;
   background: white;
   border: 2px solid var(--color-border);
   border-radius: var(--radius-lg);
   cursor: pointer;
   transition: all var(--transition-fast);
+  height: 72px;
+  max-height: 72px;
 }
 
 .categoria-card:hover {
@@ -2247,13 +2284,17 @@ body {
 }
 
 .categoria-icon {
-  width: 56px;
-  height: 56px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: white;
+  text-transform: uppercase;
 }
 
 .categoria-icon svg {
@@ -2305,6 +2346,7 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  max-height: 100%;
 }
 
 .carrinho-header {
@@ -2895,64 +2937,6 @@ body {
   margin-top: -2px;
 }
 
-/* ============================================
-   LAYOUT DE PRODUTOS - STICKY CARRINHO
-   ============================================ */
-.produtos-layout {
-  display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 24px;
-  height: calc(100vh - 280px);
-  min-height: 400px;
-}
-
-.produtos-main {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  overflow: hidden;
-}
-
-.categorias-grid {
-  flex: 1;
-  overflow-y: auto;
-}
-
-/* Scrollbar customizado nas categorias */
-.categorias-grid::-webkit-scrollbar {
-  width: 6px;
-}
-
-.categorias-grid::-webkit-scrollbar-track {
-  background: var(--color-surface);
-  border-radius: 3px;
-}
-
-.categorias-grid::-webkit-scrollbar-thumb {
-  background: var(--color-primary-light);
-  border-radius: 3px;
-}
-
-.categorias-grid::-webkit-scrollbar-thumb:hover {
-  background: var(--color-primary);
-}
-
-/* Carrinho Sidebar Fixa */
-.carrinho-sidebar {
-  position: sticky;
-  top: 0;
-  height: fit-content;
-  max-height: calc(100vh - 280px);
-  display: flex;
-  flex-direction: column;
-}
-
-.carrinho-itens {
-  flex: 1;
-  overflow-y: auto;
-  min-height: 100px;
-}
-
 /* Scrollbar customizado no carrinho */
 .carrinho-itens::-webkit-scrollbar {
   width: 6px;
@@ -2970,24 +2954,6 @@ body {
 
 .carrinho-itens::-webkit-scrollbar-thumb:hover {
   background: var(--color-primary);
-}
-
-/* ============================================
-   CARDS DE CATEGORIA COM INICIAIS
-   ============================================ */
-.categoria-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: white;
-  text-transform: uppercase;
-  letter-spacing: 1px;
 }
 
 /* ============================================
