@@ -187,12 +187,96 @@ var WidgetApp = (function () {
     state.etapaAtual = "pedido";
 
     WidgetUI.log("Cliente selecionado: " + cliente.Nome, "success");
+    WidgetUI.setStatus("Carregando detalhes do cliente...", "loading");
+
+    // Mostra a etapa do pedido
     WidgetUI.mostrarEtapaPedido(cliente);
 
-    // Carrega condições de pgto com pequeno delay para evitar conflito
-    setTimeout(function () {
+    // Busca detalhes completos do cliente
+    if (state.online) {
+      WidgetAPI.buscarDetalheCliente(cliente.ID)
+        .then(function (detalhe) {
+          WidgetUI.log("Detalhes do cliente carregados", "success");
+
+          // Armazena os detalhes no estado
+          state.clienteDetalhe = detalhe;
+
+          // Preenche os campos com os detalhes
+          WidgetUI.preencherDetalheCliente(detalhe);
+
+          // Atualiza o vendedor no header
+          if (detalhe.vendedorNome) {
+            var vendedorNome = document.getElementById("vendedor-nome");
+            if (vendedorNome) {
+              vendedorNome.textContent = detalhe.vendedorNome;
+            }
+          }
+
+          // Log para debug
+          WidgetUI.log(
+            "Condição de Pagamento ID: " + detalhe.pagamentoCondicaoID
+          );
+          WidgetUI.log("Tipo de Frete: " + detalhe.tipoFrete);
+
+          // Carrega condições de pagamento e pré-seleciona a do cliente
+          carregarCondicoesPagamentoComSelecao(detalhe.pagamentoCondicaoID);
+
+          // Seleciona o tipo de frete automaticamente e trava
+          if (detalhe.tipoFrete) {
+            var tipoFrete = detalhe.tipoFrete.toLowerCase();
+            if (tipoFrete.indexOf("cif") >= 0) {
+              WidgetUI.selecionarFreteAutomatico("cif", true); // true = travar
+            } else if (tipoFrete.indexOf("fob") >= 0) {
+              WidgetUI.selecionarFreteAutomatico("fob", true); // true = travar
+            }
+          }
+
+          WidgetUI.hideStatus();
+        })
+        .catch(function (err) {
+          var errMsg = err;
+          try {
+            errMsg = JSON.stringify(err);
+          } catch (e) {}
+          WidgetUI.log("Erro ao buscar detalhes: " + errMsg, "error");
+          WidgetUI.setStatus("Erro ao carregar detalhes do cliente", "error");
+
+          // Mesmo com erro, tenta carregar condições de pagamento
+          carregarCondicoesPagamento();
+        });
+    } else {
+      // Modo offline
       carregarCondicoesPagamento();
-    }, 500);
+    }
+  }
+
+  /**
+   * Carrega condições de pagamento com pré-seleção
+   * @param {string} condicaoID - ID da condição a ser pré-selecionada
+   */
+  function carregarCondicoesPagamentoComSelecao(condicaoID) {
+    if (state.online) {
+      WidgetAPI.buscarCondicoesPagamento()
+        .then(function (condicoes) {
+          WidgetUI.log(
+            "Condições de pagamento carregadas: " + condicoes.length
+          );
+          WidgetUI.renderPaymentConditions(condicoes, condicaoID);
+        })
+        .catch(function (err) {
+          var errMsg = err;
+          try {
+            errMsg = JSON.stringify(err);
+          } catch (e) {}
+          WidgetUI.log("Erro ao buscar condições de pgto: " + errMsg, "error");
+        });
+    } else {
+      var mockCondicoes = [
+        { ID: "1", Display: "À Vista (Mock)" },
+        { ID: "2", Display: "30 Dias (Mock)" },
+      ];
+      WidgetUI.renderPaymentConditions(mockCondicoes, condicaoID);
+    }
   }
 
   /**

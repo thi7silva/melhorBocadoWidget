@@ -470,8 +470,9 @@ var WidgetUI = (function () {
   /**
    * Renderiza a lista de condições de pagamento no select customizado
    * @param {Array} condicoes - Lista de condições vindas da API
+   * @param {string} [selectedId] - ID da condição a ser pré-selecionada
    */
-  function renderPaymentConditions(condicoes) {
+  function renderPaymentConditions(condicoes, selectedId) {
     var wrapper = document
       .querySelector("#condicao-pagamento")
       .closest(".custom-select-wrapper");
@@ -479,26 +480,54 @@ var WidgetUI = (function () {
 
     var optionsContainer = wrapper.querySelector(".custom-options");
     var triggerText = wrapper.querySelector(".selected-value");
+    var hiddenInput = document.getElementById("condicao-pagamento");
+    var foiSelecionado = false;
 
     // Limpa opções atuais
     optionsContainer.innerHTML = "";
     triggerText.textContent = "Selecione...";
-    document.getElementById("condicao-pagamento").value = "";
+    hiddenInput.value = "";
+
+    // Log para debug
+    log("renderPaymentConditions - selectedId: " + selectedId);
+    log("Total de condições: " + (condicoes ? condicoes.length : 0));
 
     // Adiciona novas opções
     if (condicoes && condicoes.length > 0) {
       condicoes.forEach(function (cond) {
         var div = document.createElement("div");
         div.className = "custom-option";
-        div.textContent = cond.Display; // Usa o campo Display retornado pela API
+        div.textContent = cond.Display;
 
-        // Adiciona evento onclick
+        // Log para debug de cada condição
+        // log("Condição: ID=" + cond.ID + ", Display=" + cond.Display);
+
+        // Verifica se deve pré-selecionar
+        if (selectedId && String(cond.ID) === String(selectedId)) {
+          div.classList.add("selected");
+          triggerText.textContent = cond.Display;
+          hiddenInput.value = cond.ID;
+          foiSelecionado = true;
+          log(
+            "Condição de pagamento pré-selecionada: " + cond.Display,
+            "success"
+          );
+        }
+
+        // Adiciona evento onclick apenas se não estiver travado
         div.onclick = function () {
-          WidgetUI.selectCustomOption(this, cond.ID);
+          if (!wrapper.classList.contains("locked")) {
+            WidgetUI.selectCustomOption(this, cond.ID);
+          }
         };
 
         optionsContainer.appendChild(div);
       });
+
+      // Se foi pré-selecionado, trava o campo
+      if (foiSelecionado && selectedId) {
+        travarCondicaoPagamento(wrapper);
+      }
     } else {
       var emptyDiv = document.createElement("div");
       emptyDiv.className = "custom-option";
@@ -506,6 +535,171 @@ var WidgetUI = (function () {
       emptyDiv.style.color = "var(--color-text-muted)";
       emptyDiv.style.pointerEvents = "none";
       optionsContainer.appendChild(emptyDiv);
+    }
+  }
+
+  /**
+   * Trava o campo de condição de pagamento (não permite edição)
+   */
+  function travarCondicaoPagamento(wrapper) {
+    if (!wrapper) {
+      wrapper = document
+        .querySelector("#condicao-pagamento")
+        .closest(".custom-select-wrapper");
+    }
+    if (wrapper) {
+      wrapper.classList.add("locked");
+      // Remove a capacidade de abrir o dropdown
+      wrapper.removeAttribute("onclick");
+    }
+  }
+
+  /**
+   * Preenche os campos com os detalhes do cliente
+   * @param {Object} detalhe - Detalhes do cliente vindos da API
+   */
+  function preencherDetalheCliente(detalhe) {
+    // Monta o endereço completo
+    var partes = [];
+    if (detalhe.endereco) partes.push(detalhe.endereco);
+    if (detalhe.complemento) partes.push(detalhe.complemento);
+
+    var enderecoCompleto = partes.join(", ");
+
+    // Atualiza os campos de endereço individuais
+    var enderecoField = document.getElementById("endereco-logradouro");
+    if (enderecoField) enderecoField.value = detalhe.endereco || "";
+
+    var bairroField = document.getElementById("endereco-bairro");
+    if (bairroField) bairroField.value = detalhe.bairro || "";
+
+    var municipioField = document.getElementById("endereco-municipio");
+    if (municipioField) municipioField.value = detalhe.municipio || "";
+
+    var estadoField = document.getElementById("endereco-estado");
+    if (estadoField) estadoField.value = detalhe.estado || "";
+
+    var cepField = document.getElementById("endereco-cep");
+    if (cepField) {
+      var cep = detalhe.cep || "";
+      // Formata o CEP se tiver 8 dígitos
+      if (cep.length === 8) {
+        cep = cep.substring(0, 5) + "-" + cep.substring(5);
+      }
+      cepField.value = cep;
+    }
+
+    var complementoField = document.getElementById("endereco-complemento");
+    if (complementoField) complementoField.value = detalhe.complemento || "";
+
+    // Atualiza campo de endereço resumido (exibido quando colapsado)
+    var enderecoResumoField = document.getElementById("endereco-resumo");
+    var enderecoResumoTexto = [
+      detalhe.endereco,
+      detalhe.bairro,
+      detalhe.municipio + "/" + detalhe.estado,
+      formatarCep(detalhe.cep),
+    ]
+      .filter(function (p) {
+        return p && p.trim() && p !== "/";
+      })
+      .join(" - ");
+
+    if (enderecoResumoField) {
+      enderecoResumoField.value = enderecoResumoTexto;
+    }
+
+    // Atualiza campo legado de endereço (para compatibilidade)
+    var enderecoEntrega = document.getElementById("endereco-entrega");
+    if (enderecoEntrega) {
+      enderecoEntrega.value = enderecoResumoTexto;
+    }
+
+    // Preenche informações de janela de entrega se houver elemento
+    var janelaField = document.getElementById("janela-entrega");
+    if (
+      janelaField &&
+      detalhe.janelaEntrega &&
+      detalhe.janelaEntrega.length > 0
+    ) {
+      var janelaTexto = detalhe.janelaEntrega.join(", ");
+      if (detalhe.horaInicio1 && detalhe.horaFim1) {
+        janelaTexto +=
+          " (" + detalhe.horaInicio1 + " - " + detalhe.horaFim1 + ")";
+      }
+      janelaField.value = janelaTexto;
+    }
+
+    // Preenche informações de transportadora se houver
+    var transportadoraField = document.getElementById("transportadora");
+    if (transportadoraField && detalhe.transportadoraRazao) {
+      transportadoraField.value = detalhe.transportadoraRazao;
+    }
+  }
+
+  /**
+   * Formata o CEP para exibição
+   */
+  function formatarCep(cep) {
+    if (!cep) return "";
+    cep = String(cep).replace(/\D/g, "");
+    if (cep.length === 8) {
+      return cep.substring(0, 5) + "-" + cep.substring(5);
+    }
+    return cep;
+  }
+
+  /**
+   * Seleciona automaticamente o tipo de frete e opcionalmente trava
+   * @param {string} tipo - 'cif' ou 'fob'
+   * @param {boolean} [travar] - Se true, impede o usuário de alterar
+   */
+  function selecionarFreteAutomatico(tipo, travar) {
+    var cards = document.querySelectorAll('.option-card[data-group="frete"]');
+    cards.forEach(function (card) {
+      card.classList.remove("active");
+      if (card.getAttribute("data-value") === tipo) {
+        card.classList.add("active");
+      }
+
+      // Se deve travar, adiciona classe locked e remove onclick
+      if (travar) {
+        card.classList.add("locked");
+        card.onclick = function (e) {
+          e.stopPropagation();
+          // Não faz nada - está travado
+        };
+      }
+    });
+  }
+
+  /**
+   * Expande ou colapsa a seção de endereço
+   */
+  function toggleEndereco() {
+    var section = document.getElementById("endereco-section");
+    var detailGrid = document.getElementById("endereco-detail-grid");
+    var resumoField = document.getElementById("endereco-resumo-container");
+    var toggleIcon = document.getElementById("endereco-toggle-icon");
+
+    if (!section) return;
+
+    var isExpanded = section.classList.contains("expanded");
+
+    if (isExpanded) {
+      // Colapsar
+      section.classList.remove("expanded");
+      section.classList.add("collapsed");
+      if (detailGrid) detailGrid.style.display = "none";
+      if (resumoField) resumoField.style.display = "block";
+      if (toggleIcon) toggleIcon.style.transform = "rotate(0deg)";
+    } else {
+      // Expandir
+      section.classList.remove("collapsed");
+      section.classList.add("expanded");
+      if (detailGrid) detailGrid.style.display = "grid";
+      if (resumoField) resumoField.style.display = "none";
+      if (toggleIcon) toggleIcon.style.transform = "rotate(180deg)";
     }
   }
 
@@ -527,6 +721,9 @@ var WidgetUI = (function () {
     toggleSelect: toggleSelect,
     selectCustomOption: selectCustomOption,
     renderPaymentConditions: renderPaymentConditions,
+    preencherDetalheCliente: preencherDetalheCliente,
+    selecionarFreteAutomatico: selecionarFreteAutomatico,
+    toggleEndereco: toggleEndereco,
     getActiveTab: getActiveTab,
     abrirModal: abrirModal,
     fecharModal: fecharModal,

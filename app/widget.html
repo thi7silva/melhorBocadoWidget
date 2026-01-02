@@ -122,6 +122,28 @@
             <span class="vendedor-nome" id="vendedor-nome">-</span>
           </div>
         </div>
+
+        <!-- Botão Debug -->
+        <button
+          type="button"
+          class="btn-debug"
+          onclick="WidgetUI.toggleDebug()"
+          title="Abrir Debug"
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+            <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+            <path d="M2 2l7.586 7.586"></path>
+            <circle cx="11" cy="11" r="2"></circle>
+          </svg>
+        </button>
       </header>
 
       <div class="pedido-layout">
@@ -224,31 +246,145 @@
           <!-- Tab: Configurações -->
           <div id="tab-config" class="tab-content active">
             <div class="config-grid">
-              <!-- Endereço de Entrega -->
-              <div class="form-group full-width">
-                <label for="endereco-entrega">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <path
-                      d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"
-                    ></path>
-                    <circle cx="12" cy="10" r="3"></circle>
-                  </svg>
-                  Endereço de Entrega
-                </label>
-                <input
-                  type="text"
-                  id="endereco-entrega"
-                  class="form-input"
-                  readonly
-                  placeholder="Endereço será preenchido com dados do cliente"
-                />
+              <!-- Seção de Endereço de Entrega (Expansível) -->
+              <div
+                id="endereco-section"
+                class="form-section full-width collapsed"
+              >
+                <div
+                  class="section-header section-header-clickable"
+                  onclick="WidgetUI.toggleEndereco()"
+                >
+                  <div class="section-icon">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"
+                      ></path>
+                      <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                  </div>
+                  <div class="section-title">
+                    <h4>Endereço de Entrega</h4>
+                    <p>Clique para ver os detalhes do endereço</p>
+                  </div>
+                  <div class="section-toggle">
+                    <svg
+                      id="endereco-toggle-icon"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      class="toggle-icon"
+                    >
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </div>
+                </div>
+
+                <!-- Endereço Resumido (visível quando colapsado) -->
+                <div
+                  id="endereco-resumo-container"
+                  class="endereco-resumo-container"
+                >
+                  <input
+                    type="text"
+                    id="endereco-resumo"
+                    class="form-input endereco-resumo-input"
+                    readonly
+                    placeholder="Endereço será carregado automaticamente..."
+                  />
+                </div>
+
+                <!-- Grid de Detalhes (oculto quando colapsado) -->
+                <div
+                  id="endereco-detail-grid"
+                  class="address-grid"
+                  style="display: none"
+                >
+                  <!-- Logradouro -->
+                  <div class="form-group address-street">
+                    <label for="endereco-logradouro">Logradouro</label>
+                    <input
+                      type="text"
+                      id="endereco-logradouro"
+                      class="form-input"
+                      readonly
+                      placeholder="Rua, Avenida..."
+                    />
+                  </div>
+
+                  <!-- Bairro -->
+                  <div class="form-group address-neighborhood">
+                    <label for="endereco-bairro">Bairro</label>
+                    <input
+                      type="text"
+                      id="endereco-bairro"
+                      class="form-input"
+                      readonly
+                      placeholder="Bairro"
+                    />
+                  </div>
+
+                  <!-- Município -->
+                  <div class="form-group address-city">
+                    <label for="endereco-municipio">Município</label>
+                    <input
+                      type="text"
+                      id="endereco-municipio"
+                      class="form-input"
+                      readonly
+                      placeholder="Cidade"
+                    />
+                  </div>
+
+                  <!-- Estado -->
+                  <div class="form-group address-state">
+                    <label for="endereco-estado">UF</label>
+                    <input
+                      type="text"
+                      id="endereco-estado"
+                      class="form-input"
+                      readonly
+                      placeholder="UF"
+                    />
+                  </div>
+
+                  <!-- CEP -->
+                  <div class="form-group address-zip">
+                    <label for="endereco-cep">CEP</label>
+                    <input
+                      type="text"
+                      id="endereco-cep"
+                      class="form-input"
+                      readonly
+                      placeholder="00000-000"
+                    />
+                  </div>
+
+                  <!-- Complemento -->
+                  <div class="form-group address-complement">
+                    <label for="endereco-complemento">Complemento</label>
+                    <input
+                      type="text"
+                      id="endereco-complemento"
+                      class="form-input"
+                      readonly
+                      placeholder="Apto, Sala, Bloco..."
+                    />
+                  </div>
+                </div>
+
+                <!-- Campo oculto para endereço resumido (compatibilidade) -->
+                <input type="hidden" id="endereco-entrega" />
               </div>
 
               <!-- Condição de Pagamento (Select Customizado) -->

@@ -201,6 +201,11 @@ var WidgetAPI = (function () {
         lista = data;
       }
 
+      // Log de debug para ver a estrutura
+      if (lista.length > 0) {
+        WidgetUI.log("Exemplo de condição (raw): " + JSON.stringify(lista[0]));
+      }
+
       // Mapeia para formato padronizado
       return lista.map(function (item) {
         return {
@@ -210,6 +215,64 @@ var WidgetAPI = (function () {
           Display: item.condicaoDisplay || item.condicaoDescricao, // Fallback se não tiver display
         };
       });
+    });
+  }
+
+  /**
+   * Busca detalhes completos de um cliente específico
+   * @param {string} idCliente - ID do cliente no Zoho
+   * @returns {Promise<Object>} Detalhes do cliente normalizados
+   */
+  function buscarDetalheCliente(idCliente) {
+    return invokeAPI(WidgetConfig.API.ENDPOINTS.DETALHE_CLIENTE, "GET", {
+      idCliente: idCliente,
+    }).then(function (data) {
+      // A API retorna { success: true, message: "...", data: {...} }
+      var detalhe = data.data || data;
+
+      // Normaliza e retorna os dados
+      return {
+        // Códigos Protheus
+        protheusCodigo: detalhe.protheusCodigo || "",
+        protheusLoja: detalhe.protheusLoja || "",
+
+        // Dados MB
+        clienteCodigoMB: detalhe.clienteCodigoMB || "",
+        clienteCanal: detalhe.clienteCanal || "",
+
+        // Endereço
+        endereco: detalhe.clienteEndereco || "",
+        bairro: detalhe.clienteBairro || "",
+        municipio: detalhe.clienteMunicipio || "",
+        estado: detalhe.clienteEstado || "",
+        cep: detalhe.clienteCep || "",
+        complemento: detalhe.clienteComplemento || "",
+
+        // Janela de Entrega
+        janelaEntrega: detalhe.janelaEntrega || [],
+        horaInicio1: (detalhe.horaInicio1 || "").trim(),
+        horaFim1: (detalhe.horaFim1 || "").trim(),
+        horaInicio2: (detalhe.horaInicio2 || "").trim(),
+        horaFim2: (detalhe.horaFim2 || "").trim(),
+
+        // Condição de Pagamento
+        pagamentoCondicaoID: String(detalhe.pagamentoCondicaoID || ""),
+        pagamentoCondicaoCodigo: detalhe.pagamentoCondicaoCodigo || "",
+
+        // Vendedor
+        vendedorID: String(detalhe.vendedorID || ""),
+        vendedorNome: detalhe.vendedorNome || "",
+
+        // Frete
+        tipoFrete: detalhe.clienteTipoFrete || "",
+        transportadoraID: String(detalhe.transportadoraID || ""),
+        transportadoraCodigo: detalhe.transportadoraCodigo || "",
+        transportadoraRazao: detalhe.transportadoraRazao || "",
+
+        // Outros
+        bandeiraDescricao: detalhe.bandeiraDescricao || "",
+        municipioLoteMinimo: detalhe.municipioLoteMinimo || 0,
+      };
     });
   }
 
@@ -229,6 +292,7 @@ var WidgetAPI = (function () {
     buscarClientes: buscarClientes,
     buscarProdutos: buscarProdutos,
     buscarCondicoesPagamento: buscarCondicoesPagamento,
+    buscarDetalheCliente: buscarDetalheCliente,
     criarPedido: criarPedido,
   };
 })();

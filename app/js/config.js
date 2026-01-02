@@ -28,6 +28,10 @@ var WidgetConfig = {
         NAME: "consultaCondicoesPagamento",
         PUBLIC_KEY: "HXP79EOmkeUTFneJVNHK2GqTv",
       },
+      DETALHE_CLIENTE: {
+        NAME: "detalheCliente",
+        PUBLIC_KEY: "ng2VsZfqvC1v2Z6BWY7DpVUeJ",
+      },
     },
   },
 
@@ -40,7 +44,7 @@ var WidgetConfig = {
      * IMPORTANTE: Definir como FALSE em produção!
      * Para desenvolvimento local, altere para TRUE.
      */
-    DEBUG_ENABLED: false,
+    DEBUG_ENABLED: true,
 
     // Tempo de exibição de mensagens de status (ms)
     STATUS_TIMEOUT: 5000,
