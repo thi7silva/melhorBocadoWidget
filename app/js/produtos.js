@@ -8,6 +8,43 @@
 var WidgetProdutos = (function () {
   "use strict";
 
+  // Imagem padrão para produtos sem imagem
+  var DEFAULT_PRODUCT_IMAGE =
+    "https://melhorbocado.com.br/wp-content/uploads/2023/12/logo.png";
+
+  /**
+   * Extrai a primeira URL de imagem válida de um texto
+   * O texto pode conter múltiplas URLs separadas por espaço
+   * @param {string} text - Texto contendo possível URL de imagem
+   * @returns {string|null} - URL da imagem ou null se não encontrar
+   */
+  function extractFirstImageUrl(text) {
+    if (!text) return null;
+
+    // Divide o texto por espaços e busca a primeira URL que termine com extensão de imagem
+    var parts = text.split(/\s+/);
+    for (var i = 0; i < parts.length; i++) {
+      var part = parts[i];
+      // Verifica se é uma URL https que termina com extensão de imagem
+      if (/^https:\/\/.+\.(jpg|jpeg|png|gif|svg)$/i.test(part)) {
+        return part;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Obtém a URL da imagem do produto ou a imagem padrão
+   * @param {object} produto - Objeto do produto
+   * @returns {string} - URL da imagem
+   */
+  function getProductImageUrl(produto) {
+    var imageUrl = extractFirstImageUrl(
+      produto.imagemProduto || produto.ImagemProduto || ""
+    );
+    return imageUrl || DEFAULT_PRODUCT_IMAGE;
+  }
+
   // Estado do módulo
   var state = {
     clienteId: null,
@@ -279,6 +316,7 @@ var WidgetProdutos = (function () {
     produtos.forEach(function (prod) {
       var classeIndisponivel = !prod.Disponivel ? "indisponivel" : "";
       var disabledAttr = !prod.Disponivel ? 'disabled="disabled"' : "";
+      var imagemUrl = getProductImageUrl(prod);
 
       // Composição do preço (discreto)
       var composicaoHtml = "";
@@ -298,6 +336,11 @@ var WidgetProdutos = (function () {
 
       html += `
         <div class="produto-card ${classeIndisponivel}" data-id="${prod.ID}">
+          <div class="produto-imagem">
+            <img src="${imagemUrl}" alt="${
+        prod.Nome
+      }" onerror="this.src='${DEFAULT_PRODUCT_IMAGE}'" />
+          </div>
           <div class="produto-info">
             <div class="produto-codigo">${prod.Codigo}</div>
             <div class="produto-nome">${prod.Nome} ${badgeIndisponivel}</div>
@@ -486,9 +529,15 @@ var WidgetProdutos = (function () {
       var subtotal = item.Preco * item.Quantidade;
       item.Subtotal = subtotal;
       total += subtotal;
+      var imagemUrl = getProductImageUrl(item);
 
       html += `
         <div class="carrinho-item">
+          <div class="carrinho-item-imagem">
+            <img src="${imagemUrl}" alt="${
+        item.Nome
+      }" onerror="this.src='${DEFAULT_PRODUCT_IMAGE}'" />
+          </div>
           <div class="carrinho-item-info">
             <span class="carrinho-item-nome">${item.Nome}</span>
             <span class="carrinho-item-preco">${
@@ -539,14 +588,24 @@ var WidgetProdutos = (function () {
       var subtotal = item.Preco * item.Quantidade;
       var totalIPI = (item.IPI || 0) * item.Quantidade;
       var totalST = (item.ST || 0) * item.Quantidade;
+      var imagemUrl = getProductImageUrl(item);
 
       totalGeral += subtotal;
 
       html += `
         <tr>
           <td>
-            <div class="font-bold">${item.Nome}</div>
-            <div class="text-xs text-muted">${item.Codigo || ""}</div>
+            <div class="carrinho-modal-produto">
+              <div class="carrinho-modal-imagem">
+                <img src="${imagemUrl}" alt="${
+        item.Nome
+      }" onerror="this.src='${DEFAULT_PRODUCT_IMAGE}'" />
+              </div>
+              <div>
+                <div class="font-bold">${item.Nome}</div>
+                <div class="text-xs text-muted">${item.Codigo || ""}</div>
+              </div>
+            </div>
           </td>
           <td class="text-right">R$ ${formatarMoeda(item.PrecoBase)}</td>
           <td class="text-right">

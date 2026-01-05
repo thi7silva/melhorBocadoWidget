@@ -354,6 +354,7 @@ var WidgetAPI = (function () {
             IPI: ipiUnitario,
             Unidade: item.unidade || "UN",
             Disponivel: item.success === true,
+            imagemProduto: item.imagemProduto || "",
           };
         });
       })
