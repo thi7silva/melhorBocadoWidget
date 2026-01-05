@@ -1739,10 +1739,11 @@ body {
 
 /* ============================================
    SEÇÃO DE ENDEREÇO COM VISUAL PREMIUM
+   Fundo cinza neutro para conteúdo informativo
    ============================================ */
 .form-section {
-  background: linear-gradient(135deg, #fff5f8 0%, #ffffff 100%);
-  border: 1px solid var(--color-primary-light);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: 20px;
   margin-bottom: 0;
@@ -1758,20 +1759,20 @@ body {
   gap: 14px;
   margin-bottom: 20px;
   padding-bottom: 16px;
-  border-bottom: 1px solid rgba(233, 30, 99, 0.15);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .section-icon {
   width: 44px;
   height: 44px;
   border-radius: var(--radius-md);
-  background: var(--color-primary-gradient);
+  background: linear-gradient(135deg, #78909c 0%, #90a4ae 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   flex-shrink: 0;
-  box-shadow: var(--shadow-primary);
+  box-shadow: 0 4px 14px rgba(120, 144, 156, 0.3);
 }
 
 .section-icon svg {
@@ -4064,24 +4065,62 @@ body {
 
 /* ============================================
    PREVIEW INLINE DE DATAS (NÃO SELECIONÁVEL)
+   Mesma estilização da seção de Endereço de Entrega
    ============================================ */
 
 .entrega-preview-box {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 16px;
+  border-radius: var(--radius-lg);
+  padding: 20px;
 }
 
 .entrega-preview-header-inline {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .entrega-preview-header-inline svg {
-  stroke: var(--color-primary);
+  stroke: white;
+}
+
+/* Ícone da seção de datas - mesmo estilo do ícone de endereço */
+.entrega-preview-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #78909c 0%, #90a4ae 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(120, 144, 156, 0.3);
+}
+
+.entrega-preview-icon svg {
+  stroke: white;
+}
+
+.entrega-preview-titulo-wrapper {
+  flex: 1;
+}
+
+.entrega-preview-titulo-wrapper h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 4px;
+}
+
+.entrega-preview-titulo-wrapper p {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin: 0;
 }
 
 .entrega-preview-titulo {
