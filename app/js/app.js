@@ -219,6 +219,12 @@ var WidgetApp = (function () {
             "Condição de Pagamento ID: " + detalhe.pagamentoCondicaoID
           );
           WidgetUI.log("Tipo de Frete: " + detalhe.tipoFrete);
+          WidgetUI.log(
+            "Janela de Entrega: " + JSON.stringify(detalhe.janelaEntrega)
+          );
+
+          // Define a janela de entrega no módulo de entrega
+          WidgetEntrega.setJanelaEntrega(detalhe.janelaEntrega);
 
           // Carrega condições de pagamento e pré-seleciona a do cliente
           carregarCondicoesPagamentoComSelecao(detalhe.pagamentoCondicaoID);
@@ -236,6 +242,11 @@ var WidgetApp = (function () {
           // Mostra a etapa do pedido e esconde loading
           WidgetUI.mostrarEtapaPedido(cliente);
           WidgetUI.esconderLoadingTransicao();
+
+          // Renderiza preview de datas de entrega
+          setTimeout(function () {
+            WidgetEntrega.renderizarPreviewDatas();
+          }, 100);
         })
         .catch(function (err) {
           var errMsg = err;
@@ -341,8 +352,24 @@ var WidgetApp = (function () {
       WidgetUI.switchTab("produtos");
       WidgetUI.log("Avançando para seleção de produtos");
     } else if (activeTab === "produtos") {
-      // Gera o pedido
-      gerarPedido();
+      // Verifica se há produtos no carrinho
+      var carrinho = WidgetProdutos.getCarrinho();
+      if (carrinho.length === 0) {
+        WidgetUI.log(
+          "Carrinho vazio - adicione produtos antes de continuar",
+          "error"
+        );
+        WidgetUI.setStatus(
+          "Adicione produtos ao carrinho antes de continuar",
+          "error"
+        );
+        setTimeout(function () {
+          WidgetUI.hideStatus();
+        }, 3000);
+        return;
+      }
+      // Abre o modal de seleção de entrega
+      WidgetEntrega.abrirModalEntrega();
     }
   }
 
@@ -389,6 +416,77 @@ var WidgetApp = (function () {
   }
 
   /**
+   * Finaliza o pedido com a data de entrega selecionada
+   * @param {Object} dataEntrega - Objeto com dados da data de entrega
+   * @param {string} observacoesEntrega - Observações/informações de entrega
+   */
+  function finalizarPedidoComEntrega(dataEntrega, observacoesEntrega) {
+    WidgetUI.log(
+      "Finalizando pedido com entrega em: " + dataEntrega.dataFormatada,
+      "success"
+    );
+
+    // Gera o pedido com os dados de entrega
+    var dadosPedido = gerarPedido();
+
+    // Adiciona dados de entrega
+    dadosPedido.dataEntrega = dataEntrega.dataFormatada;
+    dadosPedido.dataEntregaISO = dataEntrega.dataISO;
+    dadosPedido.diaEntrega = dataEntrega.nomeDia;
+    dadosPedido.observacoesEntrega = observacoesEntrega || "";
+
+    // Adiciona produtos do carrinho
+    dadosPedido.itens = WidgetProdutos.getCarrinho();
+    dadosPedido.totalPedido = dadosPedido.itens.reduce(function (total, item) {
+      return total + (item.Subtotal || 0);
+    }, 0);
+
+    // Exibe no console com dados completos
+    console.log("=".repeat(50));
+    console.log("📦 PEDIDO FINALIZADO COM ENTREGA:");
+    console.log("=".repeat(50));
+    console.log(JSON.stringify(dadosPedido, null, 2));
+    console.log("=".repeat(50));
+
+    // Log no painel de debug
+    WidgetUI.log("Pedido finalizado! Verifique o console (F12)", "success");
+
+    // Atualiza o modal de sucesso com os dados
+    var dataEl = document.getElementById("sucesso-data-entrega");
+    var totalEl = document.getElementById("sucesso-total");
+
+    if (dataEl) {
+      dataEl.textContent =
+        dataEntrega.dataFormatada + " (" + dataEntrega.nomeDia + ")";
+    }
+    if (totalEl) {
+      totalEl.textContent =
+        "R$ " +
+        dadosPedido.totalPedido.toLocaleString("pt-BR", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+    }
+
+    // Mostra o modal de sucesso
+    WidgetUI.abrirModal("modal-sucesso");
+
+    // TODO: Enviar pedido para API
+    // WidgetAPI.criarPedido(dadosPedido)...\
+
+    return dadosPedido;
+  }
+
+  /**
+   * Volta para seleção de cliente limpando tudo
+   * Recarrega a página para garantir estado limpo
+   */
+  function voltarParaClienteCompleto() {
+    // Recarrega a página para garantir estado completamente limpo
+    window.location.reload();
+  }
+
+  /**
    * Obtém o valor selecionado de um grupo de option-cards
    * @param {string} group - Nome do grupo (ex: 'frete', 'natureza')
    * @returns {string} Valor selecionado ou string vazia
@@ -406,12 +504,14 @@ var WidgetApp = (function () {
     searchClients: searchClients,
     selecionarCliente: selecionarCliente,
     voltarParaCliente: voltarParaCliente,
+    voltarParaClienteCompleto: voltarParaClienteCompleto,
     confirmarCancelamento: confirmarCancelamento,
     voltarAba: voltarAba,
     getState: getState,
     carregarCondicoesPagamento: carregarCondicoesPagamento,
     footerAction: footerAction,
     gerarPedido: gerarPedido,
+    finalizarPedidoComEntrega: finalizarPedidoComEntrega,
   };
 })();
 
