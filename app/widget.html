@@ -1266,6 +1266,147 @@
       </div>
     </div>
 
+    <!-- Botão FAB Carrinho Mobile -->
+    <button class="fab-carrinho" onclick="WidgetProdutos.toggleModoEdicao()">
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <circle cx="9" cy="21" r="1"></circle>
+        <circle cx="20" cy="21" r="1"></circle>
+        <path
+          d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"
+        ></path>
+      </svg>
+      <span class="badge" id="carrinho-count-fab">0</span>
+    </button>
+
+    <!-- Modal: Carrinho de Compras -->
+    <div id="modal-carrinho" class="modal-overlay hidden">
+      <div class="modal-produtos-container">
+        <!-- Reusing container style -->
+        <div class="modal-produtos-header">
+          <div class="modal-produtos-titulo">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="20" cy="21" r="1"></circle>
+              <path
+                d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"
+              ></path>
+            </svg>
+            <h3>Meu Carrinho</h3>
+          </div>
+          <button
+            type="button"
+            class="modal-close-btn"
+            onclick="WidgetUI.fecharModal('modal-carrinho')"
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <div class="modal-produtos-body modal-body">
+          <!-- Tabela de Carrinho -->
+          <table
+            class="table-carrinho"
+            style="width: 100%; border-collapse: collapse"
+          >
+            <thead>
+              <tr
+                style="
+                  text-align: left;
+                  border-bottom: 1px solid var(--color-border);
+                "
+              >
+                <th style="padding: 10px">Produto</th>
+                <th style="padding: 10px; width: 80px">Qtd</th>
+                <th style="padding: 10px; text-align: right">Total</th>
+                <th style="width: 40px"></th>
+              </tr>
+            </thead>
+            <tbody id="modal-carrinho-tbody">
+              <!-- Itens via JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <div
+          class="modal-produtos-footer modal-footer-custom"
+          style="
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 16px;
+            border-top: 1px solid var(--color-border);
+            background: #f9f9f9;
+          "
+        >
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              width: 100%;
+            "
+          >
+            <span class="total-label" style="font-weight: 600"
+              >Total Estimado:</span
+            >
+            <span
+              id="modal-carrinho-total"
+              class="total-valor"
+              style="
+                font-size: 1.2rem;
+                font-weight: 700;
+                color: var(--color-primary);
+              "
+              >R$ 0,00</span
+            >
+          </div>
+
+          <div style="display: flex; gap: 10px; width: 100%">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onclick="WidgetUI.fecharModal('modal-carrinho')"
+              style="flex: 1"
+            >
+              Voltar
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="WidgetUI.fecharModal('modal-carrinho'); WidgetUI.switchTab('config');"
+              style="flex: 1"
+            >
+              Finalizar Pedido
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Debug Log (Oculto por padrão) -->
     <div id="debug-panel" class="debug-panel hidden">
       <div class="debug-header">

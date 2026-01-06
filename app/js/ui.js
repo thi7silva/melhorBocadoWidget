@@ -339,6 +339,16 @@ var WidgetUI = (function () {
     // Atualiza o botão do footer conforme a aba
     updateFooterButton(tabId);
 
+    // Controle do FAB Carrinho Mobile
+    var fabCarrinho = document.querySelector(".fab-carrinho");
+    if (fabCarrinho) {
+      if (tabId === "produtos") {
+        fabCarrinho.style.display = "flex";
+      } else {
+        fabCarrinho.style.display = "none";
+      }
+    }
+
     // Se for a aba de produtos, carrega as categorias
     if (tabId === "produtos" && typeof WidgetProdutos !== "undefined") {
       WidgetProdutos.carregarCategorias();

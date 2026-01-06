@@ -346,30 +346,32 @@ var WidgetProdutos = (function () {
             <div class="produto-nome">${prod.Nome} ${badgeIndisponivel}</div>
             ${composicaoHtml}
           </div>
-          <div class="produto-preco">
-            R$ ${formatarMoeda(prod.Preco)}
-          </div>
-          <div class="produto-quantidade">
-            <button class="btn-qtd" ${disabledAttr} onclick="WidgetProdutos.alterarQuantidade('${
+          <div class="produto-acoes-wrapper">
+            <div class="produto-preco">
+              R$ ${formatarMoeda(prod.Preco)}
+            </div>
+            <div class="produto-quantidade">
+              <button class="btn-qtd" ${disabledAttr} onclick="WidgetProdutos.alterarQuantidade('${
         prod.ID
       }', -1)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-            </button>
-            <input type="number" id="qtd-${
-              prod.ID
-            }" value="0" min="0" class="input-qtd" ${disabledAttr} onchange="WidgetProdutos.atualizarQuantidade('${
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </button>
+              <input type="number" id="qtd-${
+                prod.ID
+              }" value="0" min="0" class="input-qtd" ${disabledAttr} onchange="WidgetProdutos.atualizarQuantidade('${
         prod.ID
       }', this.value)" />
-            <button class="btn-qtd btn-qtd-add" ${disabledAttr} onclick="WidgetProdutos.alterarQuantidade('${
+              <button class="btn-qtd btn-qtd-add" ${disabledAttr} onclick="WidgetProdutos.alterarQuantidade('${
         prod.ID
       }', 1)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-            </button>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       `;
@@ -489,6 +491,17 @@ var WidgetProdutos = (function () {
 
     if (countEl) {
       countEl.textContent = state.carrinho.length;
+    }
+
+    // Atualiza FAB Badge
+    var fabBadge = document.getElementById("carrinho-count-fab");
+    if (fabBadge) {
+      fabBadge.textContent = state.carrinho.length;
+      if (state.carrinho.length > 0) {
+        fabBadge.style.display = "flex";
+      } else {
+        fabBadge.style.display = "none"; // Oculta se vazio
+      }
     }
 
     // Botão de editar sempre "Editar"
