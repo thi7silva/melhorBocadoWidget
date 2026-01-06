@@ -54,6 +54,13 @@ var WidgetProdutos = (function () {
     produtosSelecionados: [], // Produtos selecionados no modal
     carrinho: [], // Itens adicionados ao pedido
     modoEdicao: false, // Controle do modo de edição do carrinho
+    // Controle de Descontos
+    desconto: {
+      globalTipo: "percent", // "percent" ou "valor"
+      globalValor: 0, // Valor do desconto global (%) ou (R$)
+      totalDescontoItens: 0, // Soma dos descontos aplicados nos itens
+      totalDescontoGlobal: 0, // Valor do desconto global calculado
+    },
   };
 
   /**
@@ -479,7 +486,6 @@ var WidgetProdutos = (function () {
   }
 
   /**
-  /**
    * Renderiza o carrinho (Modo Compacto na Sidebar)
    */
   function renderizarCarrinho() {
@@ -532,17 +538,39 @@ var WidgetProdutos = (function () {
 
       if (subtotalEl) subtotalEl.textContent = "R$ 0,00";
       if (totalEl) totalEl.textContent = "R$ 0,00";
+
+      // Limpa footer
+      var footerTotal = document.querySelector(".total-valor");
+      if (footerTotal) {
+        footerTotal.textContent = "R$ 0,00";
+      }
       return;
     }
 
     var html = "";
-    var total = 0;
+    var subtotalBruto = 0;
+    var totalDescontoItens = 0;
 
     state.carrinho.forEach(function (item) {
-      var subtotal = item.Preco * item.Quantidade;
-      item.Subtotal = subtotal;
-      total += subtotal;
+      var subtotalItem = item.Preco * item.Quantidade;
+      var descontoItem = (item.descontoValor || 0) * item.Quantidade;
+      var subtotalLiquido = subtotalItem - descontoItem;
+
+      item.Subtotal = subtotalLiquido;
+      subtotalBruto += subtotalItem;
+      totalDescontoItens += descontoItem;
+
       var imagemUrl = getProductImageUrl(item);
+
+      // Mostra preço com ou sem desconto - usando rosa da marca
+      var precoExibido =
+        descontoItem > 0
+          ? `<span style="text-decoration: line-through; color: #999; font-size: 0.7rem;">R$ ${formatarMoeda(
+              subtotalItem
+            )}</span> <span style="color: var(--color-primary);">R$ ${formatarMoeda(
+              subtotalLiquido
+            )}</span>`
+          : `R$ ${formatarMoeda(subtotalItem)}`;
 
       html += `
         <div class="carrinho-item">
@@ -555,25 +583,40 @@ var WidgetProdutos = (function () {
             <span class="carrinho-item-nome">${item.Nome}</span>
             <span class="carrinho-item-preco">${
               item.Quantidade
-            }x R$ ${formatarMoeda(item.Preco)}</span>
+            }x R$ ${formatarMoeda(
+        item.Preco - (item.descontoValor || 0)
+      )}</span>
           </div>
-          <span class="carrinho-item-subtotal">R$ ${formatarMoeda(
-            subtotal
-          )}</span>
+          <span class="carrinho-item-subtotal">${precoExibido}</span>
         </div>
       `;
     });
 
     itensEl.innerHTML = html;
 
+    // Total após descontos de itens
+    var totalFinal = subtotalBruto - totalDescontoItens;
+
     // Atualiza totais
-    if (subtotalEl) subtotalEl.textContent = "R$ " + formatarMoeda(total);
-    if (totalEl) totalEl.textContent = "R$ " + formatarMoeda(total);
+    if (subtotalEl)
+      subtotalEl.textContent = "R$ " + formatarMoeda(subtotalBruto);
+    if (totalEl) {
+      if (totalDescontoItens > 0) {
+        totalEl.innerHTML = `
+          <div style="font-size: 0.7rem; color: var(--color-primary);">(-R$ ${formatarMoeda(
+            totalDescontoItens
+          )})</div>
+          <div>R$ ${formatarMoeda(totalFinal)}</div>
+        `;
+      } else {
+        totalEl.textContent = "R$ " + formatarMoeda(totalFinal);
+      }
+    }
 
     // Atualiza o total do footer também
     var footerTotal = document.querySelector(".total-valor");
     if (footerTotal) {
-      footerTotal.textContent = "R$ " + formatarMoeda(total);
+      footerTotal.textContent = "R$ " + formatarMoeda(totalFinal);
     }
   }
 
@@ -586,24 +629,40 @@ var WidgetProdutos = (function () {
   }
 
   /**
-   * Renderiza a tabela do modal de carrinho
+   * Renderiza a tabela do modal de carrinho com sistema de descontos
    */
   function renderizarCarrinhoModal() {
     var tbody = document.getElementById("modal-carrinho-tbody");
     var totalEl = document.getElementById("modal-carrinho-total");
+    var descontoResumoRow = document.getElementById("desconto-resumo-row");
+    var descontoTotalValor = document.getElementById("desconto-total-valor");
 
     if (!tbody) return;
 
+    // Calcula valores para limite de desconto
+    var totais = calcularTotaisDesconto();
+    atualizarBarraLimite(totais);
+
     var html = "";
     var totalGeral = 0;
+    var totalDescontoItens = 0;
 
     state.carrinho.forEach(function (item) {
-      var subtotal = item.Preco * item.Quantidade;
-      var totalIPI = (item.IPI || 0) * item.Quantidade;
-      var totalST = (item.ST || 0) * item.Quantidade;
+      // Inicializa campos de desconto se não existirem
+      if (item.descontoPercent === undefined) item.descontoPercent = 0;
+      if (item.descontoValor === undefined) item.descontoValor = 0;
+
+      var subtotalBase = item.Preco * item.Quantidade;
+      var descontoItem = item.descontoValor * item.Quantidade;
+      var subtotalFinal = subtotalBase - descontoItem;
       var imagemUrl = getProductImageUrl(item);
 
-      totalGeral += subtotal;
+      totalGeral += subtotalFinal;
+      totalDescontoItens += descontoItem;
+
+      // Classes para inputs com valor
+      var classPercent = item.descontoPercent > 0 ? "has-value" : "";
+      var classValor = item.descontoValor > 0 ? "has-value" : "";
 
       html += `
         <tr>
@@ -620,12 +679,29 @@ var WidgetProdutos = (function () {
               </div>
             </div>
           </td>
-          <td class="text-right">R$ ${formatarMoeda(item.PrecoBase)}</td>
+          <td class="text-right">R$ ${item.PrecoBase.toLocaleString("pt-BR", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}</td>
           <td class="text-right">
-             ${item.IPI > 0 ? `<div>${formatarMoeda(item.IPI)}</div>` : "-"}
+             ${
+               item.IPI > 0
+                 ? `<div>R$ ${item.IPI.toLocaleString("pt-BR", {
+                     minimumFractionDigits: 2,
+                     maximumFractionDigits: 2,
+                   })}</div>`
+                 : "-"
+             }
           </td>
           <td class="text-right">
-             ${item.ST > 0 ? `<div>${formatarMoeda(item.ST)}</div>` : "-"}
+             ${
+               item.ST > 0
+                 ? `<div>R$ ${item.ST.toLocaleString("pt-BR", {
+                     minimumFractionDigits: 2,
+                     maximumFractionDigits: 2,
+                   })}</div>`
+                 : "-"
+             }
           </td>
           <td class="text-center">
              <div class="qtd-wrapper center">
@@ -640,7 +716,55 @@ var WidgetProdutos = (function () {
                 }', 1)">+</button>
              </div>
           </td>
-          <td class="text-right font-bold">R$ ${formatarMoeda(subtotal)}</td>
+          <td class="text-right font-bold">
+            <div>R$ ${subtotalBase.toLocaleString("pt-BR", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}</div>
+          </td>
+          <td class="text-center desconto-cell">
+            <div class="desconto-item-container" style="display: flex; flex-direction: column; gap: 4px;">
+              <div class="desconto-item-row">
+                <span class="desconto-item-label">%</span>
+                <input 
+                  type="number" 
+                  id="desconto-percent-${item.ID}"
+                  class="desconto-item-input ${classPercent}" 
+                  value="${item.descontoPercent || ""}"
+                  placeholder="0"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  onchange="WidgetProdutos.aplicarDescontoItem('${
+                    item.ID
+                  }', 'percent', this.value)"
+                  onkeydown="if(event.key==='Enter'){this.blur();}"
+                />
+              </div>
+              <div class="desconto-item-row">
+                <span class="desconto-item-label">R$</span>
+                <input 
+                  type="number" 
+                  id="desconto-valor-${item.ID}"
+                  class="desconto-item-input ${classValor}" 
+                  value="${item.descontoValor || ""}"
+                  placeholder="0,00"
+                  min="0"
+                  step="0.01"
+                  onchange="WidgetProdutos.aplicarDescontoItem('${
+                    item.ID
+                  }', 'valor', this.value)"
+                  onkeydown="if(event.key==='Enter'){this.blur();}"
+                />
+              </div>
+            </div>
+          </td>
+          <td class="text-right font-bold">
+            <div style="color: var(--color-primary);">R$ ${subtotalFinal.toLocaleString(
+              "pt-BR",
+              { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+            )}</div>
+          </td>
           <td class="text-center">
             <button class="btn-icon-remove" onclick="WidgetProdutos.removerDoCarrinho('${
               item.ID
@@ -658,7 +782,193 @@ var WidgetProdutos = (function () {
     });
 
     tbody.innerHTML = html;
-    if (totalEl) totalEl.textContent = "R$ " + formatarMoeda(totalGeral);
+
+    // Atualiza state com desconto de itens
+    state.desconto.totalDescontoItens = totalDescontoItens;
+
+    // Total do pedido = subtotal - descontos dos itens
+    var totalFinal = totalGeral;
+    var descontoTotal = totalDescontoItens;
+
+    // Mostra/esconde linha de desconto
+    if (descontoResumoRow) {
+      if (descontoTotal > 0) {
+        descontoResumoRow.style.display = "";
+        if (descontoTotalValor) {
+          descontoTotalValor.textContent =
+            "- R$ " +
+            descontoTotal.toLocaleString("pt-BR", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            });
+        }
+      } else {
+        descontoResumoRow.style.display = "none";
+      }
+    }
+
+    if (totalEl)
+      totalEl.textContent =
+        "R$ " +
+        totalFinal.toLocaleString("pt-BR", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+  }
+
+  /**
+   * Calcula totais para validação de desconto
+   * @returns {Object} totais - Objeto com subtotal sem impostos, limite, usado, disponível
+   */
+  function calcularTotaisDesconto() {
+    var subtotalSemImpostos = 0;
+    var descontoUsado = 0;
+
+    state.carrinho.forEach(function (item) {
+      subtotalSemImpostos += (item.PrecoBase || 0) * item.Quantidade;
+      descontoUsado += (item.descontoValor || 0) * item.Quantidade;
+    });
+
+    var limiteMaximo =
+      (subtotalSemImpostos * WidgetConfig.DESCONTO.LIMITE_PERCENTUAL) / 100;
+    var disponivel = Math.max(0, limiteMaximo - descontoUsado);
+    var percentualUsado =
+      limiteMaximo > 0 ? (descontoUsado / limiteMaximo) * 100 : 0;
+
+    return {
+      subtotalSemImpostos: subtotalSemImpostos,
+      limiteMaximo: limiteMaximo,
+      descontoUsado: descontoUsado,
+      disponivel: disponivel,
+      percentualUsado: Math.min(100, percentualUsado),
+    };
+  }
+
+  /**
+   * Atualiza a barra de limite de desconto
+   */
+  function atualizarBarraLimite(totais) {
+    var maxValorEl = document.getElementById("desconto-max-valor");
+    var progressFill = document.getElementById("desconto-progress-fill");
+    var percentEl = document.getElementById("desconto-usado-percent");
+
+    if (maxValorEl) {
+      maxValorEl.textContent = "R$ " + formatarMoeda(totais.limiteMaximo);
+    }
+
+    if (progressFill) {
+      progressFill.style.width = totais.percentualUsado + "%";
+
+      // Cores baseadas no uso
+      progressFill.classList.remove("warning", "danger");
+      if (totais.percentualUsado >= 100) {
+        progressFill.classList.add("danger");
+      } else if (totais.percentualUsado >= 80) {
+        progressFill.classList.add("warning");
+      }
+    }
+
+    if (percentEl) {
+      percentEl.textContent = Math.round(totais.percentualUsado) + "%";
+      percentEl.classList.remove("warning", "danger");
+      if (totais.percentualUsado >= 100) {
+        percentEl.classList.add("danger");
+      } else if (totais.percentualUsado >= 80) {
+        percentEl.classList.add("warning");
+      }
+    }
+  }
+
+  /**
+   * Aplica desconto em um item específico
+   * @param {string} produtoId - ID do produto
+   * @param {string} tipo - "percent" ou "valor"
+   * @param {string} valor - Valor digitado
+   */
+  function aplicarDescontoItem(produtoId, tipo, valor) {
+    var item = state.carrinho.find(function (i) {
+      return i.ID === produtoId;
+    });
+
+    if (!item) return;
+
+    var valorNum = parseFloat(valor) || 0;
+
+    // Calcula o desconto em R$ baseado no tipo
+    var descontoUnitario = 0;
+    var descontoPercent = 0;
+
+    if (tipo === "percent") {
+      descontoPercent = Math.max(0, Math.min(100, valorNum));
+      descontoUnitario = (item.PrecoBase * descontoPercent) / 100;
+    } else {
+      descontoUnitario = Math.max(0, valorNum);
+      descontoPercent =
+        item.PrecoBase > 0 ? (descontoUnitario / item.PrecoBase) * 100 : 0;
+    }
+
+    // Calcula o novo total de desconto para validar limite
+    var novoDescontoItem = descontoUnitario * item.Quantidade;
+    var totaisAtuais = calcularTotaisDesconto();
+
+    // Remove o desconto atual do item para recalcular
+    var descontoAtualItem = (item.descontoValor || 0) * item.Quantidade;
+    var descontoSemEsteItem = totaisAtuais.descontoUsado - descontoAtualItem;
+    var novoTotalDesconto = descontoSemEsteItem + novoDescontoItem;
+
+    // Valida se ultrapassa o limite
+    if (novoTotalDesconto > totaisAtuais.limiteMaximo) {
+      // Mostra alerta e ajusta para o máximo
+      mostrarAlertaDesconto(
+        "O desconto máximo permitido é de " +
+          WidgetConfig.DESCONTO.LIMITE_PERCENTUAL +
+          "% do valor das mercadorias (R$ " +
+          formatarMoeda(totaisAtuais.limiteMaximo) +
+          ")."
+      );
+
+      // Calcula o máximo que pode aplicar neste item
+      var disponivelParaItem = totaisAtuais.limiteMaximo - descontoSemEsteItem;
+      descontoUnitario = Math.max(0, disponivelParaItem / item.Quantidade);
+      descontoPercent =
+        item.PrecoBase > 0 ? (descontoUnitario / item.PrecoBase) * 100 : 0;
+    }
+
+    // Aplica os valores
+    item.descontoValor = descontoUnitario;
+    item.descontoPercent = descontoPercent;
+
+    // Re-renderiza a tabela
+    renderizarCarrinhoModal();
+    renderizarCarrinho();
+  }
+
+  /**
+   * Mostra alerta de desconto excedido
+   */
+  function mostrarAlertaDesconto(mensagem) {
+    var alert = document.getElementById("desconto-alert");
+    var msgEl = document.getElementById("desconto-alert-message");
+
+    if (alert && msgEl) {
+      msgEl.textContent = mensagem;
+      alert.classList.remove("hidden");
+
+      // Auto-fecha após timeout
+      setTimeout(function () {
+        fecharAlertaDesconto();
+      }, WidgetConfig.DESCONTO.ALERT_TIMEOUT);
+    }
+  }
+
+  /**
+   * Fecha alerta de desconto
+   */
+  function fecharAlertaDesconto() {
+    var alert = document.getElementById("desconto-alert");
+    if (alert) {
+      alert.classList.add("hidden");
+    }
   }
 
   /**
@@ -801,5 +1111,8 @@ var WidgetProdutos = (function () {
     getCarrinho: getCarrinho,
     toggleModoEdicao: toggleModoEdicao,
     editarQuantidadeCarrinho: editarQuantidadeCarrinho,
+    // Funções de Desconto
+    aplicarDescontoItem: aplicarDescontoItem,
+    fecharAlertaDesconto: fecharAlertaDesconto,
   };
 })();

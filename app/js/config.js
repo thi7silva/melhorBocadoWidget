@@ -63,6 +63,22 @@ var WidgetConfig = {
   },
 
   // ============================================
+  // CONFIGURAÇÕES DE DESCONTO
+  // ============================================
+  DESCONTO: {
+    /**
+     * Porcentagem máxima de desconto permitida
+     * Base de cálculo: Total das mercadorias SEM impostos (PrecoBase * Quantidade)
+     */
+    LIMITE_PERCENTUAL: 30, // 30%
+
+    /**
+     * Tempo de exibição do alerta de limite excedido (ms)
+     */
+    ALERT_TIMEOUT: 4000,
+  },
+
+  // ============================================
   // DADOS MOCK (para testes offline)
   // ============================================
   MOCK: {
@@ -83,5 +99,6 @@ if (typeof Object.freeze === "function") {
   Object.freeze(WidgetConfig.API);
   Object.freeze(WidgetConfig.API.ENDPOINTS);
   Object.freeze(WidgetConfig.UI);
+  Object.freeze(WidgetConfig.DESCONTO);
   Object.freeze(WidgetConfig.MOCK);
 }

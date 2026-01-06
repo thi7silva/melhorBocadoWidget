@@ -23,6 +23,47 @@
       </div>
     </div>
 
+    <!-- Alert de Limite de Desconto Excedido -->
+    <div id="desconto-alert" class="desconto-alert hidden">
+      <div class="alert-icon">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+      </div>
+      <div class="alert-content">
+        <div class="alert-title">Limite de Desconto Excedido</div>
+        <p class="alert-message" id="desconto-alert-message">
+          O desconto máximo permitido é de 30% do valor das mercadorias.
+        </p>
+      </div>
+      <button
+        type="button"
+        class="alert-close"
+        onclick="WidgetProdutos.fecharAlertaDesconto()"
+      >
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
     <!-- Loading de Transição (Carregando detalhes do cliente) -->
     <div id="loading-overlay" class="loading-overlay hidden">
       <div class="loading-content">
@@ -948,25 +989,91 @@
         </div>
 
         <div class="modal-body no-padding">
+          <!-- Barra de Limite de Desconto - Compacta -->
+          <div class="desconto-limit-bar" id="desconto-limit-bar">
+            <div class="limit-icon">
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"
+                ></path>
+              </svg>
+            </div>
+            <div class="limit-info">
+              <span class="limit-title"
+                >Limite de Desconto:
+                <strong id="desconto-max-valor">R$ 0,00</strong></span
+              >
+            </div>
+            <div class="limit-progress">
+              <div
+                class="limit-progress-fill"
+                id="desconto-progress-fill"
+                style="width: 0%"
+              ></div>
+            </div>
+            <span class="limit-percentage" id="desconto-usado-percent">0%</span>
+          </div>
+
           <div class="carrinho-table-wrapper">
             <table class="carrinho-table">
               <thead>
                 <tr>
-                  <th style="width: 40%">Produto</th>
-                  <th class="text-right">Unitário</th>
+                  <th style="width: 25%">Produto</th>
+                  <th class="text-right">Valor Unit.</th>
                   <th class="text-right">IPI</th>
                   <th class="text-right">ST</th>
-                  <th class="text-center" style="width: 120px">Qtd</th>
-                  <th class="text-right">Total</th>
-                  <th class="text-center" style="width: 50px"></th>
+                  <th class="text-center" style="width: 80px">Qtd</th>
+                  <th class="text-right">Total sem Desc.</th>
+                  <th class="text-center desconto-cell" style="width: 140px">
+                    Desconto Unit.
+                  </th>
+                  <th class="text-right font-bold">Total Final</th>
+                  <th class="text-center" style="width: 40px"></th>
                 </tr>
               </thead>
               <tbody id="modal-carrinho-tbody">
                 <!-- Itens renderizados via JS -->
               </tbody>
               <tfoot>
+                <!-- Linha de Desconto Total (se houver) -->
+                <tr
+                  class="desconto-resumo-row"
+                  id="desconto-resumo-row"
+                  style="display: none"
+                >
+                  <td colspan="7" class="text-right">
+                    <span class="desconto-resumo-label">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"
+                        ></path>
+                        <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                      </svg>
+                      Desconto Total:
+                    </span>
+                  </td>
+                  <td
+                    class="text-right desconto-resumo-value"
+                    id="desconto-total-valor"
+                  >
+                    - R$ 0,00
+                  </td>
+                  <td></td>
+                </tr>
                 <tr class="bg-gray">
-                  <td colspan="5" class="text-right font-bold">
+                  <td colspan="7" class="text-right font-bold">
                     Total do Pedido:
                   </td>
                   <td
@@ -994,7 +1101,7 @@
             class="btn btn-primary"
             onclick="WidgetUI.fecharModal('modal-carrinho')"
           >
-            Concluir Edição
+            Concluir
           </button>
         </div>
       </div>
