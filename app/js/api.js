@@ -122,13 +122,19 @@ var WidgetAPI = (function () {
   /**
    * Busca lista de clientes
    * @param {string} [filtro] - Filtro de busca
+   * @param {string} [type] - Tipo de busca
+   * @param {string} [email] - Email do usuário logado
    * @returns {Promise<Array>} Lista de clientes normalizados
    */
-  function buscarClientes(filtro) {
+  function buscarClientes(filtro, type, email) {
     filtro = filtro || "";
+    type = type || "";
+    email = email || "";
 
     return invokeAPI(WidgetConfig.API.ENDPOINTS.CONSULTA_CLIENTE, "GET", {
       filter: filtro,
+      type: type,
+      email: email,
     }).then(function (data) {
       // Normaliza a lista de clientes
       var lista = [];

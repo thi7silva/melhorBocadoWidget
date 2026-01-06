@@ -40,6 +40,10 @@ var WidgetConfig = {
         NAME: "consultaPrecos",
         PUBLIC_KEY: "hxfa2xVT9DRzdkuMZOH59kWtT",
       },
+      USUARIO_LOGADO: {
+        NAME: "usuarioLogado",
+        PUBLIC_KEY: "62ZDZvaOeBADdT5tS7X1hmJr4",
+      },
     },
   },
 

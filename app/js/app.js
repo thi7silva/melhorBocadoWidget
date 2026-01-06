@@ -93,6 +93,65 @@ var WidgetApp = (function () {
   function iniciarModoOnline() {
     WidgetUI.setStatus("Conectado! Digite para buscar clientes.", "success");
 
+    // Obtém dados de inicialização do Zoho
+    if (ZOHO.CREATOR && ZOHO.CREATOR.UTIL) {
+      // getInitParams
+      if (ZOHO.CREATOR.UTIL.getInitParams) {
+        ZOHO.CREATOR.UTIL.getInitParams()
+          .then(function (response) {
+            WidgetUI.log("getInitParams: " + JSON.stringify(response));
+
+            // Pega o loginUser e chama a API usuarioLogado
+            var loginUser = response.loginUser;
+            if (loginUser) {
+              WidgetUI.log("Login User: " + loginUser);
+
+              // Armazena o email do usuário logado no estado
+              state.loginUser = loginUser;
+
+              // Chama a API customizada usuarioLogado usando o mesmo padrão do api.js
+              var endpoint = WidgetConfig.API.ENDPOINTS.USUARIO_LOGADO;
+              var config = {
+                api_name: endpoint.NAME,
+                http_method: "GET",
+                public_key: endpoint.PUBLIC_KEY,
+                query_params: "emailPortal=" + encodeURIComponent(loginUser),
+              };
+
+              ZOHO.CREATOR.DATA.invokeCustomApi(config)
+                .then(function (apiResponse) {
+                  WidgetUI.log(
+                    "usuarioLogado: " + JSON.stringify(apiResponse),
+                    "success"
+                  );
+                })
+                .catch(function (apiErr) {
+                  WidgetUI.log(
+                    "Erro usuarioLogado: " + JSON.stringify(apiErr),
+                    "error"
+                  );
+                });
+            } else {
+              WidgetUI.log("loginUser não encontrado", "error");
+            }
+          })
+          .catch(function (err) {
+            WidgetUI.log("Erro getInitParams: " + err, "error");
+          });
+      }
+
+      // getQueryParams
+      if (ZOHO.CREATOR.UTIL.getQueryParams) {
+        ZOHO.CREATOR.UTIL.getQueryParams()
+          .then(function (response) {
+            WidgetUI.log("getQueryParams: " + JSON.stringify(response));
+          })
+          .catch(function (err) {
+            WidgetUI.log("Erro getQueryParams: " + err, "error");
+          });
+      }
+    }
+
     setTimeout(function () {
       WidgetUI.hideStatus();
     }, 3000);
@@ -109,13 +168,19 @@ var WidgetApp = (function () {
 
   /**
    * Busca clientes
+   * @param {string} query - Termo de busca
+   * @param {string} [type] - Tipo de busca (opcional)
    */
-  function searchClients(query) {
+  function searchClients(query, type) {
     WidgetUI.log("Buscando clientes: " + query);
     WidgetUI.setStatus("Buscando clientes...", "loading");
 
+    // Usa o email do usuário logado armazenado no estado
+    var email = state.loginUser || "";
+    type = type || "";
+
     if (state.online) {
-      WidgetAPI.buscarClientes(query)
+      WidgetAPI.buscarClientes(query, type, email)
         .then(function (clientes) {
           state.clientes = clientes;
           WidgetUI.renderClientList(clientes);
