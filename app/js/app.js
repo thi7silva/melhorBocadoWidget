@@ -188,13 +188,10 @@ var WidgetApp = (function () {
 
     WidgetUI.log("Cliente selecionado: " + cliente.Nome, "success");
 
-    // Define o cliente no módulo de produtos para buscar preços personalizados
-    WidgetProdutos.setClienteId(cliente.ID);
-
     // Mostra loading de transição
     WidgetUI.mostrarLoadingTransicao();
 
-    // Busca detalhes completos do cliente
+    // Busca detalhes completos do cliente (passa o idCRM que está no campo ID)
     if (state.online) {
       WidgetAPI.buscarDetalheCliente(cliente.ID)
         .then(function (detalhe) {
@@ -202,6 +199,28 @@ var WidgetApp = (function () {
 
           // Armazena os detalhes no estado
           state.clienteDetalhe = detalhe;
+
+          // Armazena o ID real do cliente (diferente do idCRM usado na busca)
+          state.clienteIdReal = detalhe.id;
+          WidgetUI.log("ID real do cliente (dos detalhes): " + detalhe.id);
+
+          // Define o cliente no módulo de produtos usando o ID real (não o idCRM)
+          // Todas as operações subsequentes usarão este ID
+          WidgetProdutos.setClienteId(detalhe.id);
+
+          // Atualiza RazaoSocial e NomeFantasia com os dados atualizados dos detalhes
+          // (podem estar diferentes da listagem inicial)
+          if (detalhe.clienteRazaoSocial) {
+            cliente.RazaoSocial = detalhe.clienteRazaoSocial;
+          }
+          if (detalhe.clienteNomeFantasia) {
+            cliente.NomeFantasia = detalhe.clienteNomeFantasia;
+            // Atualiza o Nome também se o NomeFantasia for diferente
+            cliente.Nome = detalhe.clienteNomeFantasia || cliente.Nome;
+          }
+
+          // Atualiza o cliente selecionado no estado com os dados atualizados
+          state.clienteSelecionado = cliente;
 
           // Preenche os campos com os detalhes
           WidgetUI.preencherDetalheCliente(detalhe);
@@ -239,7 +258,7 @@ var WidgetApp = (function () {
             }
           }
 
-          // Mostra a etapa do pedido e esconde loading
+          // Mostra a etapa do pedido e esconde loading (agora com dados atualizados)
           WidgetUI.mostrarEtapaPedido(cliente);
           WidgetUI.esconderLoadingTransicao();
 

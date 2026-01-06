@@ -140,10 +140,10 @@ var WidgetAPI = (function () {
       }
 
       // Mapeia para formato padronizado
-      // IMPORTANTE: Converte ID para STRING para evitar perda de precisão com números grandes
+      // IMPORTANTE: Agora usa idCRM como identificador principal (ID vai ser obtido nos detalhes)
       return lista.map(function (c) {
         return {
-          ID: String(c.ID),
+          ID: String(c.idCRM), // Usa idCRM da busca como identificador
           Nome: c.nomeFantasia || c.razaoSocial || "Sem Nome",
           RazaoSocial: c.razaoSocial || "-",
           NomeFantasia: c.nomeFantasia || "-",
@@ -220,8 +220,8 @@ var WidgetAPI = (function () {
 
   /**
    * Busca detalhes completos de um cliente específico
-   * @param {string} idCliente - ID do cliente no Zoho
-   * @returns {Promise<Object>} Detalhes do cliente normalizados
+   * @param {string} idCliente - idCRM do cliente (obtido da busca inicial)
+   * @returns {Promise<Object>} Detalhes do cliente normalizados (inclui campo 'id' que é o ID real)
    */
   function buscarDetalheCliente(idCliente) {
     return invokeAPI(WidgetConfig.API.ENDPOINTS.DETALHE_CLIENTE, "GET", {
@@ -232,6 +232,13 @@ var WidgetAPI = (function () {
 
       // Normaliza e retorna os dados
       return {
+        // ID principal do cliente (diferente do idCRM usado na busca)
+        id: String(detalhe.id || ""),
+
+        // Dados do cliente atualizados dos detalhes
+        clienteRazaoSocial: detalhe.clienteRazaoSocial || "",
+        clienteNomeFantasia: detalhe.clienteNomeFantasia || "",
+
         // Códigos Protheus
         protheusCodigo: detalhe.protheusCodigo || "",
         protheusLoja: detalhe.protheusLoja || "",
