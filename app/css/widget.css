@@ -3790,6 +3790,65 @@ body {
   color: rgba(255, 255, 255, 0.9);
 }
 
+/* Data Bloqueada (Feriado) */
+.entrega-data-card.bloqueada {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  cursor: not-allowed;
+  opacity: 0.65;
+  position: relative;
+}
+
+.entrega-data-card.bloqueada::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 4px,
+    rgba(0, 0, 0, 0.03) 4px,
+    rgba(0, 0, 0, 0.03) 8px
+  );
+  pointer-events: none;
+}
+
+.entrega-data-card.bloqueada:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: var(--color-border);
+}
+
+.entrega-data-card.bloqueada .entrega-data-dia {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+  text-decoration-color: var(--color-error);
+}
+
+.entrega-data-card.bloqueada .entrega-data-semana {
+  color: var(--color-text-muted);
+}
+
+.entrega-data-badge {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-error);
+  color: white;
+  font-size: 0.45rem;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
 /* Campo de Observações de Entrega */
 .entrega-observacoes {
   margin-top: 24px;
@@ -4001,6 +4060,35 @@ body {
 
 .entrega-preview-card .dia-semana {
   color: var(--color-text-muted);
+}
+
+/* Preview card bloqueado (feriado) */
+.entrega-preview-card.bloqueada {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  opacity: 0.7;
+  position: relative;
+}
+
+.entrega-preview-card.bloqueada .dia-numero {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+  text-decoration-color: var(--color-error);
+}
+
+.entrega-preview-card.bloqueada .dia-semana {
+  color: var(--color-text-muted);
+}
+
+.preview-badge-feriado {
+  background: var(--color-error);
+  color: white;
+  font-size: 0.55rem;
+  font-weight: 600;
+  padding: 1px 4px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  margin-left: 2px;
 }
 
 .entrega-preview-mais {

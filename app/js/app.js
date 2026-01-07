@@ -310,6 +310,9 @@ var WidgetApp = (function () {
           // Define a janela de entrega no módulo de entrega
           WidgetEntrega.setJanelaEntrega(detalhe.janelaEntrega);
 
+          // Define a lista de feriados/datas bloqueadas
+          WidgetEntrega.setListaFeriados(detalhe.listaFeriados);
+
           // Carrega condições de pagamento e pré-seleciona a do cliente
           carregarCondicoesPagamentoComSelecao(detalhe.pagamentoCondicaoID);
 
@@ -510,27 +513,194 @@ var WidgetApp = (function () {
       "success"
     );
 
-    // Gera o pedido com os dados de entrega
-    var dadosPedido = gerarPedido();
+    // Obtém dados do carrinho e descontos
+    var carrinho = WidgetProdutos.getCarrinho();
+    var descontoState = WidgetProdutos.getDescontoState();
 
-    // Adiciona dados de entrega
-    dadosPedido.dataEntrega = dataEntrega.dataFormatada;
-    dadosPedido.dataEntregaISO = dataEntrega.dataISO;
-    dadosPedido.diaEntrega = dataEntrega.nomeDia;
-    dadosPedido.observacoesEntrega = observacoesEntrega || "";
+    // Calcula totais
+    var subtotalBruto = 0;
+    var totalDescontoItens = 0;
+    var totalIPI = 0;
+    var totalST = 0;
 
-    // Adiciona produtos do carrinho
-    dadosPedido.itens = WidgetProdutos.getCarrinho();
-    dadosPedido.totalPedido = dadosPedido.itens.reduce(function (total, item) {
-      return total + (item.Subtotal || 0);
-    }, 0);
+    // Mapeia os itens para o formato de envio
+    var itensFormatados = carrinho.map(function (item) {
+      var subtotalItem = item.Preco * item.Quantidade;
+      var descontoItemTotal = (item.descontoValor || 0) * item.Quantidade;
+      var subtotalComDesconto = subtotalItem - descontoItemTotal;
 
-    // Exibe no console com dados completos
-    console.log("=".repeat(50));
-    console.log("📦 PEDIDO FINALIZADO COM ENTREGA:");
-    console.log("=".repeat(50));
+      subtotalBruto += subtotalItem;
+      totalDescontoItens += descontoItemTotal;
+      totalIPI += (item.IPI || 0) * item.Quantidade;
+      totalST += (item.ST || 0) * item.Quantidade;
+
+      return {
+        produtoId: item.ID,
+        produtoCodigo: item.Codigo || "",
+        produtoNome: item.Nome,
+        quantidade: item.Quantidade,
+        unidade: item.Unidade || "UN",
+        precoUnitario: item.Preco,
+        precoBase: item.PrecoBase || item.Preco,
+        ipi: item.IPI || 0,
+        st: item.ST || 0,
+        descontoPercent: item.descontoPercent || 0,
+        descontoValor: item.descontoValor || 0,
+        descontoTotal: descontoItemTotal,
+        subtotalBruto: subtotalItem,
+        subtotalLiquido: subtotalComDesconto,
+      };
+    });
+
+    // Total final após descontos
+    var totalFinal = subtotalBruto - totalDescontoItens;
+
+    // Monta o JSON estruturado para envio
+    var dadosPedido = {
+      // --- Dados do Cliente ---
+      cliente: {
+        id: state.clienteIdReal || state.clienteSelecionado?.ID || "",
+        idCRM: state.clienteSelecionado?.ID || "",
+        razaoSocial:
+          state.clienteDetalhe?.clienteRazaoSocial ||
+          state.clienteSelecionado?.RazaoSocial ||
+          "",
+        nomeFantasia:
+          state.clienteDetalhe?.clienteNomeFantasia ||
+          state.clienteSelecionado?.NomeFantasia ||
+          "",
+        cnpjCpf: state.clienteSelecionado?.CPF_CNPJ || "",
+        protheusCodigo: state.clienteDetalhe?.protheusCodigo || "",
+        protheusLoja: state.clienteDetalhe?.protheusLoja || "",
+        codigoMB: state.clienteDetalhe?.clienteCodigoMB || "",
+        canal: state.clienteDetalhe?.clienteCanal || "",
+      },
+
+      // --- Vendedor ---
+      vendedor: {
+        id: state.clienteDetalhe?.vendedorID || "",
+        nome: state.clienteDetalhe?.vendedorNome || "",
+        email: state.loginUser || "",
+      },
+
+      // --- Endereço de Entrega ---
+      endereco: {
+        logradouro: state.clienteDetalhe?.endereco || "",
+        bairro: state.clienteDetalhe?.bairro || "",
+        municipio: state.clienteDetalhe?.municipio || "",
+        estado: state.clienteDetalhe?.estado || "",
+        cep: state.clienteDetalhe?.cep || "",
+        complemento: state.clienteDetalhe?.complemento || "",
+        observacaoEntrega:
+          document.getElementById("endereco-entrega")?.value || "",
+      },
+
+      // --- Entrega ---
+      entrega: {
+        dataFormatada: dataEntrega.dataFormatada,
+        dataISO: dataEntrega.dataISO,
+        diaSemana: dataEntrega.nomeDia,
+        observacoes: observacoesEntrega || "",
+      },
+
+      // --- Configurações do Pedido ---
+      configuracao: {
+        condicaoPagamentoId:
+          document.getElementById("condicao-pagamento")?.value || "",
+        condicaoPagamentoCodigo:
+          state.clienteDetalhe?.pagamentoCondicaoCodigo || "",
+        tipoFrete: getSelectedOption("frete"),
+        transportadoraId: state.clienteDetalhe?.transportadoraID || "",
+        transportadoraCodigo: state.clienteDetalhe?.transportadoraCodigo || "",
+        transportadoraRazao: state.clienteDetalhe?.transportadoraRazao || "",
+        natureza: getSelectedOption("natureza"),
+        numeroPedidoCliente:
+          document.getElementById("numero-pedido-cliente")?.value || "",
+        observacoesGerais: document.getElementById("observacoes")?.value || "",
+      },
+
+      // --- Itens do Pedido ---
+      itens: itensFormatados,
+
+      // --- Totais ---
+      totais: {
+        quantidadeItens: carrinho.length,
+        subtotalBruto: subtotalBruto,
+        totalIPI: totalIPI,
+        totalST: totalST,
+        descontoItens: totalDescontoItens,
+        descontoGlobal: descontoState.totalDescontoGlobal || 0,
+        descontoTotal:
+          totalDescontoItens + (descontoState.totalDescontoGlobal || 0),
+        totalFinal: totalFinal,
+      },
+
+      // --- Metadados ---
+      meta: {
+        dataGeracao: new Date().toISOString(),
+        origemWidget: "melhor-bocado-pedido",
+        versao: "1.0.0",
+      },
+    };
+
+    // ============================================
+    // CONSOLE.LOG DETALHADO PARA DEBUG
+    // ============================================
+    console.log("=".repeat(60));
+    console.log("📦 DADOS DO PEDIDO PARA ENVIO À API");
+    console.log("=".repeat(60));
+    console.log("\n📋 JSON COMPLETO:");
     console.log(JSON.stringify(dadosPedido, null, 2));
-    console.log("=".repeat(50));
+    console.log("\n" + "-".repeat(60));
+    console.log("📊 RESUMO:");
+    console.log(
+      "  • Cliente:",
+      dadosPedido.cliente.nomeFantasia || dadosPedido.cliente.razaoSocial
+    );
+    console.log("  • Vendedor:", dadosPedido.vendedor.nome);
+    console.log(
+      "  • Data Entrega:",
+      dadosPedido.entrega.dataFormatada,
+      "(" + dadosPedido.entrega.diaSemana + ")"
+    );
+    console.log("  • Qtd. Itens:", dadosPedido.totais.quantidadeItens);
+    console.log(
+      "  • Subtotal Bruto:",
+      "R$",
+      dadosPedido.totais.subtotalBruto.toFixed(2)
+    );
+    console.log(
+      "  • Desconto Itens:",
+      "R$",
+      dadosPedido.totais.descontoItens.toFixed(2)
+    );
+    console.log(
+      "  • Total Final:",
+      "R$",
+      dadosPedido.totais.totalFinal.toFixed(2)
+    );
+    console.log("-".repeat(60));
+    console.log("📦 ITENS:");
+    dadosPedido.itens.forEach(function (item, index) {
+      console.log(
+        "  " +
+          (index + 1) +
+          ". " +
+          item.produtoNome +
+          " | Qtd: " +
+          item.quantidade +
+          " | Preço: R$" +
+          item.precoUnitario.toFixed(2) +
+          " | Desc%: " +
+          item.descontoPercent +
+          "%" +
+          " | DescR$: R$" +
+          item.descontoValor.toFixed(2) +
+          " | SubTotal: R$" +
+          item.subtotalLiquido.toFixed(2)
+      );
+    });
+    console.log("=".repeat(60));
 
     // Log no painel de debug
     WidgetUI.log("Pedido finalizado! Verifique o console (F12)", "success");
@@ -546,7 +716,7 @@ var WidgetApp = (function () {
     if (totalEl) {
       totalEl.textContent =
         "R$ " +
-        dadosPedido.totalPedido.toLocaleString("pt-BR", {
+        dadosPedido.totais.totalFinal.toLocaleString("pt-BR", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         });
@@ -556,7 +726,7 @@ var WidgetApp = (function () {
     WidgetUI.abrirModal("modal-sucesso");
 
     // TODO: Enviar pedido para API
-    // WidgetAPI.criarPedido(dadosPedido)...\
+    // WidgetAPI.criarPedido(dadosPedido)...
 
     return dadosPedido;
   }

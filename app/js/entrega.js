@@ -11,6 +11,7 @@ var WidgetEntrega = (function () {
   // Estado do módulo
   var state = {
     janelaEntrega: [], // Dias permitidos ["Segunda-Feira", "Terça-Feira", ...]
+    listaFeriados: [], // Lista de feriados/bloqueios [{dataBloqueio, dataCondicao}]
     datasDisponiveis: [],
     dataSelecionada: null,
   };
@@ -49,6 +50,126 @@ var WidgetEntrega = (function () {
   function setJanelaEntrega(janela) {
     state.janelaEntrega = janela || [];
     WidgetUI.log("Janela de entrega definida: " + JSON.stringify(janela));
+  }
+
+  /**
+   * Define a lista de feriados/datas bloqueadas
+   * @param {Array} listaFeriados - Lista de bloqueios [{dataBloqueio, dataCondicao}]
+   */
+  function setListaFeriados(listaFeriados) {
+    state.listaFeriados = listaFeriados || [];
+    WidgetUI.log(
+      "Lista de feriados definida: " + state.listaFeriados.length + " data(s)"
+    );
+  }
+
+  /**
+   * Converte data de formato DD/MM/YYYY para YYYY-MM-DD
+   * @param {string} dataBR - Data no formato DD/MM/YYYY
+   * @returns {string} Data no formato YYYY-MM-DD
+   */
+  function converterDataBRparaISO(dataBR) {
+    if (!dataBR) return "";
+    var partes = dataBR.split("/");
+    if (partes.length !== 3) return dataBR; // Retorna original se não conseguir parsear
+    return partes[2] + "-" + partes[1] + "-" + partes[0]; // YYYY-MM-DD
+  }
+
+  /**
+   * Converte dataCondicao de formato DD/MM/YYYY HH:mm:ss para Date
+   * @param {string} dataCondicaoStr - Data no formato DD/MM/YYYY HH:mm:ss
+   * @returns {Date} Objeto Date
+   */
+  function parsearDataCondicao(dataCondicaoStr) {
+    if (!dataCondicaoStr) return null;
+
+    // Formato esperado: "07/01/2026 09:00:00"
+    var partes = dataCondicaoStr.split(" ");
+    var dataPartes = partes[0].split("/");
+    var horaPartes = partes[1] ? partes[1].split(":") : ["0", "0", "0"];
+
+    return new Date(
+      parseInt(dataPartes[2]), // ano
+      parseInt(dataPartes[1]) - 1, // mês (0-indexed)
+      parseInt(dataPartes[0]), // dia
+      parseInt(horaPartes[0]), // hora
+      parseInt(horaPartes[1]), // minuto
+      parseInt(horaPartes[2] || 0) // segundo
+    );
+  }
+
+  /**
+   * Verifica se uma data está bloqueada por feriado ou condição
+   * Regra:
+   * - Se dataCondicao existe e agora > dataCondicao → bloqueia
+   * - Se dataCondicao é null/vazia → sempre bloqueia
+   * @param {string} dataISO - Data no formato ISO (YYYY-MM-DD)
+   * @returns {boolean} true se a data está bloqueada
+   */
+  function isDataBloqueada(dataISO) {
+    if (!state.listaFeriados || state.listaFeriados.length === 0) {
+      return false;
+    }
+
+    var agora = new Date();
+
+    for (var i = 0; i < state.listaFeriados.length; i++) {
+      var feriado = state.listaFeriados[i];
+      var dataBloqueio = feriado.dataBloqueio;
+
+      // Converte dataBloqueio de DD/MM/YYYY para YYYY-MM-DD para comparação
+      var dataBloqueioISO = converterDataBRparaISO(dataBloqueio);
+
+      // Verifica se é a data que estamos checando
+      if (dataBloqueioISO === dataISO) {
+        var dataCondicaoStr = feriado.dataCondicao;
+
+        // Se dataCondicao é null ou string vazia, sempre bloqueia
+        if (!dataCondicaoStr || dataCondicaoStr.trim() === "") {
+          WidgetUI.log(
+            "Data " + dataISO + " bloqueada (sem condição - feriado)",
+            "warning"
+          );
+          return true;
+        }
+
+        // Se dataCondicao existe, verifica se agora > dataCondicao
+        var dataCondicao = parsearDataCondicao(dataCondicaoStr);
+
+        if (!dataCondicao || isNaN(dataCondicao.getTime())) {
+          // Se não conseguiu parsear, bloqueia por segurança
+          WidgetUI.log(
+            "Data " + dataISO + " bloqueada (erro ao parsear condição)",
+            "warning"
+          );
+          return true;
+        }
+
+        if (agora > dataCondicao) {
+          WidgetUI.log(
+            "Data " +
+              dataISO +
+              " bloqueada (condição expirada em " +
+              dataCondicao.toLocaleString("pt-BR") +
+              ")",
+            "warning"
+          );
+          return true;
+        } else {
+          WidgetUI.log(
+            "Data " +
+              dataISO +
+              " disponível (condição válida até " +
+              dataCondicao.toLocaleString("pt-BR") +
+              ")",
+            "success"
+          );
+          return false;
+        }
+      }
+    }
+
+    return false;
   }
 
   /**
@@ -120,7 +241,13 @@ var WidgetEntrega = (function () {
         });
       }
 
+      // Gera data ISO para verificação de bloqueio
+      var dataISOCheck = dataAtual.toISOString().split("T")[0];
+
       if (permitida) {
+        // Verifica se a data está bloqueada por feriado/condição
+        var bloqueada = isDataBloqueada(dataISOCheck);
+
         datas.push({
           data: new Date(dataAtual),
           dia: dataAtual.getDate(),
@@ -129,7 +256,8 @@ var WidgetEntrega = (function () {
           nomeDia: nomeDia,
           nomeMes: MESES[dataAtual.getMonth()],
           dataFormatada: dataAtual.toLocaleDateString("pt-BR"),
-          dataISO: dataAtual.toISOString().split("T")[0],
+          dataISO: dataISOCheck,
+          bloqueada: bloqueada, // Flag para indicar se é feriado/bloqueada
         });
       }
 
@@ -205,14 +333,29 @@ var WidgetEntrega = (function () {
           var selecionada =
             state.dataSelecionada &&
             state.dataSelecionada.dataISO === d.dataISO;
-          var classeExtra = selecionada ? "selecionada" : "";
+
+          // Monta as classes do card
+          var classes = ["entrega-data-card"];
+          if (selecionada) classes.push("selecionada");
+          if (d.bloqueada) classes.push("bloqueada");
+
+          // Se bloqueada, não adiciona onclick
+          var onclickAttr = d.bloqueada
+            ? ""
+            : `onclick="WidgetEntrega.selecionarData('${d.dataISO}')"`;
 
           html += `
-            <div class="entrega-data-card ${classeExtra}" 
+            <div class="${classes.join(" ")}" 
                  data-iso="${d.dataISO}" 
-                 onclick="WidgetEntrega.selecionarData('${d.dataISO}')">
+                 ${onclickAttr}
+                 ${d.bloqueada ? 'title="Feriado - Data indisponível"' : ""}>
               <div class="entrega-data-dia">${d.dia}</div>
               <div class="entrega-data-semana">${d.nomeDia.split("-")[0]}</div>
+              ${
+                d.bloqueada
+                  ? '<div class="entrega-data-badge">Feriado</div>'
+                  : ""
+              }
             </div>
           `;
         });
@@ -342,6 +485,14 @@ var WidgetEntrega = (function () {
     // Gera as datas disponíveis
     var datas = gerarDatasDisponiveis();
 
+    // Filtra apenas datas não bloqueadas para o preview
+    var datasDisponiveis = datas.filter(function (d) {
+      return !d.bloqueada;
+    });
+    var datasBloqueadas = datas.filter(function (d) {
+      return d.bloqueada;
+    });
+
     if (datas.length === 0) {
       container.innerHTML = `
         <div class="entrega-vazio" style="padding: 16px; flex-direction: row; gap: 12px;">
@@ -358,26 +509,35 @@ var WidgetEntrega = (function () {
       return;
     }
 
-    // Mostra as primeiras 5 datas
-    var datasPreview = datas.slice(0, 5);
+    // Mostra as primeiras 6 datas (incluindo bloqueadas para o vendedor ver)
+    var datasPreview = datas.slice(0, 6);
     var html = "";
 
     datasPreview.forEach(function (d) {
+      var classeExtra = d.bloqueada ? "bloqueada" : "";
       html += `
-        <div class="entrega-preview-card">
+        <div class="entrega-preview-card ${classeExtra}" ${
+        d.bloqueada ? 'title="Feriado - Indisponível"' : ""
+      }>
           <span class="dia-numero">${d.dia}/${(d.mes + 1)
         .toString()
         .padStart(2, "0")}</span>
           <span class="dia-semana">${d.nomeDia.split("-")[0]}</span>
+          ${
+            d.bloqueada
+              ? '<span class="preview-badge-feriado">Feriado</span>'
+              : ""
+          }
         </div>
       `;
     });
 
     // Se houver mais datas, mostra indicador
-    if (datas.length > 5) {
+    var datasRestantes = datas.length - 6;
+    if (datasRestantes > 0) {
       html += `
         <div class="entrega-preview-mais">
-          +${datas.length - 5} datas
+          +${datasRestantes} datas
         </div>
       `;
     }
@@ -402,6 +562,7 @@ var WidgetEntrega = (function () {
   // API Pública do Módulo
   return {
     setJanelaEntrega: setJanelaEntrega,
+    setListaFeriados: setListaFeriados,
     abrirModalEntrega: abrirModalEntrega,
     selecionarData: selecionarData,
     confirmarEntrega: confirmarEntrega,

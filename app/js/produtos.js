@@ -1060,6 +1060,14 @@ var WidgetProdutos = (function () {
   }
 
   /**
+   * Retorna o estado de descontos
+   * @returns {Object} Estado com globalTipo, globalValor, totalDescontoItens, totalDescontoGlobal
+   */
+  function getDescontoState() {
+    return state.desconto;
+  }
+
+  /**
    * Formata valor para moeda
    */
   function formatarMoeda(valor) {
@@ -1109,6 +1117,7 @@ var WidgetProdutos = (function () {
     renderizarCarrinho: renderizarCarrinho,
     filtrarProdutos: filtrarProdutos,
     getCarrinho: getCarrinho,
+    getDescontoState: getDescontoState,
     toggleModoEdicao: toggleModoEdicao,
     editarQuantidadeCarrinho: editarQuantidadeCarrinho,
     // Funções de Desconto

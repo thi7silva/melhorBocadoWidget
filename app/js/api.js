@@ -285,6 +285,9 @@ var WidgetAPI = (function () {
         // Outros
         bandeiraDescricao: detalhe.bandeiraDescricao || "",
         municipioLoteMinimo: detalhe.municipioLoteMinimo || 0,
+
+        // Lista de Feriados/Datas Bloqueadas
+        listaFeriados: detalhe.listaFeriados || [],
       };
     });
   }
