@@ -765,7 +765,7 @@ var WidgetProdutos = (function () {
 
       html += `
         <tr>
-          <td>
+          <td data-label="Produto">
             <div class="carrinho-modal-produto">
               <div class="carrinho-modal-imagem">
                 <img src="${imagemUrl}" alt="${
@@ -778,31 +778,34 @@ var WidgetProdutos = (function () {
               </div>
             </div>
           </td>
-          <td class="text-right">R$ ${precoBaseExibir.toLocaleString("pt-BR", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}</td>
-          <td class="text-right">
+          <td class="text-right" data-label="Valor Unit.">R$ ${precoBaseExibir.toLocaleString(
+            "pt-BR",
+            {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }
+          )}</td>
+          <td class="text-right" data-label="IPI">
              ${
                ipiExibir > 0
-                 ? `<div>R$ ${ipiExibir.toLocaleString("pt-BR", {
+                 ? `R$ ${ipiExibir.toLocaleString("pt-BR", {
                      minimumFractionDigits: 2,
                      maximumFractionDigits: 2,
-                   })}</div>`
+                   })}`
                  : "-"
              }
           </td>
-          <td class="text-right">
+          <td class="text-right" data-label="ST">
              ${
                stExibir > 0
-                 ? `<div>R$ ${stExibir.toLocaleString("pt-BR", {
+                 ? `R$ ${stExibir.toLocaleString("pt-BR", {
                      minimumFractionDigits: 2,
                      maximumFractionDigits: 2,
-                   })}</div>`
+                   })}`
                  : "-"
              }
           </td>
-          <td class="text-center">
+          <td class="text-center" data-label="Qtd">
              <div class="qtd-wrapper center">
                 <button class="btn-micro" onclick="WidgetProdutos.editarQuantidadeCarrinho('${
                   item.ID
@@ -815,13 +818,13 @@ var WidgetProdutos = (function () {
                 }', 1)">+</button>
              </div>
           </td>
-          <td class="text-right font-bold">
-            <div>R$ ${subtotalTabela.toLocaleString("pt-BR", {
+          <td class="text-right font-bold" data-label="Total s/ Desc">
+            R$ ${subtotalTabela.toLocaleString("pt-BR", {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
-            })}</div>
+            })}
           </td>
-          <td class="text-center desconto-cell">
+          <td class="text-center desconto-cell" data-label="Desconto">
             <div class="desconto-item-container" style="display: flex; flex-direction: column; gap: 4px;">
               <div class="desconto-item-row">
                 <span class="desconto-item-label">%</span>
@@ -872,13 +875,13 @@ var WidgetProdutos = (function () {
               }
             </div>
           </td>
-          <td class="text-right font-bold">
-            <div style="color: var(--color-primary);">R$ ${subtotalFinal.toLocaleString(
+          <td class="text-right font-bold" data-label="Total Final">
+            <span style="color: var(--color-primary);">R$ ${subtotalFinal.toLocaleString(
               "pt-BR",
               { minimumFractionDigits: 2, maximumFractionDigits: 2 }
-            )}</div>
+            )}</span>
           </td>
-          <td class="text-center">
+          <td class="text-center" data-label="">
             <button class="btn-icon-remove" onclick="WidgetProdutos.removerDoCarrinho('${
               item.ID
             }')" title="Remover item">

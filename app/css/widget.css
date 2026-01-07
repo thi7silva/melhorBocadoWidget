@@ -5502,10 +5502,366 @@ body {
   font-size: 0.7rem;
   font-weight: 600;
   color: #2e7d32;
-  white-space: nowrap;
+  white-space: normal;
+  word-wrap: break-word;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .desconto-aplicado-badge svg {
   stroke: #2e7d32;
   flex-shrink: 0;
+}
+
+/* ============================================
+   RESPONSIVO MOBILE - MODAL DE CARRINHO CARDS
+   ============================================ */
+@media (max-width: 768px) {
+  /* Transformar tabela do carrinho em cards */
+  .carrinho-table {
+    display: block;
+    border: none;
+  }
+
+  .carrinho-table thead {
+    display: none;
+  }
+
+  .carrinho-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 0 4px;
+  }
+
+  .carrinho-table tbody tr {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 0;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+  }
+
+  /* Cabeçalho do card com produto */
+  .carrinho-table tbody td[data-label="Produto"] {
+    background: linear-gradient(135deg, #fce4ec 0%, #fff 100%);
+    padding: 16px;
+    padding-right: 48px; /* Espaço para lixeira */
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .carrinho-table tbody td[data-label="Produto"]::before {
+    display: none;
+  }
+
+  .carrinho-modal-produto {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .carrinho-modal-imagem {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+  }
+
+  /* Linhas de valores - estilo lista */
+  .carrinho-table tbody td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    border: none;
+    border-bottom: 1px solid #f5f5f5;
+    font-size: 0.9rem;
+  }
+
+  .carrinho-table tbody td::before {
+    content: attr(data-label);
+    font-weight: 500;
+    font-size: 0.8rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  /* Botão de remover - canto superior direito */
+  .carrinho-table tbody td[data-label=""] {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 0;
+    border: none;
+    background: transparent;
+  }
+
+  .carrinho-table tbody td[data-label=""]::before {
+    display: none;
+  }
+
+  .btn-icon-remove {
+    background: #fff;
+    border: 1px solid #ffcdd2;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #e53935;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Célula de desconto - seção especial */
+  .desconto-cell {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 16px !important;
+    background: #fafafa;
+    border-bottom: none !important;
+  }
+
+  .desconto-cell::before {
+    display: block;
+    margin-bottom: 12px;
+    text-align: center;
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+
+  .desconto-item-container {
+    flex-direction: row !important;
+    flex-wrap: wrap !important; /* Importante para quebrar linha */
+    gap: 12px !important;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .desconto-item-row {
+    /* Garante que os inputs compartilhem o espaço na primeira linha */
+    flex: 1 1 45%;
+    min-width: 120px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 8px 12px;
+  }
+
+  /* Badge de desconto aplicado - embaixo dos inputs */
+  .desconto-aplicado-badge {
+    flex-basis: 100% !important; /* Força nova linha */
+    width: 100%;
+    margin-top: 8px;
+    justify-content: center;
+    font-size: 0.75rem;
+    padding: 8px 12px;
+  }
+
+  .desconto-item-label {
+    font-weight: 600;
+    color: var(--color-primary);
+    font-size: 0.85rem;
+  }
+
+  .desconto-item-input {
+    flex: 1;
+    border: none !important;
+    background: transparent !important;
+    text-align: right;
+    font-weight: 600;
+    font-size: 1rem;
+  }
+
+  /* Total Final destacado */
+  .carrinho-table tbody td[data-label="Total Final"] {
+    background: linear-gradient(135deg, #e8f5e9 0%, #fff 100%);
+    border-bottom: none;
+    padding: 12px 16px;
+  }
+
+  .carrinho-table tbody td[data-label="Total Final"]::before {
+    font-weight: 700;
+    color: #2e7d32;
+  }
+
+  /* QTD com botões centralizados */
+  .carrinho-table tbody td[data-label="Qtd"] .qtd-wrapper {
+    justify-content: flex-end;
+  }
+
+  .carrinho-table tbody td[data-label="Qtd"] .btn-micro {
+    width: 32px;
+    height: 32px;
+    font-size: 1.1rem;
+  }
+
+  .carrinho-table tbody td[data-label="Qtd"] .input-micro {
+    width: 40px;
+    font-size: 1rem;
+  }
+
+  /* tfoot também precisa virar cards */
+  .carrinho-table tfoot {
+    display: block;
+  }
+
+  .carrinho-table tfoot tr {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .carrinho-table tfoot td {
+    display: inline;
+    border: none;
+  }
+
+  .carrinho-table tfoot td[colspan] {
+    flex: 1;
+  }
+
+  /* FAB sobre o conteúdo - acima do botão Gerar Pedido */
+  .fab-carrinho {
+    position: fixed !important;
+    bottom: 100px !important;
+    right: 16px !important;
+    z-index: 1001 !important;
+  }
+
+  /* Footer do modal de produtos */
+  .modal-produtos-footer {
+    flex-direction: column;
+    padding: 12px 16px;
+    gap: 8px;
+  }
+
+  .modal-produtos-footer .btn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 16px;
+  }
+
+  .modal-produtos-footer .btn-secondary {
+    order: 2;
+  }
+
+  .modal-produtos-footer .btn-primary {
+    order: 1;
+  }
+
+  /* Modal de carrinho fullscreen mobile */
+  .modal-lg {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 100vh;
+    height: 100vh;
+    margin: 0;
+    border-radius: 0;
+  }
+
+  .modal-lg .modal-body {
+    max-height: calc(100vh - 180px);
+    overflow-y: auto;
+    padding: 16px;
+  }
+
+  /* Barra de limite de desconto */
+  .desconto-limit-bar {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .limit-progress {
+    width: 100%;
+    order: 3;
+    margin-top: 8px;
+  }
+
+  /* Seção de grupos de produtos - pegar mais espaço E ter scroll */
+  .categorias-section {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-bottom: 100px; /* Espaço para o footer e FAB */
+  }
+
+  .categorias-grid {
+    max-height: none;
+    overflow: visible;
+    padding-bottom: 20px;
+  }
+
+  /* Remover padding extra do footer */
+  .footer-pedido {
+    padding: 12px 16px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 999;
+  }
+
+  /* Container principal de produtos - SCROLL */
+  .produtos-main {
+    flex: 1;
+    overflow-y: auto;
+    max-height: calc(100vh - 280px);
+    padding-bottom: 20px;
+  }
+
+  .tab-content {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  #tab-produtos {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .produtos-layout {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Badge de desconto aplicado - embaixo dos inputs */
+  /* (Já definido acima com flex-basis: 100%) */
+}
+
+/* Mobile extra pequeno */
+@media (max-width: 480px) {
+  .carrinho-table tbody tr {
+    padding: 0;
+  }
+
+  .carrinho-modal-imagem {
+    width: 50px;
+    height: 50px;
+  }
+
+  .desconto-item-input {
+    min-width: 60px;
+    padding: 6px 8px;
+    font-size: 0.85rem;
+  }
+
+  .produtos-main {
+    max-height: calc(100vh - 250px);
+  }
 }
