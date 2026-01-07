@@ -1088,6 +1088,21 @@
             </table>
           </div>
         </div>
+
+        <!-- Overlay de Loading para Recálculo de Impostos -->
+        <div
+          id="carrinho-recalculo-loading"
+          class="carrinho-loading-overlay hidden"
+        >
+          <div class="carrinho-loading-content">
+            <div class="loading-spinner"></div>
+            <p>Recalculando impostos...</p>
+            <span class="loading-hint"
+              >Aguarde enquanto atualizamos os valores</span
+            >
+          </div>
+        </div>
+
         <div class="modal-actions">
           <button
             type="button"
@@ -1098,10 +1113,21 @@
           </button>
           <button
             type="button"
+            id="btn-salvar-carrinho"
             class="btn btn-primary"
-            onclick="WidgetUI.fecharModal('modal-carrinho')"
+            onclick="WidgetProdutos.salvarAlteracoesCarrinho()"
           >
-            Concluir
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Salvar Alterações
           </button>
         </div>
       </div>

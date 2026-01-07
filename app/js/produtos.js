@@ -61,6 +61,8 @@ var WidgetProdutos = (function () {
       totalDescontoItens: 0, // Soma dos descontos aplicados nos itens
       totalDescontoGlobal: 0, // Valor do desconto global calculado
     },
+    // Snapshot dos descontos ao abrir o modal (para detectar alterações)
+    snapshotDescontos: null,
   };
 
   /**
@@ -622,10 +624,40 @@ var WidgetProdutos = (function () {
 
   /**
    * Abre o modal de edição do carrinho
+   * Salva snapshot dos descontos para detectar alterações
    */
   function toggleModoEdicao() {
+    // Salva snapshot dos descontos atuais para comparar ao salvar
+    state.snapshotDescontos = criarSnapshotDescontos();
+
     renderizarCarrinhoModal();
     WidgetUI.abrirModal("modal-carrinho");
+  }
+
+  /**
+   * Cria um snapshot dos descontos dos itens do carrinho
+   * @returns {string} JSON string do snapshot para comparação
+   */
+  function criarSnapshotDescontos() {
+    return JSON.stringify(
+      state.carrinho.map(function (item) {
+        return {
+          id: item.ID,
+          descontoPercent: item.descontoPercent || 0,
+          descontoValor: item.descontoValor || 0,
+          quantidade: item.Quantidade,
+        };
+      })
+    );
+  }
+
+  /**
+   * Verifica se houve alteração nos descontos desde a abertura do modal
+   * @returns {boolean} true se houve alteração
+   */
+  function houveAlteracaoDescontos() {
+    var snapshotAtual = criarSnapshotDescontos();
+    return state.snapshotDescontos !== snapshotAtual;
   }
 
   /**
@@ -994,6 +1026,221 @@ var WidgetProdutos = (function () {
   }
 
   /**
+   * Salva as alterações do carrinho e recalcula impostos se houver descontos
+   * Chama a API de recálculo de impostos quando há descontos aplicados E houve alteração
+   */
+  function salvarAlteracoesCarrinho() {
+    // Verifica se houve alteração nos descontos desde a abertura do modal
+    if (!houveAlteracaoDescontos()) {
+      // Não houve alteração, apenas fecha o modal
+      WidgetUI.log("Nenhuma alteração nos descontos", "success");
+      renderizarCarrinho();
+      WidgetUI.fecharModal("modal-carrinho");
+      return;
+    }
+
+    // Verifica se há descontos aplicados
+    var temDesconto = state.carrinho.some(function (item) {
+      return (item.descontoPercent || 0) > 0 || (item.descontoValor || 0) > 0;
+    });
+
+    if (!temDesconto) {
+      // Se não há desconto, apenas fecha o modal e atualiza o carrinho
+      WidgetUI.log("Alterações salvas (sem desconto)", "success");
+      renderizarCarrinho();
+      WidgetUI.fecharModal("modal-carrinho");
+      return;
+    }
+
+    // Se há desconto E houve alteração, precisa recalcular impostos
+    WidgetUI.log("Recalculando impostos com desconto...", "success");
+    mostrarLoadingRecalculo(true);
+
+    // Monta os dados para enviar à API de recálculo
+    // IMPORTANTE: Inclui percentuais sobre preço base E sobre preço total
+    var dadosRecalculo = {
+      clienteId: state.clienteId,
+      itens: state.carrinho.map(function (item) {
+        var precoBase = item.PrecoBase || 0;
+        var ipi = item.IPI || 0;
+        var st = item.ST || 0;
+        var precoTotal = item.Preco || precoBase + ipi + st; // base + IPI + ST
+        var descontoValorUnit = item.descontoValor || 0;
+
+        // Percentual de desconto sobre o preço BASE (sem ST/IPI)
+        var descontoPercentSobreBase =
+          precoBase > 0 ? (descontoValorUnit / precoBase) * 100 : 0;
+
+        // Percentual de desconto sobre o preço TOTAL (com ST/IPI)
+        // Este é o valor que você precisa: ex: 5,00 / 51,27 × 100 = 9,75%
+        var descontoPercentSobreTotal =
+          precoTotal > 0 ? (descontoValorUnit / precoTotal) * 100 : 0;
+
+        // Preços com desconto aplicado
+        var precoBaseComDesconto = precoBase - descontoValorUnit;
+        var precoTotalComDesconto = precoTotal - descontoValorUnit;
+
+        return {
+          // Identificação do produto
+          produtoId: item.ID,
+          produtoCodigo: item.Codigo || "",
+          produtoNome: item.Nome || "",
+          quantidade: item.Quantidade,
+          unidade: item.Unidade || "UN",
+
+          // Preços originais
+          precoBase: precoBase, // Valor unitário SEM impostos
+          ipiOriginal: ipi, // IPI unitário original
+          stOriginal: st, // ST unitário original
+          precoTotal: precoTotal, // Preço total (base + IPI + ST)
+
+          // Desconto aplicado - VALOR
+          descontoValorUnitario: descontoValorUnit, // R$ por unidade
+          descontoValorTotal: descontoValorUnit * item.Quantidade, // R$ total do item
+
+          // Desconto aplicado - PERCENTUAIS
+          descontoPercentSobreBase: descontoPercentSobreBase, // % sobre PrecoBase (sem ST/IPI)
+          descontoPercentSobreTotal: descontoPercentSobreTotal, // % sobre PrecoTotal (COM ST/IPI) ← ESSE QUE VOCÊ PRECISA
+
+          // Valores com desconto (para conferência)
+          precoBaseComDesconto: precoBaseComDesconto, // Preço base já com desconto
+          precoTotalComDesconto: precoTotalComDesconto, // Preço total já com desconto
+        };
+      }),
+    };
+
+    // Log dos dados que seriam enviados à API
+    console.log("=".repeat(60));
+    console.log("🔄 DADOS PARA RECÁLCULO DE IMPOSTOS:");
+    console.log("=".repeat(60));
+    console.log("\n📋 JSON para API:");
+    console.log(JSON.stringify(dadosRecalculo, null, 2));
+    console.log("\n" + "-".repeat(60));
+    console.log("📊 RESUMO DOS DESCONTOS:");
+    dadosRecalculo.itens.forEach(function (item, index) {
+      console.log(
+        "  " +
+          (index + 1) +
+          ". " +
+          item.produtoNome +
+          "\n     Preço Base (sem ST/IPI): R$" +
+          item.precoBase.toFixed(2) +
+          "\n     Preço Total (com ST/IPI): R$" +
+          item.precoTotal.toFixed(2) +
+          " (IPI: R$" +
+          item.ipiOriginal.toFixed(2) +
+          " + ST: R$" +
+          item.stOriginal.toFixed(2) +
+          ")" +
+          "\n     Desconto: R$" +
+          item.descontoValorUnitario.toFixed(2) +
+          "\n     → % sobre Base (sem ST/IPI): " +
+          item.descontoPercentSobreBase.toFixed(2) +
+          "%" +
+          "\n     → % sobre Total (COM ST/IPI): " +
+          item.descontoPercentSobreTotal.toFixed(2) +
+          "% ← VOCÊ PRECISA DESSE"
+      );
+    });
+    console.log("=".repeat(60));
+
+    // TODO: Substituir pelo call real da API
+    // WidgetAPI.recalcularImpostos(dadosRecalculo)
+    //   .then(function(resultado) { ... })
+    //   .catch(function(err) { ... });
+
+    // SIMULAÇÃO: Timer fixo para testar o loading
+    setTimeout(function () {
+      // Simula atualização dos valores de IPI e ST recalculados
+      // Na implementação real, esses valores virão da API
+      state.carrinho.forEach(function (item) {
+        if ((item.descontoPercent || 0) > 0 || (item.descontoValor || 0) > 0) {
+          // Simula recálculo: reduz proporcionalmente IPI e ST baseado no desconto
+          var percentualDesconto = 0;
+          if (item.descontoPercent > 0) {
+            percentualDesconto = item.descontoPercent / 100;
+          } else if (item.descontoValor > 0 && item.PrecoBase > 0) {
+            percentualDesconto = item.descontoValor / item.PrecoBase;
+          }
+
+          // Valores recalculados (simulação)
+          var ipiRecalculado = (item.IPI || 0) * (1 - percentualDesconto);
+          var stRecalculado = (item.ST || 0) * (1 - percentualDesconto);
+
+          // Armazena os valores originais e recalculados para exibição
+          item.IPIOriginal = item.IPI;
+          item.STOriginal = item.ST;
+          item.IPIRecalculado = ipiRecalculado;
+          item.STRecalculado = stRecalculado;
+
+          // Atualiza com valores recalculados
+          item.IPI = ipiRecalculado;
+          item.ST = stRecalculado;
+
+          // Recalcula preço total com novos impostos
+          item.Preco = (item.PrecoBase || 0) + ipiRecalculado + stRecalculado;
+
+          console.log(
+            "📊 Item recalculado: " + item.Nome,
+            "\n   Desconto: " + (percentualDesconto * 100).toFixed(2) + "%",
+            "\n   IPI: " +
+              (item.IPIOriginal || 0).toFixed(2) +
+              " → " +
+              ipiRecalculado.toFixed(2),
+            "\n   ST: " +
+              (item.STOriginal || 0).toFixed(2) +
+              " → " +
+              stRecalculado.toFixed(2)
+          );
+        }
+      });
+
+      // Esconde loading
+      mostrarLoadingRecalculo(false);
+
+      // Atualiza a visualização
+      renderizarCarrinhoModal();
+      renderizarCarrinho();
+
+      // Log de sucesso
+      WidgetUI.log("Impostos recalculados com sucesso!", "success");
+      console.log("✅ Recálculo de impostos concluído!");
+
+      // Fecha o modal
+      WidgetUI.fecharModal("modal-carrinho");
+    }, 2000); // 2 segundos de delay para simular a chamada de API
+  }
+
+  /**
+   * Mostra/esconde o overlay de loading de recálculo
+   * @param {boolean} mostrar - true para mostrar, false para esconder
+   */
+  function mostrarLoadingRecalculo(mostrar) {
+    var loadingEl = document.getElementById("carrinho-recalculo-loading");
+    var btnSalvar = document.getElementById("btn-salvar-carrinho");
+
+    if (loadingEl) {
+      if (mostrar) {
+        loadingEl.classList.remove("hidden");
+      } else {
+        loadingEl.classList.add("hidden");
+      }
+    }
+
+    // Desabilita o botão durante o loading
+    if (btnSalvar) {
+      btnSalvar.disabled = mostrar;
+      if (mostrar) {
+        btnSalvar.style.opacity = "0.6";
+        btnSalvar.style.cursor = "not-allowed";
+      } else {
+        btnSalvar.style.opacity = "1";
+        btnSalvar.style.cursor = "pointer";
+      }
+    }
+  }
+
+  /**
    * Edita a quantidade de um item no carrinho
    */
   function editarQuantidadeCarrinho(produtoId, delta) {
@@ -1120,6 +1367,7 @@ var WidgetProdutos = (function () {
     getDescontoState: getDescontoState,
     toggleModoEdicao: toggleModoEdicao,
     editarQuantidadeCarrinho: editarQuantidadeCarrinho,
+    salvarAlteracoesCarrinho: salvarAlteracoesCarrinho,
     // Funções de Desconto
     aplicarDescontoItem: aplicarDescontoItem,
     fecharAlertaDesconto: fecharAlertaDesconto,

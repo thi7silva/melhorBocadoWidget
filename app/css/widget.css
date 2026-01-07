@@ -5407,3 +5407,67 @@ body {
     gap: 8px;
   }
 }
+
+/* ============================================
+   OVERLAY DE LOADING - RECÁLCULO DE IMPOSTOS
+   ============================================ */
+.carrinho-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  opacity: 1;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.carrinho-loading-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.carrinho-loading-content {
+  text-align: center;
+  animation: pulseScale 1.5s ease-in-out infinite;
+}
+
+@keyframes pulseScale {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+.carrinho-loading-content .loading-spinner {
+  width: 50px;
+  height: 50px;
+  margin: 0 auto 16px;
+}
+
+.carrinho-loading-content p {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 6px;
+}
+
+.carrinho-loading-content .loading-hint {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  display: block;
+}
+
+/* Posicionar o modal como relative para o overlay funcionar */
+.modal-lg {
+  position: relative;
+}
