@@ -120,6 +120,67 @@ var WidgetAPI = (function () {
   }
 
   /**
+   * Chama uma Custom API do Zoho Creator com payload (POST com body)
+   * @param {Object} endpointConfig - Configuração do endpoint (NAME, PUBLIC_KEY)
+   * @param {Object} payload - Dados a serem enviados no body da requisição
+   * @returns {Promise} Promise com o resultado
+   */
+  function invokeAPIWithPayload(endpointConfig, payload) {
+    return new Promise(function (resolve, reject) {
+      if (!isSDKAvailable()) {
+        reject(new Error("SDK do Zoho não está disponível"));
+        return;
+      }
+
+      var apiName = endpointConfig.NAME;
+      var publicKey = endpointConfig.PUBLIC_KEY;
+
+      if (!apiName || !publicKey) {
+        reject(
+          new Error("Configuração de API inválida (Nome ou Key faltando)")
+        );
+        return;
+      }
+
+      // Config para API com payload (POST com body)
+      var config = {
+        api_name: apiName,
+        http_method: "POST",
+        public_key: publicKey,
+        payload: payload,
+      };
+
+      // LOG: Exibe o erro como string JSON, não como [object Object]
+      var logError = function (err) {
+        try {
+          return JSON.stringify(err);
+        } catch (e) {
+          return err.toString();
+        }
+      };
+
+      WidgetUI.log(
+        "API Call (POST): " +
+          apiName +
+          " | Payload: " +
+          JSON.stringify(payload).substring(0, 200) +
+          "..."
+      );
+
+      ZOHO.CREATOR.DATA.invokeCustomApi(config)
+        .then(function (response) {
+          WidgetUI.log("API Response recebida (POST)", "success");
+          var data = extractData(response);
+          resolve(data);
+        })
+        .catch(function (error) {
+          WidgetUI.log("SDK Error (POST): " + logError(error), "error");
+          reject(error);
+        });
+    });
+  }
+
+  /**
    * Busca lista de clientes
    * @param {string} [filtro] - Filtro de busca
    * @param {string} [type] - Tipo de busca
@@ -380,10 +441,55 @@ var WidgetAPI = (function () {
       });
   }
 
+  /**
+   * Consulta impostos com desconto aplicado
+   * @param {Object} dadosRecalculo - Dados para recálculo de impostos
+   * @param {string} dadosRecalculo.clienteId - ID do cliente
+   * @param {Array} dadosRecalculo.itens - Lista de itens com desconto
+   * @returns {Promise<Array>} Lista de produtos com impostos recalculados
+   */
+  function consultarImpostos(dadosRecalculo) {
+    // Monta o payload no formato esperado pela API
+    var payload = {
+      data: dadosRecalculo,
+    };
+
+    return invokeAPIWithPayload(
+      WidgetConfig.API.ENDPOINTS.CONSULTA_IMPOSTOS,
+      payload
+    ).then(function (response) {
+      // Extrai a lista de dados da resposta
+      var lista = [];
+
+      if (response && response.data && Array.isArray(response.data)) {
+        lista = response.data;
+      } else if (Array.isArray(response)) {
+        lista = response;
+      }
+
+      // Log da resposta
+      WidgetUI.log("Impostos recebidos: " + lista.length + " itens", "success");
+
+      // Retorna os dados normalizados
+      return lista.map(function (item) {
+        return {
+          produtoId: item.idProduto || "",
+          codigo: item.codigoProduto || "",
+          nome: item.descricaoProduto || "",
+          valorUnitario: parseFloat(item.valorUnitario) || 0,
+          stUnitario: parseFloat(item.stUnitario) || 0,
+          ipiUnitario: parseFloat(item.ipiUnitario) || 0,
+          success: item.success === true,
+        };
+      });
+    });
+  }
+
   // API Pública do Módulo
   return {
     isSDKAvailable: isSDKAvailable,
     invokeAPI: invokeAPI,
+    invokeAPIWithPayload: invokeAPIWithPayload,
     buscarClientes: buscarClientes,
     buscarProdutos: buscarProdutos,
     buscarCondicoesPagamento: buscarCondicoesPagamento,
@@ -391,5 +497,6 @@ var WidgetAPI = (function () {
     buscarSubtitulos: buscarSubtitulos,
     buscarProdutosPorSubtitulo: buscarProdutosPorSubtitulo,
     criarPedido: criarPedido,
+    consultarImpostos: consultarImpostos,
   };
 })();

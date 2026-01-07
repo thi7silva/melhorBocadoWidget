@@ -44,6 +44,10 @@ var WidgetConfig = {
         NAME: "usuarioLogado",
         PUBLIC_KEY: "62ZDZvaOeBADdT5tS7X1hmJr4",
       },
+      CONSULTA_IMPOSTOS: {
+        NAME: "consultaImpostos",
+        PUBLIC_KEY: "yMsQeZtOP6styYuCgxs8sF0CY",
+      },
     },
   },
 

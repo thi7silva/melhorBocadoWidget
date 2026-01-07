@@ -2482,7 +2482,8 @@ body {
 }
 
 .carrinho-subtotal,
-.carrinho-total {
+.carrinho-total,
+.carrinho-desconto {
   display: flex;
   justify-content: space-between;
   margin-bottom: 8px;
@@ -2496,6 +2497,19 @@ body {
 .carrinho-subtotal span:last-child {
   font-size: 0.85rem;
   color: var(--color-text);
+}
+
+/* Linha de Desconto */
+.carrinho-desconto span:first-child {
+  font-size: 0.85rem;
+  color: #2e7d32;
+  font-weight: 500;
+}
+
+.carrinho-desconto span:last-child {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #2e7d32;
 }
 
 .carrinho-total {
@@ -5470,4 +5484,28 @@ body {
 /* Posicionar o modal como relative para o overlay funcionar */
 .modal-lg {
   position: relative;
+}
+
+/* ============================================
+   BADGE DE DESCONTO APLICADO
+   ============================================ */
+.desconto-aplicado-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 4px 8px;
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  border: 1px solid #a5d6a7;
+  border-radius: var(--radius-sm);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #2e7d32;
+  white-space: nowrap;
+}
+
+.desconto-aplicado-badge svg {
+  stroke: #2e7d32;
+  flex-shrink: 0;
 }

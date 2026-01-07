@@ -470,7 +470,17 @@ var WidgetProdutos = (function () {
         existente.Quantidade += prod.Quantidade;
         existente.Subtotal = existente.Preco * existente.Quantidade;
       } else {
-        state.carrinho.push({ ...prod });
+        // Adiciona com os valores de TABELA originais para referência
+        // Esses valores NUNCA mudam (mesmo após recálculos de impostos)
+        var itemCarrinho = { ...prod };
+
+        // Salva valores de tabela (originais da consulta de preços)
+        itemCarrinho.precoBaseTabela = prod.PrecoBase || 0;
+        itemCarrinho.ipiTabela = prod.IPI || 0;
+        itemCarrinho.stTabela = prod.ST || 0;
+        itemCarrinho.precoTabela = prod.Preco || 0;
+
+        state.carrinho.push(itemCarrinho);
       }
     });
 
@@ -550,29 +560,50 @@ var WidgetProdutos = (function () {
     }
 
     var html = "";
-    var subtotalBruto = 0;
-    var totalDescontoItens = 0;
+    var subtotalTabela = 0; // Subtotal com preços de tabela (originais)
+    var subtotalAtual = 0; // Subtotal com preços atuais
+    var totalDescontoAplicado = 0; // Desconto já aplicado (recalculado)
+    var totalDescontoPendente = 0; // Desconto nos campos editáveis
 
     state.carrinho.forEach(function (item) {
-      var subtotalItem = item.Preco * item.Quantidade;
-      var descontoItem = (item.descontoValor || 0) * item.Quantidade;
-      var subtotalLiquido = subtotalItem - descontoItem;
+      // Preço de tabela (original) para cálculo do subtotal "bruto"
+      var precoTabela = item.precoTabela || item.Preco || 0;
+      var subtotalTabelaItem = precoTabela * item.Quantidade;
+      subtotalTabela += subtotalTabelaItem;
 
+      // Preço atual (pode ter mudado após recálculo)
+      var subtotalAtualItem = item.Preco * item.Quantidade;
+      subtotalAtual += subtotalAtualItem;
+
+      // Desconto pendente (nos campos editáveis)
+      var descontoPendenteItem = (item.descontoValor || 0) * item.Quantidade;
+      totalDescontoPendente += descontoPendenteItem;
+
+      // Desconto já aplicado (badge verde)
+      var descontoAplicadoItem =
+        (item.descontoAplicadoValor || 0) * item.Quantidade;
+      totalDescontoAplicado += descontoAplicadoItem;
+
+      // Subtotal líquido do item
+      var subtotalLiquido = subtotalAtualItem - descontoPendenteItem;
       item.Subtotal = subtotalLiquido;
-      subtotalBruto += subtotalItem;
-      totalDescontoItens += descontoItem;
 
       var imagemUrl = getProductImageUrl(item);
 
-      // Mostra preço com ou sem desconto - usando rosa da marca
-      var precoExibido =
-        descontoItem > 0
-          ? `<span style="text-decoration: line-through; color: #999; font-size: 0.7rem;">R$ ${formatarMoeda(
-              subtotalItem
-            )}</span> <span style="color: var(--color-primary);">R$ ${formatarMoeda(
-              subtotalLiquido
-            )}</span>`
-          : `R$ ${formatarMoeda(subtotalItem)}`;
+      // Verifica se tem qualquer desconto (pendente ou aplicado)
+      var temDesconto = descontoPendenteItem > 0 || descontoAplicadoItem > 0;
+
+      // Mostra preço com ou sem desconto
+      var precoExibido;
+      if (temDesconto) {
+        precoExibido = `<span style="text-decoration: line-through; color: #999; font-size: 0.7rem;">R$ ${formatarMoeda(
+          subtotalTabelaItem
+        )}</span> <span style="color: var(--color-primary);">R$ ${formatarMoeda(
+          subtotalLiquido
+        )}</span>`;
+      } else {
+        precoExibido = `R$ ${formatarMoeda(subtotalAtualItem)}`;
+      }
 
       html += `
         <div class="carrinho-item">
@@ -596,23 +627,43 @@ var WidgetProdutos = (function () {
 
     itensEl.innerHTML = html;
 
-    // Total após descontos de itens
-    var totalFinal = subtotalBruto - totalDescontoItens;
+    // Total de descontos (pendentes + já aplicados)
+    var totalDesconto = totalDescontoPendente + totalDescontoAplicado;
+
+    // Total final
+    var totalFinal = subtotalAtual - totalDescontoPendente;
 
     // Atualiza totais
-    if (subtotalEl)
-      subtotalEl.textContent = "R$ " + formatarMoeda(subtotalBruto);
-    if (totalEl) {
-      if (totalDescontoItens > 0) {
-        totalEl.innerHTML = `
-          <div style="font-size: 0.7rem; color: var(--color-primary);">(-R$ ${formatarMoeda(
-            totalDescontoItens
-          )})</div>
-          <div>R$ ${formatarMoeda(totalFinal)}</div>
-        `;
+    if (subtotalEl) {
+      // Mostra subtotal de tabela quando há desconto
+      if (totalDesconto > 0) {
+        subtotalEl.textContent = "R$ " + formatarMoeda(subtotalTabela);
       } else {
-        totalEl.textContent = "R$ " + formatarMoeda(totalFinal);
+        subtotalEl.textContent = "R$ " + formatarMoeda(subtotalAtual);
       }
+    }
+
+    // Elemento para linha de desconto
+    var descontoRow = document.getElementById("carrinho-desconto-row");
+    var descontoValorEl = document.getElementById("carrinho-desconto-valor");
+
+    if (totalDesconto > 0) {
+      // Mostra linha de desconto
+      if (descontoRow) {
+        descontoRow.style.display = "flex";
+      }
+      if (descontoValorEl) {
+        descontoValorEl.textContent = "-R$ " + formatarMoeda(totalDesconto);
+      }
+    } else {
+      // Esconde linha de desconto
+      if (descontoRow) {
+        descontoRow.style.display = "none";
+      }
+    }
+
+    if (totalEl) {
+      totalEl.textContent = "R$ " + formatarMoeda(totalFinal);
     }
 
     // Atualiza o total do footer também
@@ -636,6 +687,7 @@ var WidgetProdutos = (function () {
 
   /**
    * Cria um snapshot dos descontos dos itens do carrinho
+   * Inclui o flag impostosRecalculados para saber se precisa recalcular
    * @returns {string} JSON string do snapshot para comparação
    */
   function criarSnapshotDescontos() {
@@ -646,6 +698,7 @@ var WidgetProdutos = (function () {
           descontoPercent: item.descontoPercent || 0,
           descontoValor: item.descontoValor || 0,
           quantidade: item.Quantidade,
+          impostosRecalculados: item.impostosRecalculados || false,
         };
       })
     );
@@ -684,13 +737,27 @@ var WidgetProdutos = (function () {
       if (item.descontoPercent === undefined) item.descontoPercent = 0;
       if (item.descontoValor === undefined) item.descontoValor = 0;
 
-      var subtotalBase = item.Preco * item.Quantidade;
-      var descontoItem = item.descontoValor * item.Quantidade;
-      var subtotalFinal = subtotalBase - descontoItem;
+      // Usa valores de TABELA para exibição (originais, nunca mudam)
+      var precoBaseExibir = item.precoBaseTabela || item.PrecoBase || 0;
+      var ipiExibir = item.ipiTabela || item.IPI || 0;
+      var stExibir = item.stTabela || item.ST || 0;
+      var precoTotalExibir = item.precoTabela || item.Preco || 0;
+
+      // Subtotal de tabela (sem desconto)
+      var subtotalTabela = precoTotalExibir * item.Quantidade;
+
+      // Desconto total do item (pendente + já aplicado)
+      var descontoPendente = (item.descontoValor || 0) * item.Quantidade;
+      var descontoJaAplicado =
+        (item.descontoAplicadoValor || 0) * item.Quantidade;
+      var descontoTotalItem = descontoPendente + descontoJaAplicado;
+
+      // Subtotal final
+      var subtotalFinal = subtotalTabela - descontoTotalItem;
       var imagemUrl = getProductImageUrl(item);
 
       totalGeral += subtotalFinal;
-      totalDescontoItens += descontoItem;
+      totalDescontoItens += descontoTotalItem;
 
       // Classes para inputs com valor
       var classPercent = item.descontoPercent > 0 ? "has-value" : "";
@@ -711,14 +778,14 @@ var WidgetProdutos = (function () {
               </div>
             </div>
           </td>
-          <td class="text-right">R$ ${item.PrecoBase.toLocaleString("pt-BR", {
+          <td class="text-right">R$ ${precoBaseExibir.toLocaleString("pt-BR", {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}</td>
           <td class="text-right">
              ${
-               item.IPI > 0
-                 ? `<div>R$ ${item.IPI.toLocaleString("pt-BR", {
+               ipiExibir > 0
+                 ? `<div>R$ ${ipiExibir.toLocaleString("pt-BR", {
                      minimumFractionDigits: 2,
                      maximumFractionDigits: 2,
                    })}</div>`
@@ -727,8 +794,8 @@ var WidgetProdutos = (function () {
           </td>
           <td class="text-right">
              ${
-               item.ST > 0
-                 ? `<div>R$ ${item.ST.toLocaleString("pt-BR", {
+               stExibir > 0
+                 ? `<div>R$ ${stExibir.toLocaleString("pt-BR", {
                      minimumFractionDigits: 2,
                      maximumFractionDigits: 2,
                    })}</div>`
@@ -749,7 +816,7 @@ var WidgetProdutos = (function () {
              </div>
           </td>
           <td class="text-right font-bold">
-            <div>R$ ${subtotalBase.toLocaleString("pt-BR", {
+            <div>R$ ${subtotalTabela.toLocaleString("pt-BR", {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             })}</div>
@@ -789,6 +856,20 @@ var WidgetProdutos = (function () {
                   onkeydown="if(event.key==='Enter'){this.blur();}"
                 />
               </div>
+              ${
+                item.impostosRecalculados && item.descontoAplicadoPercent > 0
+                  ? `<div class="desconto-aplicado-badge" title="Desconto já aplicado no preço">
+                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                         <polyline points="20 6 9 17 4 12"></polyline>
+                       </svg>
+                       <span>${item.descontoAplicadoPercent.toFixed(
+                         1
+                       )}% (R$${item.descontoAplicadoValor.toFixed(
+                      2
+                    )}) aplicado</span>
+                     </div>`
+                  : ""
+              }
             </div>
           </td>
           <td class="text-right font-bold">
@@ -850,6 +931,7 @@ var WidgetProdutos = (function () {
 
   /**
    * Calcula totais para validação de desconto
+   * IMPORTANTE: Usa precoBaseTabela (valor original) para calcular limite
    * @returns {Object} totais - Objeto com subtotal sem impostos, limite, usado, disponível
    */
   function calcularTotaisDesconto() {
@@ -857,8 +939,16 @@ var WidgetProdutos = (function () {
     var descontoUsado = 0;
 
     state.carrinho.forEach(function (item) {
-      subtotalSemImpostos += (item.PrecoBase || 0) * item.Quantidade;
-      descontoUsado += (item.descontoValor || 0) * item.Quantidade;
+      // Usa precoBaseTabela (valor original) para calcular o limite
+      // Assim o limite não muda após recálculo de impostos
+      var precoBase = item.precoBaseTabela || item.PrecoBase || 0;
+      subtotalSemImpostos += precoBase * item.Quantidade;
+
+      // Soma tanto o desconto pendente (descontoValor) quanto o já aplicado (descontoAplicadoValor)
+      var descontoPendente = (item.descontoValor || 0) * item.Quantidade;
+      var descontoJaAplicado =
+        (item.descontoAplicadoValor || 0) * item.Quantidade;
+      descontoUsado += descontoPendente + descontoJaAplicado;
     });
 
     var limiteMaximo =
@@ -927,16 +1017,18 @@ var WidgetProdutos = (function () {
     var valorNum = parseFloat(valor) || 0;
 
     // Calcula o desconto em R$ baseado no tipo
+    // IMPORTANTE: Usa precoBaseTabela (valor original) para cálculos
     var descontoUnitario = 0;
     var descontoPercent = 0;
+    var precoBaseRef = item.precoBaseTabela || item.PrecoBase || 0;
 
     if (tipo === "percent") {
       descontoPercent = Math.max(0, Math.min(100, valorNum));
-      descontoUnitario = (item.PrecoBase * descontoPercent) / 100;
+      descontoUnitario = (precoBaseRef * descontoPercent) / 100;
     } else {
       descontoUnitario = Math.max(0, valorNum);
       descontoPercent =
-        item.PrecoBase > 0 ? (descontoUnitario / item.PrecoBase) * 100 : 0;
+        precoBaseRef > 0 ? (descontoUnitario / precoBaseRef) * 100 : 0;
     }
 
     // Calcula o novo total de desconto para validar limite
@@ -944,7 +1036,10 @@ var WidgetProdutos = (function () {
     var totaisAtuais = calcularTotaisDesconto();
 
     // Remove o desconto atual do item para recalcular
-    var descontoAtualItem = (item.descontoValor || 0) * item.Quantidade;
+    // Considera tanto desconto pendente quanto já aplicado
+    var descontoAtualItem =
+      ((item.descontoValor || 0) + (item.descontoAplicadoValor || 0)) *
+      item.Quantidade;
     var descontoSemEsteItem = totaisAtuais.descontoUsado - descontoAtualItem;
     var novoTotalDesconto = descontoSemEsteItem + novoDescontoItem;
 
@@ -963,12 +1058,26 @@ var WidgetProdutos = (function () {
       var disponivelParaItem = totaisAtuais.limiteMaximo - descontoSemEsteItem;
       descontoUnitario = Math.max(0, disponivelParaItem / item.Quantidade);
       descontoPercent =
-        item.PrecoBase > 0 ? (descontoUnitario / item.PrecoBase) * 100 : 0;
+        precoBaseRef > 0 ? (descontoUnitario / precoBaseRef) * 100 : 0;
     }
 
     // Aplica os valores
     item.descontoValor = descontoUnitario;
     item.descontoPercent = descontoPercent;
+
+    // Se o item já tinha impostos recalculados e o desconto mudou,
+    // precisa restaurar valores originais e recalcular novamente
+    if (item.impostosRecalculados && item.valoresOriginais) {
+      // Restaura valores originais para recálculo
+      item.PrecoBase = item.valoresOriginais.precoBase;
+      item.IPI = item.valoresOriginais.ipi;
+      item.ST = item.valoresOriginais.st;
+      item.Preco = item.valoresOriginais.preco;
+
+      // Limpa o flag para forçar novo recálculo
+      item.impostosRecalculados = false;
+      item.valoresOriginais = null;
+    }
 
     // Re-renderiza a tabela
     renderizarCarrinhoModal();
@@ -1052,8 +1161,30 @@ var WidgetProdutos = (function () {
       return;
     }
 
-    // Se há desconto E houve alteração, precisa recalcular impostos
-    WidgetUI.log("Recalculando impostos com desconto...", "success");
+    // Verifica se há itens que PRECISAM de recálculo
+    // (têm desconto aplicado mas ainda não foram recalculados)
+    var itensPendentesRecalculo = state.carrinho.filter(function (item) {
+      var temDescontoAplicado =
+        (item.descontoPercent || 0) > 0 || (item.descontoValor || 0) > 0;
+      var jaRecalculado = item.impostosRecalculados === true;
+      return temDescontoAplicado && !jaRecalculado;
+    });
+
+    if (itensPendentesRecalculo.length === 0) {
+      // Todos os itens com desconto já foram recalculados, só fecha
+      WidgetUI.log("Alterações salvas (impostos já recalculados)", "success");
+      renderizarCarrinho();
+      WidgetUI.fecharModal("modal-carrinho");
+      return;
+    }
+
+    // Se há itens pendentes de recálculo, precisa chamar a API
+    WidgetUI.log(
+      "Recalculando impostos de " +
+        itensPendentesRecalculo.length +
+        " item(ns)...",
+      "success"
+    );
     mostrarLoadingRecalculo(true);
 
     // Monta os dados para enviar à API de recálculo
@@ -1067,18 +1198,23 @@ var WidgetProdutos = (function () {
         var precoTotal = item.Preco || precoBase + ipi + st; // base + IPI + ST
         var descontoValorUnit = item.descontoValor || 0;
 
-        // Percentual de desconto sobre o preço BASE (sem ST/IPI)
-        var descontoPercentSobreBase =
-          precoBase > 0 ? (descontoValorUnit / precoBase) * 100 : 0;
+        // Valores de TABELA (originais, nunca mudam)
+        var precoBaseTabela = item.precoBaseTabela || item.PrecoBase || 0;
+        var ipiTabela = item.ipiTabela || item.IPI || 0;
+        var stTabela = item.stTabela || item.ST || 0;
+        var precoTabela = item.precoTabela || item.Preco || 0;
 
-        // Percentual de desconto sobre o preço TOTAL (com ST/IPI)
-        // Este é o valor que você precisa: ex: 5,00 / 51,27 × 100 = 9,75%
+        // Percentual de desconto sobre o preço BASE de TABELA (sem ST/IPI)
+        var descontoPercentSobreBase =
+          precoBaseTabela > 0 ? (descontoValorUnit / precoBaseTabela) * 100 : 0;
+
+        // Percentual de desconto sobre o preço TOTAL de TABELA (com ST/IPI)
         var descontoPercentSobreTotal =
-          precoTotal > 0 ? (descontoValorUnit / precoTotal) * 100 : 0;
+          precoTabela > 0 ? (descontoValorUnit / precoTabela) * 100 : 0;
 
         // Preços com desconto aplicado
-        var precoBaseComDesconto = precoBase - descontoValorUnit;
-        var precoTotalComDesconto = precoTotal - descontoValorUnit;
+        var precoBaseComDesconto = precoBaseTabela - descontoValorUnit;
+        var precoTotalComDesconto = precoTabela - descontoValorUnit;
 
         return {
           // Identificação do produto
@@ -1088,19 +1224,25 @@ var WidgetProdutos = (function () {
           quantidade: item.Quantidade,
           unidade: item.Unidade || "UN",
 
-          // Preços originais
+          // Preços de TABELA (originais, nunca mudam - para referência/controle)
+          precoBaseTabela: precoBaseTabela, // Valor unitário ORIGINAL sem impostos
+          ipiTabela: ipiTabela, // IPI ORIGINAL
+          stTabela: stTabela, // ST ORIGINAL
+          precoTabela: precoTabela, // Preço total ORIGINAL (base + IPI + ST)
+
+          // Preços ATUAIS (podem ter mudado após recálculo anterior)
           precoBase: precoBase, // Valor unitário SEM impostos
-          ipiOriginal: ipi, // IPI unitário original
-          stOriginal: st, // ST unitário original
-          precoTotal: precoTotal, // Preço total (base + IPI + ST)
+          ipiOriginal: ipi, // IPI unitário atual
+          stOriginal: st, // ST unitário atual
+          precoTotal: precoTotal, // Preço total atual (base + IPI + ST)
 
           // Desconto aplicado - VALOR
           descontoValorUnitario: descontoValorUnit, // R$ por unidade
           descontoValorTotal: descontoValorUnit * item.Quantidade, // R$ total do item
 
-          // Desconto aplicado - PERCENTUAIS
-          descontoPercentSobreBase: descontoPercentSobreBase, // % sobre PrecoBase (sem ST/IPI)
-          descontoPercentSobreTotal: descontoPercentSobreTotal, // % sobre PrecoTotal (COM ST/IPI) ← ESSE QUE VOCÊ PRECISA
+          // Desconto aplicado - PERCENTUAIS (calculados sobre valores de TABELA)
+          descontoPercentSobreBase: descontoPercentSobreBase, // % sobre PrecoBase de TABELA
+          descontoPercentSobreTotal: descontoPercentSobreTotal, // % sobre PrecoTotal de TABELA
 
           // Valores com desconto (para conferência)
           precoBaseComDesconto: precoBaseComDesconto, // Preço base já com desconto
@@ -1109,7 +1251,7 @@ var WidgetProdutos = (function () {
       }),
     };
 
-    // Log dos dados que seriam enviados à API
+    // Log dos dados que serão enviados à API
     console.log("=".repeat(60));
     console.log("🔄 DADOS PARA RECÁLCULO DE IMPOSTOS:");
     console.log("=".repeat(60));
@@ -1139,76 +1281,120 @@ var WidgetProdutos = (function () {
           "%" +
           "\n     → % sobre Total (COM ST/IPI): " +
           item.descontoPercentSobreTotal.toFixed(2) +
-          "% ← VOCÊ PRECISA DESSE"
+          "%"
       );
     });
     console.log("=".repeat(60));
 
-    // TODO: Substituir pelo call real da API
-    // WidgetAPI.recalcularImpostos(dadosRecalculo)
-    //   .then(function(resultado) { ... })
-    //   .catch(function(err) { ... });
+    // Chama a API real de consulta de impostos
+    WidgetAPI.consultarImpostos(dadosRecalculo)
+      .then(function (impostosRecalculados) {
+        console.log("=".repeat(60));
+        console.log("✅ RESPOSTA DA API DE IMPOSTOS:");
+        console.log("=".repeat(60));
+        console.log(JSON.stringify(impostosRecalculados, null, 2));
 
-    // SIMULAÇÃO: Timer fixo para testar o loading
-    setTimeout(function () {
-      // Simula atualização dos valores de IPI e ST recalculados
-      // Na implementação real, esses valores virão da API
-      state.carrinho.forEach(function (item) {
-        if ((item.descontoPercent || 0) > 0 || (item.descontoValor || 0) > 0) {
-          // Simula recálculo: reduz proporcionalmente IPI e ST baseado no desconto
-          var percentualDesconto = 0;
-          if (item.descontoPercent > 0) {
-            percentualDesconto = item.descontoPercent / 100;
-          } else if (item.descontoValor > 0 && item.PrecoBase > 0) {
-            percentualDesconto = item.descontoValor / item.PrecoBase;
+        // Atualiza os itens do carrinho com os novos valores
+        impostosRecalculados.forEach(function (impostoItem) {
+          // Encontra o item no carrinho pelo ID do produto
+          var itemCarrinho = state.carrinho.find(function (item) {
+            return item.ID === impostoItem.produtoId;
+          });
+
+          if (itemCarrinho && impostoItem.success) {
+            // Armazena valores ORIGINAIS (antes do recálculo) para referência
+            if (!itemCarrinho.valoresOriginais) {
+              itemCarrinho.valoresOriginais = {
+                precoBase: itemCarrinho.PrecoBase || 0,
+                ipi: itemCarrinho.IPI || 0,
+                st: itemCarrinho.ST || 0,
+                preco: itemCarrinho.Preco || 0,
+              };
+            }
+
+            // Log para debug
+            var precoBaseAntes = itemCarrinho.PrecoBase || 0;
+            var ipiAntes = itemCarrinho.IPI || 0;
+            var stAntes = itemCarrinho.ST || 0;
+
+            // Atualiza com valores recalculados da API
+            // O novo valorUnitario JÁ VEM COM O DESCONTO EMBUTIDO
+            itemCarrinho.PrecoBase = impostoItem.valorUnitario;
+            itemCarrinho.IPI = impostoItem.ipiUnitario;
+            itemCarrinho.ST = impostoItem.stUnitario;
+
+            // Recalcula preço total (base + IPI + ST)
+            itemCarrinho.Preco =
+              impostoItem.valorUnitario +
+              impostoItem.ipiUnitario +
+              impostoItem.stUnitario;
+
+            // IMPORTANTE: Marca que os impostos já foram recalculados
+            itemCarrinho.impostosRecalculados = true;
+
+            // Guarda o desconto aplicado para exibição no badge
+            itemCarrinho.descontoAplicadoPercent =
+              itemCarrinho.descontoPercent || 0;
+            itemCarrinho.descontoAplicadoValor =
+              itemCarrinho.descontoValor || 0;
+
+            // Limpa os campos editáveis (desconto já está embutido no preço)
+            itemCarrinho.descontoPercent = 0;
+            itemCarrinho.descontoValor = 0;
+
+            console.log(
+              "📊 Item atualizado: " + itemCarrinho.Nome,
+              "\n   Preço Base: R$" +
+                precoBaseAntes.toFixed(2) +
+                " → R$" +
+                impostoItem.valorUnitario.toFixed(2),
+              "\n   IPI: R$" +
+                ipiAntes.toFixed(2) +
+                " → R$" +
+                impostoItem.ipiUnitario.toFixed(2),
+              "\n   ST: R$" +
+                stAntes.toFixed(2) +
+                " → R$" +
+                impostoItem.stUnitario.toFixed(2),
+              "\n   Preço Total: R$" + itemCarrinho.Preco.toFixed(2),
+              "\n   Desconto aplicado (badge): " +
+                itemCarrinho.descontoAplicadoPercent.toFixed(2) +
+                "% (R$" +
+                itemCarrinho.descontoAplicadoValor.toFixed(2) +
+                ")"
+            );
           }
+        });
 
-          // Valores recalculados (simulação)
-          var ipiRecalculado = (item.IPI || 0) * (1 - percentualDesconto);
-          var stRecalculado = (item.ST || 0) * (1 - percentualDesconto);
+        // Esconde loading
+        mostrarLoadingRecalculo(false);
 
-          // Armazena os valores originais e recalculados para exibição
-          item.IPIOriginal = item.IPI;
-          item.STOriginal = item.ST;
-          item.IPIRecalculado = ipiRecalculado;
-          item.STRecalculado = stRecalculado;
+        // Atualiza o snapshot para o novo estado
+        // Isso evita que ao reabrir o modal detecte "alteração" se nada mudou
+        state.snapshotDescontos = criarSnapshotDescontos();
 
-          // Atualiza com valores recalculados
-          item.IPI = ipiRecalculado;
-          item.ST = stRecalculado;
+        // Atualiza a visualização
+        renderizarCarrinhoModal();
+        renderizarCarrinho();
 
-          // Recalcula preço total com novos impostos
-          item.Preco = (item.PrecoBase || 0) + ipiRecalculado + stRecalculado;
+        // Log de sucesso
+        WidgetUI.log("Impostos recalculados com sucesso!", "success");
+        console.log("✅ Recálculo de impostos concluído!");
 
-          console.log(
-            "📊 Item recalculado: " + item.Nome,
-            "\n   Desconto: " + (percentualDesconto * 100).toFixed(2) + "%",
-            "\n   IPI: " +
-              (item.IPIOriginal || 0).toFixed(2) +
-              " → " +
-              ipiRecalculado.toFixed(2),
-            "\n   ST: " +
-              (item.STOriginal || 0).toFixed(2) +
-              " → " +
-              stRecalculado.toFixed(2)
-          );
-        }
+        // Fecha o modal
+        WidgetUI.fecharModal("modal-carrinho");
+      })
+      .catch(function (err) {
+        // Erro na API
+        console.error("❌ Erro ao consultar impostos:", err);
+        WidgetUI.log("Erro ao recalcular impostos: " + err, "error");
+
+        // Esconde loading
+        mostrarLoadingRecalculo(false);
+
+        // Mostra mensagem de erro mas não fecha o modal
+        // Para que o usuário possa tentar novamente
       });
-
-      // Esconde loading
-      mostrarLoadingRecalculo(false);
-
-      // Atualiza a visualização
-      renderizarCarrinhoModal();
-      renderizarCarrinho();
-
-      // Log de sucesso
-      WidgetUI.log("Impostos recalculados com sucesso!", "success");
-      console.log("✅ Recálculo de impostos concluído!");
-
-      // Fecha o modal
-      WidgetUI.fecharModal("modal-carrinho");
-    }, 2000); // 2 segundos de delay para simular a chamada de API
   }
 
   /**
