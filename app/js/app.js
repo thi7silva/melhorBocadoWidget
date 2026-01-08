@@ -694,23 +694,35 @@ var WidgetApp = (function () {
       // --- Totais ---
       totais: {
         quantidadeItens: carrinho.length,
-        // Valores ATUAIS
-        subtotalBruto: subtotalBruto,
-        totalIPI: totalIPI,
-        totalST: totalST,
+
+        // Valores ATUAIS (recalculados)
+        subtotalBruto: Math.round(subtotalBruto * 100) / 100,
+        totalIPI: Math.round(totalIPI * 100) / 100,
+        totalST: Math.round(totalST * 100) / 100,
+
         // Valores de TABELA (originais)
-        subtotalTabela: subtotalTabela,
-        totalIPITabela: totalIPITabela,
-        totalSTTabela: totalSTTabela,
-        // Descontos
-        descontoItens: totalDescontoItens,
-        descontoGlobal: descontoState.totalDescontoGlobal || 0,
-        descontoTotal:
-          totalDescontoItens + (descontoState.totalDescontoGlobal || 0),
-        descontoPercentualGeral:
-          Math.round(descontoPercentualGeral * 100) / 100, // Arredonda para 2 casas
+        subtotalTabela: Math.round(subtotalTabela * 100) / 100,
+        totalIPITabela: Math.round(totalIPITabela * 100) / 100,
+        totalSTTabela: Math.round(totalSTTabela * 100) / 100,
+
+        // Descontos - VALOR (R$)
+        descontoItensValor: Math.round(totalDescontoItens * 100) / 100,
+        descontoGlobalValor:
+          Math.round((descontoState.totalDescontoGlobal || 0) * 100) / 100,
+        descontoTotalValor:
+          Math.round(
+            (totalDescontoItens + (descontoState.totalDescontoGlobal || 0)) *
+              100
+          ) / 100,
+
+        // Descontos - PERCENTUAL (%)
+        descontoItensPercentual:
+          Math.round(descontoPercentualGeral * 100) / 100,
+        descontoTotalPercentual:
+          Math.round(descontoPercentualGeral * 100) / 100,
+
         // Total Final
-        totalFinal: totalFinal,
+        totalFinal: Math.round(totalFinal * 100) / 100,
       },
 
       // --- Metadados ---
@@ -750,7 +762,7 @@ var WidgetApp = (function () {
     console.log(
       "  • Desconto Itens:",
       "R$",
-      dadosPedido.totais.descontoItens.toFixed(2)
+      dadosPedido.totais.descontoItensValor.toFixed(2)
     );
     console.log(
       "  • Total Final:",
