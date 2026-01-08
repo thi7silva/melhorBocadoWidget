@@ -528,11 +528,6 @@ var WidgetApp = (function () {
 
     // Mapeia os itens para o formato de envio
     var itensFormatados = carrinho.map(function (item) {
-      // Valores ATUAIS (após recálculo de impostos se houver desconto aplicado)
-      var subtotalItem = item.Preco * item.Quantidade;
-      var descontoItemTotal = (item.descontoValor || 0) * item.Quantidade;
-      var subtotalComDesconto = subtotalItem - descontoItemTotal;
-
       // Valores de TABELA (originais, para referência)
       var precoBaseTabela = item.precoBaseTabela || item.PrecoBase || 0;
       var ipiTabela = item.ipiTabela || item.IPI || 0;
@@ -540,10 +535,38 @@ var WidgetApp = (function () {
       var precoTabela = item.precoTabela || item.Preco || 0;
       var subtotalTabelaItem = precoTabela * item.Quantidade;
 
+      // Valores ATUAIS (após recálculo de impostos se houver desconto aplicado)
+      var subtotalAtualItem = item.Preco * item.Quantidade;
+
+      // Lógica de cálculo baseada no estado do item
+      var subtotalLiquido;
+      var descontoRealItem;
+
+      if (item.impostosRecalculados && item.descontoAplicadoValor > 0) {
+        // Quando impostos foram recalculados, o total final é o preço atual × quantidade
+        // O desconto real é a diferença entre tabela e atual
+        subtotalLiquido = subtotalAtualItem;
+        descontoRealItem = subtotalTabelaItem - subtotalAtualItem;
+      } else {
+        // Desconto pendente (ainda não aplicado nos impostos)
+        var descontoPendente = (item.descontoValor || 0) * item.Quantidade;
+        subtotalLiquido = subtotalTabelaItem - descontoPendente;
+        descontoRealItem = descontoPendente;
+      }
+
+      // Desconto unitário (para exibição)
+      var descontoUnitarioReal = descontoRealItem / item.Quantidade;
+
+      // Percentual de desconto calculado sobre o preço de tabela
+      var descontoPercentCalculado = 0;
+      if (precoTabela > 0) {
+        descontoPercentCalculado = (descontoUnitarioReal / precoTabela) * 100;
+      }
+
       // Acumuladores
-      subtotalBruto += subtotalItem;
+      subtotalBruto += subtotalAtualItem;
       subtotalTabela += subtotalTabelaItem;
-      totalDescontoItens += descontoItemTotal;
+      totalDescontoItens += descontoRealItem;
       totalIPI += (item.IPI || 0) * item.Quantidade;
       totalST += (item.ST || 0) * item.Quantidade;
       totalIPITabela += ipiTabela * item.Quantidade;
@@ -570,21 +593,28 @@ var WidgetApp = (function () {
         precoTabela: precoTabela,
 
         // Descontos
-        descontoPercent: item.descontoPercent || 0,
-        descontoValor: item.descontoValor || 0,
-        descontoAplicadoValor: item.descontoAplicadoValor || 0,
-        descontoTotal: descontoItemTotal,
+        descontoPendente: item.descontoValor || 0,
+        descontoAplicado: item.descontoAplicadoValor || 0,
+        descontoUnitarioReal: Math.round(descontoUnitarioReal * 100) / 100,
+        descontoPercentual: Math.round(descontoPercentCalculado * 100) / 100, // Arredonda para 2 casas
+        descontoTotal: descontoRealItem,
         impostosRecalculados: item.impostosRecalculados || false,
 
         // Subtotais
-        subtotalBruto: subtotalItem,
+        subtotalBruto: subtotalAtualItem,
         subtotalTabela: subtotalTabelaItem,
-        subtotalLiquido: subtotalComDesconto,
+        subtotalLiquido: subtotalLiquido,
       };
     });
 
-    // Total final após descontos
-    var totalFinal = subtotalBruto - totalDescontoItens;
+    // Total final = subtotal de tabela - descontos
+    var totalFinal = subtotalTabela - totalDescontoItens;
+
+    // Percentual de desconto geral sobre o pedido
+    var descontoPercentualGeral = 0;
+    if (subtotalTabela > 0) {
+      descontoPercentualGeral = (totalDescontoItens / subtotalTabela) * 100;
+    }
 
     // Monta o JSON estruturado para envio
     var dadosPedido = {
@@ -677,6 +707,8 @@ var WidgetApp = (function () {
         descontoGlobal: descontoState.totalDescontoGlobal || 0,
         descontoTotal:
           totalDescontoItens + (descontoState.totalDescontoGlobal || 0),
+        descontoPercentualGeral:
+          Math.round(descontoPercentualGeral * 100) / 100, // Arredonda para 2 casas
         // Total Final
         totalFinal: totalFinal,
       },
@@ -738,10 +770,10 @@ var WidgetApp = (function () {
           " | Preço: R$" +
           item.precoUnitario.toFixed(2) +
           " | Desc%: " +
-          item.descontoPercent +
+          item.descontoPercentual +
           "%" +
           " | DescR$: R$" +
-          item.descontoValor.toFixed(2) +
+          item.descontoUnitarioReal.toFixed(2) +
           " | SubTotal: R$" +
           item.subtotalLiquido.toFixed(2)
       );
