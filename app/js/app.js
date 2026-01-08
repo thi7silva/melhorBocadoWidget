@@ -519,20 +519,35 @@ var WidgetApp = (function () {
 
     // Calcula totais
     var subtotalBruto = 0;
+    var subtotalTabela = 0; // Subtotal com preços de tabela (originais)
     var totalDescontoItens = 0;
     var totalIPI = 0;
     var totalST = 0;
+    var totalIPITabela = 0;
+    var totalSTTabela = 0;
 
     // Mapeia os itens para o formato de envio
     var itensFormatados = carrinho.map(function (item) {
+      // Valores ATUAIS (após recálculo de impostos se houver desconto aplicado)
       var subtotalItem = item.Preco * item.Quantidade;
       var descontoItemTotal = (item.descontoValor || 0) * item.Quantidade;
       var subtotalComDesconto = subtotalItem - descontoItemTotal;
 
+      // Valores de TABELA (originais, para referência)
+      var precoBaseTabela = item.precoBaseTabela || item.PrecoBase || 0;
+      var ipiTabela = item.ipiTabela || item.IPI || 0;
+      var stTabela = item.stTabela || item.ST || 0;
+      var precoTabela = item.precoTabela || item.Preco || 0;
+      var subtotalTabelaItem = precoTabela * item.Quantidade;
+
+      // Acumuladores
       subtotalBruto += subtotalItem;
+      subtotalTabela += subtotalTabelaItem;
       totalDescontoItens += descontoItemTotal;
       totalIPI += (item.IPI || 0) * item.Quantidade;
       totalST += (item.ST || 0) * item.Quantidade;
+      totalIPITabela += ipiTabela * item.Quantidade;
+      totalSTTabela += stTabela * item.Quantidade;
 
       return {
         produtoId: item.ID,
@@ -540,14 +555,30 @@ var WidgetApp = (function () {
         produtoNome: item.Nome,
         quantidade: item.Quantidade,
         unidade: item.Unidade || "UN",
+        imagemProduto: item.imagemProduto || "",
+
+        // Valores ATUAIS (após recálculo de impostos, se aplicável)
         precoUnitario: item.Preco,
         precoBase: item.PrecoBase || item.Preco,
         ipi: item.IPI || 0,
         st: item.ST || 0,
+
+        // Valores de TABELA (originais, nunca mudam)
+        precoBaseTabela: precoBaseTabela,
+        ipiTabela: ipiTabela,
+        stTabela: stTabela,
+        precoTabela: precoTabela,
+
+        // Descontos
         descontoPercent: item.descontoPercent || 0,
         descontoValor: item.descontoValor || 0,
+        descontoAplicadoValor: item.descontoAplicadoValor || 0,
         descontoTotal: descontoItemTotal,
+        impostosRecalculados: item.impostosRecalculados || false,
+
+        // Subtotais
         subtotalBruto: subtotalItem,
+        subtotalTabela: subtotalTabelaItem,
         subtotalLiquido: subtotalComDesconto,
       };
     });
@@ -574,6 +605,8 @@ var WidgetApp = (function () {
         protheusLoja: state.clienteDetalhe?.protheusLoja || "",
         codigoMB: state.clienteDetalhe?.clienteCodigoMB || "",
         canal: state.clienteDetalhe?.clienteCanal || "",
+        bandeira: state.clienteDetalhe?.bandeiraDescricao || "",
+        loteMinimo: state.clienteDetalhe?.municipioLoteMinimo || 0,
       },
 
       // --- Vendedor ---
@@ -601,6 +634,12 @@ var WidgetApp = (function () {
         dataISO: dataEntrega.dataISO,
         diaSemana: dataEntrega.nomeDia,
         observacoes: observacoesEntrega || "",
+        // Janela de Entrega do Cliente
+        janelaEntrega: state.clienteDetalhe?.janelaEntrega || [],
+        horaInicio1: state.clienteDetalhe?.horaInicio1 || "",
+        horaFim1: state.clienteDetalhe?.horaFim1 || "",
+        horaInicio2: state.clienteDetalhe?.horaInicio2 || "",
+        horaFim2: state.clienteDetalhe?.horaFim2 || "",
       },
 
       // --- Configurações do Pedido ---
@@ -625,13 +664,20 @@ var WidgetApp = (function () {
       // --- Totais ---
       totais: {
         quantidadeItens: carrinho.length,
+        // Valores ATUAIS
         subtotalBruto: subtotalBruto,
         totalIPI: totalIPI,
         totalST: totalST,
+        // Valores de TABELA (originais)
+        subtotalTabela: subtotalTabela,
+        totalIPITabela: totalIPITabela,
+        totalSTTabela: totalSTTabela,
+        // Descontos
         descontoItens: totalDescontoItens,
         descontoGlobal: descontoState.totalDescontoGlobal || 0,
         descontoTotal:
           totalDescontoItens + (descontoState.totalDescontoGlobal || 0),
+        // Total Final
         totalFinal: totalFinal,
       },
 
