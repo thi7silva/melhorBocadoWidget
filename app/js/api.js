@@ -355,11 +355,32 @@ var WidgetAPI = (function () {
 
   /**
    * Cria um novo pedido
-   * @param {Object} pedido - Dados do pedido
+   * @param {Object} dadosPedido - Dados completos do pedido
    * @returns {Promise} Resultado da criação
    */
-  function criarPedido(pedido) {
-    return invokeAPI(WidgetConfig.API.ENDPOINTS.CRIAR_PEDIDO, "POST", pedido);
+  function criarPedido(dadosPedido) {
+    // Monta o payload no formato esperado pela API
+    // A chave que envolve os dados é "json"
+    var payload = {
+      json: dadosPedido,
+    };
+
+    WidgetUI.log("Enviando pedido para API...", "success");
+
+    return invokeAPIWithPayload(
+      WidgetConfig.API.ENDPOINTS.CRIAR_PEDIDO,
+      payload
+    ).then(function (response) {
+      WidgetUI.log("Resposta da API de criação de pedido recebida", "success");
+
+      // Log da resposta completa
+      console.log("=" + "=".repeat(59));
+      console.log("✅ RESPOSTA DA API DE CRIAÇÃO DE PEDIDO:");
+      console.log("=" + "=".repeat(59));
+      console.log(JSON.stringify(response, null, 2));
+
+      return response;
+    });
   }
 
   /**

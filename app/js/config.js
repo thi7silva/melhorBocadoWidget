@@ -21,8 +21,8 @@ var WidgetConfig = {
         PUBLIC_KEY: "J39jfTQGHMzBYRSVaPfwbjatX", // Assumindo a mesma por enquanto, ajustar se necessário
       },
       CRIAR_PEDIDO: {
-        NAME: "criarPedido",
-        PUBLIC_KEY: "J39jfTQGHMzBYRSVaPfwbjatX", // Assumindo a mesma por enquanto
+        NAME: "criacaoPedido",
+        PUBLIC_KEY: "WwW9ZBTewO5dkytknFGBbGsOB",
       },
       CONSULTA_CONDICAO_PAGAMENTO: {
         NAME: "consultaCondicoesPagamento",

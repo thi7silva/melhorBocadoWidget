@@ -793,30 +793,54 @@ var WidgetApp = (function () {
     console.log("=".repeat(60));
 
     // Log no painel de debug
-    WidgetUI.log("Pedido finalizado! Verifique o console (F12)", "success");
+    WidgetUI.log("Enviando pedido para API...", "success");
 
-    // Atualiza o modal de sucesso com os dados
-    var dataEl = document.getElementById("sucesso-data-entrega");
-    var totalEl = document.getElementById("sucesso-total");
+    // Chama a API para criar o pedido
+    WidgetAPI.criarPedido(dadosPedido)
+      .then(function (response) {
+        console.log("✅ Pedido criado com sucesso!");
+        console.log("Resposta:", response);
 
-    if (dataEl) {
-      dataEl.textContent =
-        dataEntrega.dataFormatada + " (" + dataEntrega.nomeDia + ")";
-    }
-    if (totalEl) {
-      totalEl.textContent =
-        "R$ " +
-        dadosPedido.totais.totalFinal.toLocaleString("pt-BR", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        });
-    }
+        // Atualiza o modal de sucesso com os dados
+        var dataEl = document.getElementById("sucesso-data-entrega");
+        var totalEl = document.getElementById("sucesso-total");
+        var numeroPedidoEl = document.getElementById("sucesso-numero-pedido");
 
-    // Mostra o modal de sucesso
-    WidgetUI.abrirModal("modal-sucesso");
+        if (dataEl) {
+          dataEl.textContent =
+            dataEntrega.dataFormatada + " (" + dataEntrega.nomeDia + ")";
+        }
+        if (totalEl) {
+          totalEl.textContent =
+            "R$ " +
+            dadosPedido.totais.totalFinal.toLocaleString("pt-BR", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            });
+        }
 
-    // TODO: Enviar pedido para API
-    // WidgetAPI.criarPedido(dadosPedido)...
+        // Se a API retornar um número de pedido, exibe
+        if (numeroPedidoEl && response && response.numeroPedido) {
+          numeroPedidoEl.textContent = response.numeroPedido;
+          numeroPedidoEl.parentElement.style.display = "block";
+        }
+
+        // Mostra o modal de sucesso
+        WidgetUI.abrirModal("modal-sucesso");
+
+        // Log de sucesso
+        WidgetUI.log("Pedido enviado com sucesso!", "success");
+      })
+      .catch(function (error) {
+        console.error("❌ Erro ao criar pedido:", error);
+        WidgetUI.log("Erro ao enviar pedido: " + error, "error");
+
+        // Mostra mensagem de erro para o usuário
+        alert(
+          "Erro ao enviar pedido. Por favor, tente novamente.\n\nDetalhes: " +
+            (error.message || error)
+        );
+      });
 
     return dadosPedido;
   }
