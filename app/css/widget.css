@@ -6569,6 +6569,15 @@ body {
     padding: 14px 24px;
   }
 
+  .listagem-pedidos {
+    padding: 10px;
+  }
+
+  .pedido-card-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
   .pedido-card-body {
     flex-direction: column;
   }
@@ -6580,23 +6589,32 @@ body {
 
   .pedido-card-valores {
     min-width: auto;
-    flex-direction: row;
-    justify-content: space-around;
+    flex-direction: column; /* Volta para coluna para melhor leitura */
+    align-items: stretch;
+    justify-content: flex-start;
     padding: 12px 16px;
+    gap: 8px;
   }
 
   .pedido-card-valor {
-    flex-direction: column;
-    text-align: center;
-    gap: 2px;
+    flex-direction: row; /* Label e Valor na mesma linha */
+    justify-content: space-between;
+    text-align: left;
+    gap: 0;
   }
 
   .pedido-card-valor.total-destaque {
-    margin-top: 0;
-    padding-top: 0;
-    border-top: none;
-    border-left: 1px dashed rgba(233, 30, 99, 0.3);
-    padding-left: 12px;
+    margin-top: 4px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--color-border);
+    border-left: none;
+    padding-left: 0;
+  }
+
+  /* Aumentar área de toque dos ícones */
+  .action-icon-btn {
+    width: 34px;
+    height: 34px;
   }
 
   .pedido-card-acoes {
