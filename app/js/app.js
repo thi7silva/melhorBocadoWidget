@@ -626,6 +626,11 @@ var WidgetApp = (function () {
       "Pedido carregado para edição e janela de entrega atualizada",
       "success"
     );
+
+    // Renderiza preview de datas de entrega (mesmo comportamento do fluxo normal)
+    setTimeout(function () {
+      WidgetEntrega.renderizarPreviewDatas();
+    }, 100);
   }
 
   /**

@@ -384,7 +384,7 @@ var WidgetUI = (function () {
         document.querySelector(".app-header.header-edicao") !== null;
 
       if (isEdicao) {
-        btnText.textContent = "Atualizar Pedido";
+        btnText.textContent = "Atualizar";
       } else {
         btnText.textContent = "Gerar Pedido";
       }
