@@ -3721,11 +3721,13 @@ body {
 
 /* Grupo de Mês */
 .entrega-mes-grupo {
-  margin-bottom: 24px;
+  margin-bottom: 24px; /* Aumentado de 24px para 48px para separar bem os containers */
+  padding-bottom: 16px; /* Padding extra */
+  border-bottom: 1px solid transparent; /* Garante que margim não colapse */
 }
 
 .entrega-mes-grupo:last-child {
-  margin-bottom: 0;
+  margin-bottom: 35px; /* Mantém espaço no final */
 }
 
 .entrega-mes-titulo {
@@ -3891,6 +3893,7 @@ body {
   margin-top: 24px;
   padding-top: 20px;
   border-top: 1px solid var(--color-border);
+  margin-bottom: 32px; /* Espaço para não grudar no footer */
 }
 
 .entrega-observacoes label {
@@ -5941,7 +5944,7 @@ body {
 
 /* Header da Listagem */
 .listagem-header {
-  background: linear-gradient(135deg, #ec407a 0%, #c2185b 100%);
+  background: var(--color-primary-gradient);
   color: white;
   padding: 20px 24px;
   display: flex;
