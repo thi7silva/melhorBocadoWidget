@@ -544,6 +544,26 @@ var WidgetAPI = (function () {
     });
   }
 
+  /**
+   * Busca detalhes de um pedido para edição
+   * @param {string} idPedido - ID do Pedido
+   * @returns {Promise<Object>} Detalhes do pedido
+   */
+  function buscarDetalhesPedido(idPedido) {
+    return invokeAPI(
+      WidgetConfig.API.ENDPOINTS.CONSULTA_DETALHES_PEDIDO,
+      "GET",
+      { idPedido: idPedido }
+    ).then(function (data) {
+      // Retorna os dados como vieram (o JSON fornecido pelo usuário parece ser o objeto direto ou dentro de 'data')
+      // Se vier dentro de data...
+      if (data && data.data) {
+        return data.data;
+      }
+      return data;
+    });
+  }
+
   // API Pública do Módulo
   return {
     isSDKAvailable: isSDKAvailable,
@@ -558,5 +578,6 @@ var WidgetAPI = (function () {
     criarPedido: criarPedido,
     consultarImpostos: consultarImpostos,
     listarPedidosCliente: listarPedidosCliente,
+    buscarDetalhesPedido: buscarDetalhesPedido,
   };
 })();

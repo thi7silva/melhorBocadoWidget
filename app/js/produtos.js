@@ -1607,6 +1607,21 @@ var WidgetProdutos = (function () {
     });
   }
 
+  /**
+   * Define os itens do carrinho (usado na edição de pedido)
+   * @param {Array} novosItens - Lista de itens formatada
+   */
+  function setCarrinho(novosItens) {
+    state.carrinho = novosItens;
+    state.modoEdicao = true;
+    renderizarCarrinho();
+
+    WidgetUI.log(
+      "Carrinho atualizado com " + novosItens.length + " itens",
+      "success"
+    );
+  }
+
   // API Pública do Módulo
   return {
     init: init,
@@ -1627,5 +1642,6 @@ var WidgetProdutos = (function () {
     // Funções de Desconto
     aplicarDescontoItem: aplicarDescontoItem,
     fecharAlertaDesconto: fecharAlertaDesconto,
+    setCarrinho: setCarrinho,
   };
 })();

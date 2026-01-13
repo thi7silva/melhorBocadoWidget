@@ -52,6 +52,10 @@ var WidgetConfig = {
         NAME: "pedidosCliente",
         PUBLIC_KEY: "RCmMUy0a5RTzQHXC1bzeHUjP9",
       },
+      CONSULTA_DETALHES_PEDIDO: {
+        NAME: "consultaDetalhesPedido",
+        PUBLIC_KEY: "Pqv53Tz6DQP4gg67xZ2XvkG2R",
+      },
     },
   },
 

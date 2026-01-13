@@ -145,6 +145,19 @@ var WidgetApp = (function () {
         ZOHO.CREATOR.UTIL.getQueryParams()
           .then(function (response) {
             WidgetUI.log("getQueryParams: " + JSON.stringify(response));
+
+            // Verifica se está em modo de edição
+            // Parâmetro esperado: idPedido
+            var idPedido =
+              response.idPedido || response.idpedido || response.pedidoId;
+
+            if (idPedido) {
+              WidgetUI.log(
+                "Modo Edição Detectado. Pedido: " + idPedido,
+                "success"
+              );
+              carregarPedidoEdicao(idPedido);
+            }
           })
           .catch(function (err) {
             WidgetUI.log("Erro getQueryParams: " + err, "error");
@@ -274,6 +287,11 @@ var WidgetApp = (function () {
         .then(function (pedidos) {
           WidgetUI.log("Pedidos carregados: " + pedidos.length, "success");
 
+          // Reverte a ordem para mostrar os mais recentes primeiro
+          if (Array.isArray(pedidos)) {
+            pedidos.reverse();
+          }
+
           // Armazena os pedidos no estado
           state.pedidosCliente = pedidos;
 
@@ -307,6 +325,10 @@ var WidgetApp = (function () {
     }
 
     state.etapaAtual = "pedido";
+
+    // Garante que não está em modo edição
+    state.modo = null;
+    state.pedidoId = null;
 
     WidgetUI.log("Iniciando novo pedido para: " + cliente.Nome, "success");
 
@@ -412,6 +434,258 @@ var WidgetApp = (function () {
   }
 
   /**
+   * Carrega um pedido para edição
+   * @param {string} idPedido - ID do pedido
+   */
+  function carregarPedidoEdicao(idPedido) {
+    state.modo = "editar";
+    state.pedidoId = idPedido;
+    WidgetUI.setStatus("Carregando dados do pedido...", "loading");
+
+    WidgetAPI.buscarDetalhesPedido(idPedido)
+      .then(function (detalhes) {
+        WidgetUI.log("Detalhes do pedido recebidos", "success");
+        processarPedidoEdicao(detalhes);
+      })
+      .catch(function (err) {
+        WidgetUI.log("Erro ao carregar pedido: " + err, "error");
+        WidgetUI.setStatus("Erro ao carregar pedido.", "error");
+      });
+  }
+
+  /**
+   * Processa os dados do pedido e preenche a interface
+   * @param {Object} data - Dados do pedido vindos da API
+   */
+  function processarPedidoEdicao(data) {
+    // 1. Popula Cliente
+    var clienteObj = data.cliente;
+    var cliente = {
+      ID: clienteObj.idCRM || clienteObj.id,
+      Nome: clienteObj.nomeFantasia || clienteObj.razaoSocial,
+      RazaoSocial: clienteObj.razaoSocial,
+      NomeFantasia: clienteObj.nomeFantasia,
+      CPF_CNPJ: clienteObj.cnpjCpf,
+      Endereco: data.endereco.logradouro, // Usado pela mostrarEtapaPedido
+    };
+
+    state.clienteSelecionado = cliente;
+    state.clienteIdReal = clienteObj.id; // Record ID used for queries
+
+    // 2. Transforma detalhe para formato compatível com UI
+    var detalheSimulado = {
+      clienteRazaoSocial: cliente.RazaoSocial,
+      clienteNomeFantasia: cliente.NomeFantasia,
+
+      // Endereço
+      endereco: data.endereco.logradouro,
+      bairro: data.endereco.bairro,
+      municipio: data.endereco.municipio,
+      estado: data.endereco.estado,
+      cep: data.endereco.cep,
+      complemento: data.endereco.complemento,
+
+      // Vendedor
+      vendedorNome: data.vendedor.nome,
+      vendedorID: data.vendedor.id,
+
+      // Configurações
+      pagamentoCondicaoID: data.configuracao.condicaoPagamentoId,
+      pagamentoCondicaoCodigo: data.configuracao.condicaoPagamentoCodigo, // Importante manter
+      tipoFrete: data.configuracao.tipoFrete,
+      transportadoraID: data.configuracao.transportadoraId,
+      transportadoraRazao: data.configuracao.transportadoraRazao,
+
+      // Janela Entrega
+      janelaEntrega: data.entrega.janelaEntrega || [],
+      horaInicio1: data.entrega.horaInicio1,
+      horaFim1: data.entrega.horaFim1,
+      horaInicio2: data.entrega.horaInicio2,
+      horaFim2: data.entrega.horaFim2,
+      listaFeriados: [],
+    };
+
+    state.clienteDetalhe = detalheSimulado;
+
+    // 3. Renderiza Cliente e Detalhes
+    WidgetUI.mostrarEtapaPedido(cliente);
+    WidgetUI.preencherDetalheCliente(detalheSimulado);
+
+    // Atualiza nome do vendedor explicitamente se necessário
+    var vEl = document.getElementById("vendedor-nome");
+    if (vEl && detalheSimulado.vendedorNome)
+      vEl.textContent = detalheSimulado.vendedorNome;
+
+    // 4. Popula Carrinho
+    var itensCarrinho = transformarItensEdicao(data.itens);
+    WidgetProdutos.setClienteId(clienteObj.id);
+    WidgetProdutos.setCarrinho(itensCarrinho);
+
+    // 5. Configurações do Pedido
+
+    // Condição Pagamento
+    carregarCondicoesPagamentoComSelecao(data.configuracao.condicaoPagamentoId);
+
+    // Frete
+    if (data.configuracao.tipoFrete) {
+      WidgetUI.selecionarFreteAutomatico(data.configuracao.tipoFrete, false); // false = não travar hard, permitir edição se quiser
+    }
+
+    // Natureza
+    selecionarOpcaoCard("natureza", data.configuracao.natureza);
+
+    // Campos de texto
+    setValorInput(
+      "numero-pedido-cliente",
+      data.configuracao.numeroPedidoCliente
+    );
+    setValorInput("observacoes", data.configuracao.observacoesGerais);
+    setValorInput("endereco-entrega", data.endereco.observacaoEntrega);
+
+    // 6. Data de Entrega
+    if (data.entrega && data.entrega.dataISO) {
+      WidgetEntrega.setDataSelecionadaManual({
+        dataFormatada: data.entrega.dataFormatada,
+        dataISO: data.entrega.dataISO,
+        diaSemana: data.entrega.diaSemana,
+      });
+      // Popula o campo de observações de entrega
+      var obsEntrega = document.getElementById("observacoes-entrega");
+      if (obsEntrega) obsEntrega.value = data.entrega.observacoes || "";
+    }
+
+    // Feedback visual de edição
+    WidgetUI.setHeaderSubtitle("Atualização de Pedido");
+    var header = document.querySelector(".app-header");
+    if (header) {
+      header.classList.add("header-edicao"); // Classe CSS para customizar visualmente
+
+      // Remove badge anterior se existir para evitar duplicidade
+      var oldBadge = document.getElementById("badge-modo-edicao");
+      if (oldBadge) oldBadge.remove();
+
+      var badge = document.createElement("div");
+      badge.id = "badge-modo-edicao";
+      badge.className = "badge-edicao";
+
+      // Monta o texto do badge com número do pedido e CRM se houver
+      var badgeText = "EDIÇÃO";
+
+      var numProtheus =
+        data.numeroPedidoProtheus ||
+        data.configuracao.numeroPedidoProtheus ||
+        "-";
+      var numCRM =
+        data.numeroPedidoCRM || data.configuracao.numeroPedidoCRM || "";
+
+      var html = badgeText + " <span>" + numProtheus + "</span>";
+      if (numCRM) {
+        html +=
+          "<span style='margin-left:8px; padding-left:8px; border-left:1px solid rgba(255,255,255,0.3)'>" +
+          numCRM +
+          "</span>";
+      }
+
+      // Estrutura HTML do badge
+      badge.innerHTML = html;
+
+      header.appendChild(badge);
+    }
+
+    // Muda para aba produtos
+    WidgetUI.switchTab("produtos");
+
+    // Ajusta visualização
+    WidgetUI.esconderTelaListagem();
+    WidgetUI.hideStatus();
+
+    // Recalcula e seleciona a data de entrega correta
+    // Primeiro gera as datas disponíveis novamente para o cliente selecionado
+    // Como a lógica de janela de entrega não depende de uma chamada async SEPARADA (já veio no 'data' ou é calculada localmente),
+    // podemos apenas garantir que o cálculo está feito:
+
+    // Se a API trouxer a janela de entrega permitida do cliente, atualizamos
+    // (no detalheSimulado acima já populamos, mas vamos reforçar aqui se necessário)
+    if (data.entrega && data.entrega.janelaEntrega) {
+      WidgetEntrega.setJanelaEntrega(data.entrega.janelaEntrega);
+    }
+
+    // Força a geração das datas disponíveis
+    // Isso garante que se o usuário abrir o modal, verá as datas corretas
+    // E também permite validarmos se a data do pedido ainda é válida
+    // Porém, para edição, queremos manter a data original MESMO que ela não esteja mais "disponível" (ex: passado)
+    // Então apenas setamos ela visualmente como selecionada.
+
+    // Se não veio dataSelecionadaManual acima, tentamos recalcular
+    // Mas a lógica anterior já tratou o 'data.entrega.dataISO'
+    // O IMPORTANTE é que ao abrir o modal, as datas estejam lá.
+    // O modal chama 'gerarDatasDisponiveis' ao abrir. Então está ok.
+
+    // Apenas garantimos que o WidgetEntrega saiba da janela do cliente para quando for abrir o modal
+    WidgetUI.log(
+      "Pedido carregado para edição e janela de entrega atualizada",
+      "success"
+    );
+  }
+
+  /**
+   * Transforma itens da API para o formato do Carrinho
+   */
+  function transformarItensEdicao(itensApi) {
+    if (!Array.isArray(itensApi)) return [];
+
+    return itensApi.map(function (item) {
+      return {
+        ID: String(item.produtoId),
+        Codigo: item.produtoCodigo,
+        Nome: item.produtoNome,
+        Quantidade: item.quantidade,
+        Unidade: item.unidade,
+        imagemProduto: item.imagemProduto,
+
+        // Preços
+        Preco: item.precoUnitario, // Preço atual (com desconto se houver)
+        PrecoBase: item.precoBase,
+        IPI: item.ipi,
+        ST: item.st,
+
+        // Valores de Tabela Originais
+        precoBaseTabela: item.precoBaseTabela,
+        ipiTabela: item.ipiTabela,
+        stTabela: item.stTabela,
+        precoTabela: item.precoTabela,
+
+        // Desconto
+        // Se impostos recalculados, o desconto unitário real é a diferença de preço
+        // Se não, é o descontoPendente dividido pela quantidade
+        // Aqui vamos confiar no descontoUnitarioReal que vem calculado
+        descontoValor: item.descontoUnitarioReal,
+        descontoPercent: item.descontoPercentual,
+        impostosRecalculados: item.impostosRecalculados,
+        descontoAplicadoValor: item.descontoTotal, // Total do desconto deste item
+      };
+    });
+  }
+
+  // Helpers internos para edição
+  function setValorInput(id, valor) {
+    var el = document.getElementById(id);
+    if (el) el.value = valor || "";
+  }
+
+  function selecionarOpcaoCard(group, valor) {
+    if (!valor) return;
+    var cards = document.querySelectorAll(
+      '.option-card[data-group="' + group + '"]'
+    );
+    cards.forEach(function (card) {
+      if (card.getAttribute("data-value") === valor) {
+        card.click(); // Simula click para ativar lógica visual
+      }
+    });
+  }
+
+  /**
    * Visualiza um pedido existente (somente leitura)
    * @param {string} pedidoId - ID do pedido
    */
@@ -429,12 +703,8 @@ var WidgetApp = (function () {
    * @param {string} pedidoId - ID do pedido
    */
   function editarPedido(pedidoId) {
-    WidgetUI.log("Editar pedido: " + pedidoId);
-    // TODO: Implementar modo edição (próxima fase)
-    alert(
-      "Funcionalidade de edição será implementada em breve.\n\nID do Pedido: " +
-        pedidoId
-    );
+    WidgetUI.log("Iniciando edição do pedido: " + pedidoId);
+    carregarPedidoEdicao(pedidoId);
   }
 
   /**
@@ -590,6 +860,10 @@ var WidgetApp = (function () {
     state.clienteSelecionado = null;
     state.etapaAtual = "cliente";
     state.itensPedido = [];
+
+    // Limpa estado de edição
+    state.modo = null;
+    state.pedidoId = null;
 
     WidgetUI.log("Voltando para seleção de cliente");
     WidgetUI.mostrarEtapaCliente();
@@ -990,6 +1264,13 @@ var WidgetApp = (function () {
     WidgetUI.log("Enviando pedido para API...", "success");
 
     // Chama a API para criar o pedido
+
+    // MODO EDIÇÃO: Adiciona o ID do pedido ao payload e prossegue com a chamada
+    if (state.modo === "editar" && state.pedidoId) {
+      dadosPedido.idPedido = state.pedidoId;
+      WidgetUI.log("Atualizando Pedido: " + state.pedidoId, "success");
+    }
+
     WidgetAPI.criarPedido(dadosPedido)
       .then(function (response) {
         console.log("✅ Pedido criado com sucesso!");

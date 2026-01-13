@@ -375,8 +375,20 @@ var WidgetUI = (function () {
       btnIcon.innerHTML = '<polyline points="9 18 15 12 9 6"></polyline>';
       if (btnVoltar) btnVoltar.classList.add("hidden");
     } else if (tabId === "produtos") {
-      // Aba de produtos: botão "Gerar Pedido", mostra Voltar
-      btnText.textContent = "Gerar Pedido";
+      // Aba de produtos: botão "Gerar Pedido" ou "Atualizar Pedido", mostra Voltar
+
+      // Verifica se está em modo de edição através de uma classe no header ou estado global
+      // Como WidgetUI não tem acesso direto fácil ao state do App sem acoplamento,
+      // verificamos a classe header-edicao que acabamos de adicionar
+      var isEdicao =
+        document.querySelector(".app-header.header-edicao") !== null;
+
+      if (isEdicao) {
+        btnText.textContent = "Atualizar Pedido";
+      } else {
+        btnText.textContent = "Gerar Pedido";
+      }
+
       btnIcon.innerHTML =
         '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>';
       if (btnVoltar) btnVoltar.classList.remove("hidden");

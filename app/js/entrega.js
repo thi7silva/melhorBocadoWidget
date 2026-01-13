@@ -559,6 +559,34 @@ var WidgetEntrega = (function () {
     }
   }
 
+  /**
+   * Define manualmente uma data selecionada (para edição)
+   * @param {Object} dataObj - Objeto com dataFormatada, dataISO, diaSemana
+   */
+  function setDataSelecionadaManual(dataObj) {
+    if (!dataObj) return;
+
+    var dataParts = dataObj.dataISO.split("-");
+    var ano = parseInt(dataParts[0]);
+    var mes = parseInt(dataParts[1]) - 1;
+    var dia = parseInt(dataParts[2]);
+    var dataDate = new Date(ano, mes, dia);
+
+    state.dataSelecionada = {
+      data: dataDate,
+      dia: dia,
+      mes: mes,
+      ano: ano,
+      nomeDia: dataObj.diaSemana || DIAS_SEMANA[dataDate.getDay()],
+      nomeMes: MESES[mes],
+      dataFormatada: dataObj.dataFormatada,
+      dataISO: dataObj.dataISO,
+      bloqueada: false,
+    };
+
+    WidgetUI.log("Data de entrega pré-selecionada: " + dataObj.dataFormatada);
+  }
+
   // API Pública do Módulo
   return {
     setJanelaEntrega: setJanelaEntrega,
@@ -569,5 +597,7 @@ var WidgetEntrega = (function () {
     getDataSelecionada: getDataSelecionada,
     renderizarPreviewDatas: renderizarPreviewDatas,
     reset: reset,
+    setDataSelecionadaManual: setDataSelecionadaManual,
+    converterDataBRparaISO: converterDataBRparaISO,
   };
 })();
