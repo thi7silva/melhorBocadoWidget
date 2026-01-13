@@ -1300,6 +1300,87 @@ var WidgetApp = (function () {
           numeroPedidoEl.parentElement.style.display = "block";
         }
 
+        // --- ATUALIZAÇÕES PARA O MODAL DE SUCESSO ---
+        var modalTitulo = document.getElementById("sucesso-titulo");
+        var modalMsg = document.getElementById("sucesso-mensagem-texto");
+        var btnSucesso = document.querySelector(".sucesso-btn");
+
+        // Verifica Modo de Edição
+        // Verifica Modo de Edição
+        if (state.modo === "editar" && state.pedidoId) {
+          if (modalTitulo) {
+            modalTitulo.textContent = "Pedido Atualizado com Sucesso!";
+          }
+          if (modalMsg) {
+            modalMsg.textContent =
+              "As alterações foram salvas e o pedido foi atualizado com sucesso.";
+          }
+          if (btnSucesso) {
+            btnSucesso.innerHTML = `
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+              Voltar ao Início
+           `;
+          }
+        } else {
+          // Restaura padrão para novo pedido
+          if (modalTitulo) {
+            modalTitulo.textContent = "Pedido Criado com Sucesso!";
+          }
+          if (modalMsg) {
+            modalMsg.textContent =
+              "Seu pedido foi registrado e será processado em breve.";
+          }
+          if (btnSucesso) {
+            btnSucesso.innerHTML = `
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+              Criar Novo Pedido
+           `;
+          }
+        }
+
+        // Renderiza lista de produtos no modal de sucesso
+        var listaProdutosEl = document.getElementById("sucesso-produtos-lista");
+
+        // Garante que pega o carrinho mais atual se possível
+        var carrinhoParaExibir = state.carrinho;
+        if (
+          typeof WidgetProdutos !== "undefined" &&
+          WidgetProdutos.getCarrinho
+        ) {
+          carrinhoParaExibir = WidgetProdutos.getCarrinho();
+        }
+
+        console.log("Exibindo produtos no modal sucesso:", carrinhoParaExibir);
+
+        if (listaProdutosEl) {
+          if (carrinhoParaExibir && carrinhoParaExibir.length > 0) {
+            var htmlProdutos =
+              '<h3 class="sucesso-produtos-titulo">Itens do Pedido</h3>';
+            htmlProdutos += '<div class="sucesso-produtos-scroll">';
+
+            carrinhoParaExibir.forEach(function (item) {
+              htmlProdutos += `
+                     <div class="sucesso-produto-item">
+                        <span class="produto-qtd">${item.Quantidade}x</span>
+                        <span class="produto-nome">${item.Nome}</span>
+                     </div>
+                  `;
+            });
+
+            htmlProdutos += "</div>";
+            listaProdutosEl.innerHTML = htmlProdutos;
+            listaProdutosEl.style.display = "block";
+          } else {
+            listaProdutosEl.style.display = "none";
+          }
+        }
+
         // Mostra o modal de sucesso
         WidgetUI.abrirModal("modal-sucesso");
 
