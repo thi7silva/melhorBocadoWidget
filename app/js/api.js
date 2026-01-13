@@ -506,6 +506,44 @@ var WidgetAPI = (function () {
     });
   }
 
+  /**
+   * Lista os pedidos de um cliente (últimos 3 meses)
+   * @param {string} clienteId - ID do cliente
+   * @returns {Promise<Array>} Lista de pedidos normalizados
+   */
+  function listarPedidosCliente(clienteId) {
+    return invokeAPI(WidgetConfig.API.ENDPOINTS.LISTAR_PEDIDOS_CLIENTE, "GET", {
+      idCliente: clienteId,
+    }).then(function (data) {
+      var lista = [];
+
+      if (data && data.data && Array.isArray(data.data)) {
+        lista = data.data;
+      } else if (Array.isArray(data)) {
+        lista = data;
+      }
+
+      WidgetUI.log("Pedidos encontrados: " + lista.length, "success");
+
+      // Mapeia para formato padronizado
+      return lista.map(function (item) {
+        return {
+          pedidoId: String(item.pedidoID || ""),
+          numeroPedidoTotvs: item.numeroPedidoTotvs || "",
+          numeroPedidoCRM: item.numeroPedidoCRM || "",
+          emissaoPedido: item.emissaoPedido || "",
+          dataEntrega: item.dataEntrega || "",
+          status: item.status || "",
+          totalPedido: parseFloat(item.totalPedido) || 0,
+          subTotal: parseFloat(item.subTotal) || 0,
+          desconto: parseFloat(item.desconto) || 0,
+          quantidadeItens: parseInt(item.quantidadeItens) || 0,
+          canEdit: item.canEdit === true,
+        };
+      });
+    });
+  }
+
   // API Pública do Módulo
   return {
     isSDKAvailable: isSDKAvailable,
@@ -519,5 +557,6 @@ var WidgetAPI = (function () {
     buscarProdutosPorSubtitulo: buscarProdutosPorSubtitulo,
     criarPedido: criarPedido,
     consultarImpostos: consultarImpostos,
+    listarPedidosCliente: listarPedidosCliente,
   };
 })();

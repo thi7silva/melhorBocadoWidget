@@ -48,6 +48,10 @@ var WidgetConfig = {
         NAME: "consultaImpostos",
         PUBLIC_KEY: "yMsQeZtOP6styYuCgxs8sF0CY",
       },
+      LISTAR_PEDIDOS_CLIENTE: {
+        NAME: "pedidosCliente",
+        PUBLIC_KEY: "RCmMUy0a5RTzQHXC1bzeHUjP9",
+      },
     },
   },
 

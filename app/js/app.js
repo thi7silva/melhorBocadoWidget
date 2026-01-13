@@ -245,13 +245,207 @@ var WidgetApp = (function () {
   }
 
   /**
-   * Seleciona um cliente e avança para a etapa de pedido
+   * Seleciona um cliente e mostra a tela de listagem de pedidos
    */
   function selecionarCliente(cliente) {
     state.clienteSelecionado = cliente;
-    state.etapaAtual = "pedido";
+    state.etapaAtual = "listagem";
 
     WidgetUI.log("Cliente selecionado: " + cliente.Nome, "success");
+
+    // Mostra a tela de listagem
+    WidgetUI.mostrarTelaListagem(cliente);
+
+    // Busca detalhes completos do cliente primeiro
+    if (state.online) {
+      WidgetAPI.buscarDetalheCliente(cliente.ID)
+        .then(function (detalhe) {
+          WidgetUI.log("Detalhes do cliente carregados", "success");
+
+          // Armazena os detalhes no estado
+          state.clienteDetalhe = detalhe;
+          state.clienteIdReal = detalhe.id;
+
+          WidgetUI.log("ID real do cliente: " + detalhe.id);
+
+          // Agora busca os pedidos usando o ID real
+          return WidgetAPI.listarPedidosCliente(detalhe.id);
+        })
+        .then(function (pedidos) {
+          WidgetUI.log("Pedidos carregados: " + pedidos.length, "success");
+
+          // Armazena os pedidos no estado
+          state.pedidosCliente = pedidos;
+
+          // Renderiza a lista de pedidos
+          WidgetUI.renderizarListagemPedidos(pedidos);
+        })
+        .catch(function (err) {
+          var errMsg = err;
+          try {
+            errMsg = JSON.stringify(err);
+          } catch (e) {}
+          WidgetUI.log("Erro ao carregar pedidos: " + errMsg, "error");
+
+          // Em caso de erro, mostra lista vazia
+          WidgetUI.renderizarListagemPedidos([]);
+        });
+    } else {
+      // Modo offline - mostra lista vazia
+      WidgetUI.renderizarListagemPedidos([]);
+    }
+  }
+
+  /**
+   * Inicia um novo pedido (chamado a partir da tela de listagem)
+   */
+  function iniciarNovoPedido() {
+    var cliente = state.clienteSelecionado;
+    if (!cliente) {
+      WidgetUI.log("Nenhum cliente selecionado", "error");
+      return;
+    }
+
+    state.etapaAtual = "pedido";
+
+    WidgetUI.log("Iniciando novo pedido para: " + cliente.Nome, "success");
+
+    // Esconde a listagem
+    WidgetUI.esconderTelaListagem();
+
+    // Mostra loading de transição
+    WidgetUI.mostrarLoadingTransicao();
+
+    // Se já temos os detalhes do cliente, usa direto
+    if (state.clienteDetalhe) {
+      processarDetalhesCliente(state.clienteDetalhe, cliente);
+      return;
+    }
+
+    // Caso contrário, busca os detalhes
+    if (state.online) {
+      WidgetAPI.buscarDetalheCliente(cliente.ID)
+        .then(function (detalhe) {
+          processarDetalhesCliente(detalhe, cliente);
+        })
+        .catch(function (err) {
+          var errMsg = err;
+          try {
+            errMsg = JSON.stringify(err);
+          } catch (e) {}
+          WidgetUI.log("Erro ao buscar detalhes: " + errMsg, "error");
+
+          // Mesmo com erro, mostra a tela e tenta carregar condições
+          WidgetUI.mostrarEtapaPedido(cliente);
+          WidgetUI.esconderLoadingTransicao();
+          WidgetUI.setStatus("Erro ao carregar detalhes do cliente", "error");
+          carregarCondicoesPagamento();
+        });
+    } else {
+      // Modo offline - mostra a tela e esconde loading
+      WidgetUI.mostrarEtapaPedido(cliente);
+      WidgetUI.esconderLoadingTransicao();
+      carregarCondicoesPagamento();
+    }
+  }
+
+  /**
+   * Processa os detalhes do cliente e mostra a tela de pedido
+   * @param {Object} detalhe - Detalhes do cliente vindos da API
+   * @param {Object} cliente - Dados básicos do cliente
+   */
+  function processarDetalhesCliente(detalhe, cliente) {
+    // Armazena os detalhes no estado
+    state.clienteDetalhe = detalhe;
+    state.clienteIdReal = detalhe.id;
+
+    // Define o cliente no módulo de produtos usando o ID real
+    WidgetProdutos.setClienteId(detalhe.id);
+
+    // Atualiza RazaoSocial e NomeFantasia
+    if (detalhe.clienteRazaoSocial) {
+      cliente.RazaoSocial = detalhe.clienteRazaoSocial;
+    }
+    if (detalhe.clienteNomeFantasia) {
+      cliente.NomeFantasia = detalhe.clienteNomeFantasia;
+      cliente.Nome = detalhe.clienteNomeFantasia || cliente.Nome;
+    }
+
+    state.clienteSelecionado = cliente;
+
+    // Preenche os campos com os detalhes
+    WidgetUI.preencherDetalheCliente(detalhe);
+
+    // Atualiza o vendedor no header
+    if (detalhe.vendedorNome) {
+      var vendedorNome = document.getElementById("vendedor-nome");
+      if (vendedorNome) {
+        vendedorNome.textContent = detalhe.vendedorNome;
+      }
+    }
+
+    // Define a janela de entrega no módulo de entrega
+    WidgetEntrega.setJanelaEntrega(detalhe.janelaEntrega);
+    WidgetEntrega.setListaFeriados(detalhe.listaFeriados);
+
+    // Carrega condições de pagamento e pré-seleciona a do cliente
+    carregarCondicoesPagamentoComSelecao(detalhe.pagamentoCondicaoID);
+
+    // Seleciona o tipo de frete automaticamente e trava
+    if (detalhe.tipoFrete) {
+      var tipoFrete = detalhe.tipoFrete.toLowerCase();
+      if (tipoFrete.indexOf("cif") >= 0) {
+        WidgetUI.selecionarFreteAutomatico("cif", true);
+      } else if (tipoFrete.indexOf("fob") >= 0) {
+        WidgetUI.selecionarFreteAutomatico("fob", true);
+      }
+    }
+
+    // Mostra a etapa do pedido e esconde loading
+    WidgetUI.mostrarEtapaPedido(cliente);
+    WidgetUI.esconderLoadingTransicao();
+
+    // Renderiza preview de datas de entrega
+    setTimeout(function () {
+      WidgetEntrega.renderizarPreviewDatas();
+    }, 100);
+  }
+
+  /**
+   * Visualiza um pedido existente (somente leitura)
+   * @param {string} pedidoId - ID do pedido
+   */
+  function visualizarPedido(pedidoId) {
+    WidgetUI.log("Visualizar pedido: " + pedidoId);
+    // TODO: Implementar tela de visualização (próxima fase)
+    alert(
+      "Funcionalidade de visualização será implementada em breve.\n\nID do Pedido: " +
+        pedidoId
+    );
+  }
+
+  /**
+   * Edita um pedido existente
+   * @param {string} pedidoId - ID do pedido
+   */
+  function editarPedido(pedidoId) {
+    WidgetUI.log("Editar pedido: " + pedidoId);
+    // TODO: Implementar modo edição (próxima fase)
+    alert(
+      "Funcionalidade de edição será implementada em breve.\n\nID do Pedido: " +
+        pedidoId
+    );
+  }
+
+  /**
+   * Seleciona um cliente e avança direto para a etapa de pedido (modo legado/direto)
+   * Mantido para compatibilidade caso seja necessário pular a listagem
+   */
+  function selecionarClienteDireto(cliente) {
+    state.clienteSelecionado = cliente;
+    state.etapaAtual = "pedido";
+
+    WidgetUI.log("Cliente selecionado (direto): " + cliente.Nome, "success");
 
     // Mostra loading de transição
     WidgetUI.mostrarLoadingTransicao();
@@ -880,6 +1074,10 @@ var WidgetApp = (function () {
     footerAction: footerAction,
     gerarPedido: gerarPedido,
     finalizarPedidoComEntrega: finalizarPedidoComEntrega,
+    // Novas funções de listagem/edição
+    iniciarNovoPedido: iniciarNovoPedido,
+    visualizarPedido: visualizarPedido,
+    editarPedido: editarPedido,
   };
 })();
 

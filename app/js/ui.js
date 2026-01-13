@@ -30,6 +30,9 @@ var WidgetUI = (function () {
       searchInput: document.getElementById("search-cliente"),
       clientList: document.getElementById("client-list"),
 
+      // Etapa 1.5: Listagem de Pedidos
+      stepListagem: document.getElementById("step-listagem"),
+
       // Etapa 2: Pedido
       stepPedido: document.getElementById("step-pedido"),
       clienteAvatarLg: document.getElementById("cliente-avatar-lg"),
@@ -736,10 +739,10 @@ var WidgetUI = (function () {
   function esconderLoadingTransicao() {
     var overlay = document.getElementById("loading-overlay");
     if (overlay) {
-      // Pequeno delay para suavizar a transição
+      // Delay para suavizar a transição e garantir percepção de carregamento
       setTimeout(function () {
         overlay.classList.add("hidden");
-      }, 300);
+      }, 1000);
     }
   }
 
@@ -766,6 +769,287 @@ var WidgetUI = (function () {
       if (dadosContainer) dadosContainer.style.display = "none";
       if (toggleIcon) toggleIcon.style.transform = "rotate(0deg)";
     }
+  }
+
+  /**
+   * Mostra a tela de listagem de pedidos
+   * @param {Object} cliente - Dados do cliente
+   */
+  function mostrarTelaListagem(cliente) {
+    // Esconde outras etapas
+    if (elements.stepCliente) {
+      elements.stepCliente.classList.add("hidden");
+    }
+    if (elements.stepPedido) {
+      elements.stepPedido.classList.add("hidden");
+    }
+
+    // Mostra a listagem
+    if (elements.stepListagem) {
+      elements.stepListagem.classList.remove("hidden");
+    }
+
+    // Preenche dados do cliente no header
+    var nomeEl = document.getElementById("listagem-cliente-nome");
+    var docEl = document.getElementById("listagem-cliente-doc");
+
+    if (nomeEl) {
+      nomeEl.textContent = cliente.NomeFantasia || cliente.Nome || "Cliente";
+    }
+    if (docEl) {
+      docEl.textContent = formatCpfCnpj(cliente.CPF_CNPJ);
+    }
+
+    // Mostra loading
+    var listagemPedidos = document.getElementById("listagem-pedidos");
+    if (listagemPedidos) {
+      listagemPedidos.innerHTML =
+        '<div class="listagem-loading">' +
+        '<div class="loading-spinner"></div>' +
+        "<p>Carregando pedidos...</p>" +
+        "</div>";
+    }
+  }
+
+  /**
+   * Esconde a tela de listagem
+   */
+  function esconderTelaListagem() {
+    if (elements.stepListagem) {
+      elements.stepListagem.classList.add("hidden");
+    }
+  }
+
+  /**
+   * Renderiza a lista de pedidos do cliente
+   * @param {Array} pedidos - Lista de pedidos
+   */
+  function renderizarListagemPedidos(pedidos) {
+    var container = document.getElementById("listagem-pedidos");
+    if (!container) return;
+
+    // Lista vazia
+    if (!pedidos || pedidos.length === 0) {
+      container.innerHTML =
+        '<div class="listagem-vazio">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">' +
+        '<path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"></path>' +
+        '<rect x="9" y="3" width="6" height="4" rx="2"></rect>' +
+        "</svg>" +
+        "<p>Nenhum pedido encontrado</p>" +
+        "<span>Este cliente ainda não tem pedidos nos últimos 3 meses</span>" +
+        "</div>";
+      return;
+    }
+
+    // Renderiza os cards de pedido
+    var html = "";
+    pedidos.forEach(function (pedido) {
+      html += renderizarCardPedido(pedido);
+    });
+
+    container.innerHTML = html;
+  }
+
+  /**
+   * Renderiza um card de pedido individual
+   * @param {Object} pedido - Dados do pedido
+   * @returns {string} HTML do card
+   */
+  function renderizarCardPedido(pedido) {
+    // Determina a classe de status
+    var statusClass = getStatusClass(pedido.status);
+
+    // Formata valores
+    var totalFormatado = formatarMoeda(pedido.totalPedido);
+    var subTotalFormatado = formatarMoeda(pedido.subTotal);
+    var descontoFormatado = formatarMoeda(pedido.desconto);
+
+    // Formata datas
+    var emissaoFormatada = formatarData(pedido.emissaoPedido);
+    var entregaFormatada = formatarData(pedido.dataEntrega);
+
+    // Monta número do pedido para exibição
+    var numeroPedidoPrincipal = pedido.numeroPedidoTotvs || "Sem número";
+    var numeroPedidoCRM = pedido.numeroPedidoCRM || "";
+
+    var html =
+      '<div class="pedido-card" data-pedido-id="' +
+      pedido.pedidoId +
+      '">' +
+      // Header com número + status + ações
+      '<div class="pedido-card-header">' +
+      '<div class="pedido-card-numeros">' +
+      '<span class="pedido-card-numero">#' +
+      numeroPedidoPrincipal +
+      "</span>" +
+      (numeroPedidoCRM
+        ? '<span class="pedido-card-crm">' + numeroPedidoCRM + "</span>"
+        : "") +
+      "</div>" +
+      '<div class="pedido-card-header-controls">' +
+      '<span class="pedido-card-status ' +
+      statusClass +
+      '">' +
+      pedido.status +
+      "</span>" +
+      '<div class="pedido-card-actions-icons">' +
+      // Botão Visualizar
+      '<button type="button" class="action-icon-btn visualizar" title="Visualizar" onclick="WidgetApp.visualizarPedido(\'' +
+      pedido.pedidoId +
+      "')\">" +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+      '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>' +
+      '<circle cx="12" cy="12" r="3"></circle>' +
+      "</svg>" +
+      "</button>" +
+      // Botão Editar (se permitido)
+      (pedido.canEdit
+        ? '<button type="button" class="action-icon-btn editar" title="Editar" onclick="WidgetApp.editarPedido(\'' +
+          pedido.pedidoId +
+          "')\">" +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+          '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>' +
+          '<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>' +
+          "</svg>" +
+          "</button>"
+        : "") +
+      // Botão Cancelar (novo)
+      '<button type="button" class="action-icon-btn cancelar" title="Cancelar" onclick="WidgetApp.cancelarPedido(\'' +
+      pedido.pedidoId +
+      "')\">" +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+      '<circle cx="12" cy="12" r="10"></circle>' +
+      '<line x1="15" y1="9" x2="9" y2="15"></line>' +
+      '<line x1="9" y1="9" x2="15" y2="15"></line>' +
+      "</svg>" +
+      "</button>" +
+      "</div>" + // fecha actions-icons
+      "</div>" + // fecha header-controls
+      "</div>" + // fecha header
+      // Body com Info + Valores
+      '<div class="pedido-card-body">' +
+      // Coluna esquerda - Info
+      '<div class="pedido-card-info">' +
+      '<div class="pedido-card-info-item">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+      '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>' +
+      '<line x1="16" y1="2" x2="16" y2="6"></line>' +
+      '<line x1="8" y1="2" x2="8" y2="6"></line>' +
+      '<line x1="3" y1="10" x2="21" y2="10"></line>' +
+      "</svg>" +
+      "<span>Criado: " +
+      emissaoFormatada +
+      "</span>" +
+      "</div>" +
+      '<div class="pedido-card-info-item">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+      '<rect x="1" y="3" width="15" height="13"></rect>' +
+      '<polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>' +
+      '<circle cx="5.5" cy="18.5" r="2.5"></circle>' +
+      '<circle cx="18.5" cy="18.5" r="2.5"></circle>' +
+      "</svg>" +
+      "<span>Entrega: " +
+      entregaFormatada +
+      "</span>" +
+      "</div>" +
+      '<div class="pedido-card-info-item">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+      '<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>' +
+      '<line x1="3" y1="6" x2="21" y2="6"></line>' +
+      '<path d="M16 10a4 4 0 0 1-8 0"></path>' +
+      "</svg>" +
+      "<span>" +
+      pedido.quantidadeItens +
+      " itens</span>" +
+      "</div>" +
+      "</div>" +
+      // Coluna direita - Valores
+      '<div class="pedido-card-valores">' +
+      '<div class="pedido-card-valor">' +
+      '<span class="pedido-card-valor-label">Subtotal</span>' +
+      '<span class="pedido-card-valor-numero">' +
+      subTotalFormatado +
+      "</span>" +
+      "</div>";
+
+    // Só mostra desconto se for maior que 0
+    if (pedido.desconto > 0) {
+      html +=
+        '<div class="pedido-card-valor">' +
+        '<span class="pedido-card-valor-label">Desconto</span>' +
+        '<span class="pedido-card-valor-numero desconto">-' +
+        descontoFormatado +
+        "</span>" +
+        "</div>";
+    }
+
+    html +=
+      '<div class="pedido-card-valor total-destaque">' +
+      '<span class="pedido-card-valor-label">Total</span>' +
+      '<span class="pedido-card-valor-numero total">' +
+      totalFormatado +
+      "</span>" +
+      "</div>" +
+      "</div>" + // fecha pedido-card-valores
+      "</div>" + // fecha pedido-card-body
+      "</div>"; // fecha pedido-card
+
+    return html;
+  }
+
+  /**
+   * Retorna a classe CSS baseada no status do pedido
+   * @param {string} status - Status do pedido
+   * @returns {string} Classe CSS
+   */
+  function getStatusClass(status) {
+    if (!status) return "";
+    var s = status.toLowerCase();
+
+    if (s.indexOf("cancelado") >= 0) return "status-cancelado";
+    if (s.indexOf("pendente") >= 0) return "status-pendente";
+    if (s.indexOf("confirmado") >= 0) return "status-confirmado";
+    if (s.indexOf("faturado") >= 0) return "status-faturado";
+    if (s.indexOf("entregue") >= 0) return "status-entregue";
+
+    return "status-pendente"; // default
+  }
+
+  /**
+   * Formata um valor para moeda brasileira
+   * @param {number} valor - Valor a formatar
+   * @returns {string} Valor formatado
+   */
+  function formatarMoeda(valor) {
+    if (typeof valor !== "number") valor = parseFloat(valor) || 0;
+    return (
+      "R$ " +
+      valor.toLocaleString("pt-BR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })
+    );
+  }
+
+  /**
+   * Formata uma data para exibição
+   * @param {string} data - Data em formato ISO ou DD/MM/YYYY
+   * @returns {string} Data formatada
+   */
+  function formatarData(data) {
+    if (!data) return "-";
+
+    // Se for formato ISO (YYYY-MM-DD)
+    if (typeof data === "string" && data.indexOf("-") > 0) {
+      var partes = data.split("-");
+      if (partes.length === 3) {
+        return partes[2] + "/" + partes[1] + "/" + partes[0];
+      }
+    }
+
+    // Retorna como está se não conseguir formatar
+    return String(data);
   }
 
   // API Pública do Módulo
@@ -795,5 +1079,11 @@ var WidgetUI = (function () {
     getActiveTab: getActiveTab,
     abrirModal: abrirModal,
     fecharModal: fecharModal,
+    // Novas funções de listagem
+    mostrarTelaListagem: mostrarTelaListagem,
+    esconderTelaListagem: esconderTelaListagem,
+    renderizarListagemPedidos: renderizarListagemPedidos,
+    formatarMoeda: formatarMoeda,
+    formatarData: formatarData,
   };
 })();
