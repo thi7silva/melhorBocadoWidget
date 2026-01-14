@@ -564,6 +564,44 @@ var WidgetAPI = (function () {
     });
   }
 
+  // ... (código anterior)
+
+  /**
+   * Cancela um pedido
+   * @param {string} idPedido - ID do pedido
+   * @param {string} emailUsuario - Email do usuário logado
+   * @param {string} motivo - Motivo do cancelamento
+   * @returns {Promise} Resultado do cancelamento
+   */
+  function cancelarPedido(idPedido, emailUsuario, motivo) {
+    var dados = {
+      idPedido: idPedido,
+      emailUsuarioLogado: emailUsuario,
+      motivoCancelamento: motivo,
+    };
+
+    // Payload seguindo o padrão da API (json wrapper)
+    var payload = {
+      json: dados,
+    };
+
+    WidgetUI.log("Solicitando cancelamento do pedido: " + idPedido, "warning");
+
+    return invokeAPIWithPayload(
+      WidgetConfig.API.ENDPOINTS.CANCELAMENTO_PEDIDO,
+      payload
+    ).then(function (response) {
+      // Validação básica do retorno
+      if (response) {
+        WidgetUI.log(
+          "Resposta cancelamento: " + JSON.stringify(response),
+          "success"
+        );
+      }
+      return response;
+    });
+  }
+
   // API Pública do Módulo
   return {
     isSDKAvailable: isSDKAvailable,
@@ -579,5 +617,6 @@ var WidgetAPI = (function () {
     consultarImpostos: consultarImpostos,
     listarPedidosCliente: listarPedidosCliente,
     buscarDetalhesPedido: buscarDetalhesPedido,
+    cancelarPedido: cancelarPedido,
   };
 })();

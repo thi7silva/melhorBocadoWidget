@@ -56,6 +56,10 @@ var WidgetConfig = {
         NAME: "consultaDetalhesPedido",
         PUBLIC_KEY: "Pqv53Tz6DQP4gg67xZ2XvkG2R",
       },
+      CANCELAMENTO_PEDIDO: {
+        NAME: "cancelamentoPedido",
+        PUBLIC_KEY: "GhWZk15TCND3YWkMBfmuTexxE",
+      },
     },
   },
 

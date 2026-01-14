@@ -1527,57 +1527,73 @@ var WidgetApp = (function () {
         '<span class="loading-spinner-mini"></span> Processando...';
     }
 
-    // Pega o usuário logado
-    var usuario = state.loginUser || "Usuário não identificado";
+    // Pega o usuário logado e ID
+    var usuario = state.loginUser || "";
+    var idPedido = pedidoCancelando ? pedidoCancelando.id : "";
 
-    // Por enquanto, apenas console.log (conforme solicitado)
-    console.log("=== CANCELAMENTO DE PEDIDO ===");
-    console.log(
-      "ID do Pedido:",
-      pedidoCancelando ? pedidoCancelando.id : "N/A"
-    );
-    console.log(
-      "Número do Pedido:",
-      pedidoCancelando ? pedidoCancelando.numero : "N/A"
-    );
-    console.log(
-      "Cliente:",
-      pedidoCancelando ? pedidoCancelando.cliente : "N/A"
-    );
-    console.log("Valor:", pedidoCancelando ? pedidoCancelando.valor : "N/A");
-    console.log("Motivo:", motivo);
-    console.log("Usuário:", usuario);
-    console.log("Data/Hora:", new Date().toISOString());
-    console.log("==============================");
-
-    WidgetUI.log(
-      "Cancelamento solicitado - Pedido: " +
-        (pedidoCancelando ? pedidoCancelando.id : "N/A"),
-      "success"
-    );
-
-    // Fecha o modal após um pequeno delay para feedback
-    setTimeout(function () {
-      fecharModalCancelarPedido();
-
-      // Restaura botão
+    if (!idPedido) {
+      WidgetUI.setStatus("Erro: ID do pedido não encontrado", "error");
       if (btnConfirmar) {
         btnConfirmar.disabled = false;
         btnConfirmar.textContent = "Confirmar Cancelamento";
       }
+      return;
+    }
 
-      // UX: Mostra loading de tela cheia para suavizar a transição/reload
-      WidgetUI.mostrarLoadingTransicao(
-        "Cancelando pedido...",
-        "Aguarde enquanto processamos o cancelamento. A página será recarregada."
-      );
-      WidgetUI.setStatus("Solicitação enviada com sucesso!", "success");
+    // Chama a API de cancelamento
+    WidgetAPI.cancelarPedido(idPedido, usuario, motivo)
+      .then(function (response) {
+        // Verifica sucesso na resposta (trata string "true" ou booleano true)
+        var sucesso =
+          response &&
+          (response.success === true || response.success === "true");
+        var mensagem = response
+          ? response.message || "Operação realizada"
+          : "Sem resposta da API";
 
-      // Recarrega a página após 2 segundos para dar tempo do usuário ler
-      setTimeout(function () {
-        window.location.reload();
-      }, 2000);
-    }, 800);
+        if (sucesso) {
+          // Sucesso - Mostra loading e recarrega
+          WidgetUI.log("Pedido cancelado: " + mensagem, "success");
+
+          // Fecha modal
+          fecharModalCancelarPedido();
+
+          // Mostra loading de transição para o reload
+          WidgetUI.mostrarLoadingTransicao(
+            "Cancelando pedido...",
+            "Aguarde enquanto processamos o cancelamento. A página será recarregada."
+          );
+
+          // Mensagem final e reload
+          WidgetUI.setStatus(mensagem, "success");
+          setTimeout(function () {
+            window.location.reload();
+          }, 2000);
+        } else {
+          // Erro retornado pela API (Ex: Regra de negócio)
+          WidgetUI.log("Erro API Cancelamento: " + mensagem, "error");
+          WidgetUI.setStatus("Não foi possível cancelar: " + mensagem, "error");
+
+          // Restaura botão
+          if (btnConfirmar) {
+            btnConfirmar.disabled = false;
+            btnConfirmar.textContent = "Confirmar Cancelamento";
+          }
+        }
+      })
+      .catch(function (err) {
+        // Erro de rede ou outro
+        var erroMsg = err && err.message ? err.message : "Erro desconhecido";
+        console.error("Erro ao cancelar:", err);
+        WidgetUI.log("Erro ao chamar API de cancelamento: " + erroMsg, "error");
+        WidgetUI.setStatus("Erro ao conectar com o servidor.", "error");
+
+        // Restaura botão
+        if (btnConfirmar) {
+          btnConfirmar.disabled = false;
+          btnConfirmar.textContent = "Confirmar Cancelamento";
+        }
+      });
   }
 
   /**
