@@ -410,6 +410,9 @@ var WidgetApp = (function () {
     WidgetEntrega.setJanelaEntrega(detalhe.janelaEntrega);
     WidgetEntrega.setListaFeriados(detalhe.listaFeriados);
 
+    // Define o Lote Mínimo no módulo de produtos
+    WidgetProdutos.setLoteMinimo(detalhe.municipioLoteMinimo);
+
     // Carrega condições de pagamento e pré-seleciona a do cliente
     carregarCondicoesPagamentoComSelecao(detalhe.pagamentoCondicaoID);
 
@@ -519,6 +522,7 @@ var WidgetApp = (function () {
     // 4. Popula Carrinho
     var itensCarrinho = transformarItensEdicao(data.itens);
     WidgetProdutos.setClienteId(clienteObj.id);
+    WidgetProdutos.setLoteMinimo(clienteObj.municipioLoteMinimo || 0);
     WidgetProdutos.setCarrinho(itensCarrinho);
 
     // 5. Configurações do Pedido
@@ -781,6 +785,9 @@ var WidgetApp = (function () {
 
           // Define a lista de feriados/datas bloqueadas
           WidgetEntrega.setListaFeriados(detalhe.listaFeriados);
+
+          // Define o Lote Mínimo
+          WidgetProdutos.setLoteMinimo(detalhe.municipioLoteMinimo);
 
           // Carrega condições de pagamento e pré-seleciona a do cliente
           carregarCondicoesPagamentoComSelecao(detalhe.pagamentoCondicaoID);

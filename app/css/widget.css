@@ -7352,3 +7352,156 @@ body {
   margin-right: 8px;
   vertical-align: middle;
 }
+
+/* ============================================
+   LOTE M�NIMO BADGE
+   ============================================ */
+.lote-minimo-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: white;
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-border);
+  font-size: 0.9rem;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+.lote-minimo-badge.hidden {
+  display: none !important;
+}
+
+.lote-label {
+  color: var(--color-text-light);
+  font-weight: 500;
+}
+
+.lote-valor {
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+.lote-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.lote-status .status-icon {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* Status Colors */
+.lote-status.status-ok {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+.lote-status.status-error {
+  background: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+}
+
+.lote-status.status-pending {
+  background: #f5f5f5;
+  color: #757575;
+  border: 1px solid #e0e0e0;
+}
+
+/* Responsividade Mobile */
+@media (max-width: 768px) {
+  .produtos-header-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .lote-minimo-badge {
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+}
+
+/* ============================================
+   LOTE M�NIMO BADGE (MINI - INLINE)
+   ============================================ */
+.header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px; /* Ajuste fino */
+}
+
+/* Remove margem inferior do h2 para alinhar */
+.header-title-row h2 {
+  margin-bottom: 0 !important;
+}
+
+.badge-mini {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem; /* Fonte discreta */
+  font-weight: 600;
+  line-height: 1.2;
+  background: #f5f5f5;
+  color: #666;
+  border: 1px solid #e0e0e0;
+  white-space: nowrap;
+}
+
+.badge-mini.hidden {
+  display: none !important;
+}
+
+/* Status Colors */
+
+/* OK / Verde */
+.badge-mini.status-ok {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border-color: #a5d6a7; /* Borda mais suave do que o padr�o */
+}
+
+/* Erro / Vermelho */
+.badge-mini.status-error {
+  background-color: #ffebee;
+  color: #c62828;
+  border-color: #ef9a9a;
+}
+
+/* Pendente / Neutro */
+.badge-mini.status-pending {
+  background-color: #f5f5f5;
+  color: #757575;
+  border-color: #e0e0e0;
+}
+
+/* Responsividade Mobile - Manter na mesma linha se poss�vel, ou quebrar suave */
+@media (max-width: 480px) {
+  .header-title-row {
+    flex-wrap: wrap; /* Permite quebrar linha se o t�tulo for mt longo */
+    gap: 8px;
+  }
+
+  .header-title-row h2 {
+    font-size: 1.1rem; /* Reduz um pouco fonte mobile */
+  }
+}

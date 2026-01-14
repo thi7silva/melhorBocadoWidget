@@ -63,6 +63,7 @@ var WidgetProdutos = (function () {
     },
     // Snapshot dos descontos ao abrir o modal (para detectar alterações)
     snapshotDescontos: null,
+    loteMinimo: 0, // Valor do lote mínimo para o cliente
   };
 
   /**
@@ -72,6 +73,18 @@ var WidgetProdutos = (function () {
   function setClienteId(clienteId) {
     state.clienteId = clienteId;
     WidgetUI.log("Cliente ID definido para produtos: " + clienteId);
+  }
+
+  /**
+   * Define o valor do lote mínimo
+   * @param {number} valor - Valor mínimo para pedido
+   */
+  function setLoteMinimo(valor) {
+    state.loteMinimo = parseFloat(valor) || 0;
+    // Tenta atualizar a badge se já houver carrinho renderizado
+    // Mas precisamos do total atual. Se não tivermos fácil, rodamos renderizarCarrinho (?)
+    // Melhor apenas salvar e deixar o fluxo normal atualizar, ou forçar renderizarCarrinho.
+    renderizarCarrinho();
   }
 
   /**
@@ -552,10 +565,12 @@ var WidgetProdutos = (function () {
       if (totalEl) totalEl.textContent = "R$ 0,00";
 
       // Limpa footer
-      var footerTotal = document.querySelector(".total-valor");
       if (footerTotal) {
         footerTotal.textContent = "R$ 0,00";
       }
+
+      // Atualiza status do lote mínimo (mesmo com 0 itens)
+      atualizarLoteMinimo(0);
       return;
     }
 
@@ -639,6 +654,11 @@ var WidgetProdutos = (function () {
     // Quando há impostos recalculados, o subtotalAtual já reflete o valor correto
     var totalFinal = subtotalTabela - totalDesconto;
 
+    // Calcula total de itens (quantidade)
+    var totalQuantidade = state.carrinho.reduce(function (acc, item) {
+      return acc + (parseInt(item.Quantidade) || 0);
+    }, 0);
+
     // Atualiza totais
     if (subtotalEl) {
       // Sempre mostra subtotal de tabela
@@ -672,6 +692,43 @@ var WidgetProdutos = (function () {
     var footerTotal = document.querySelector(".total-valor");
     if (footerTotal) {
       footerTotal.textContent = "R$ " + formatarMoeda(totalFinal);
+    }
+
+    // Atualiza status do lote mínimo (agora baseado em quantidade)
+    atualizarLoteMinimo(totalQuantidade);
+  }
+
+  /**
+   * Atualiza a visualização do Lote Mínimo (Versão Simplificada)
+   */
+  function atualizarLoteMinimo(totalQuantidade) {
+    var badge = document.getElementById("lote-minimo-badge");
+    var valorEl = document.getElementById("lote-minimo-valor");
+
+    // Se elementos não existem, retorna
+    if (!badge || !valorEl) return;
+
+    var minimo = parseInt(state.loteMinimo) || 0;
+
+    // Se não tiver lote mínimo configurado, esconde badge
+    if (minimo <= 0) {
+      badge.classList.add("hidden");
+      return;
+    }
+
+    // Mostra badge
+    badge.classList.remove("hidden");
+    valorEl.textContent = minimo + " unid.";
+
+    // Remove classes de status
+    badge.classList.remove("status-ok", "status-error", "status-pending");
+
+    if (totalQuantidade >= minimo) {
+      // OK (Verde)
+      badge.classList.add("status-ok");
+    } else {
+      // Abaixo/Erro (Vermelho)
+      badge.classList.add("status-error");
     }
   }
 
@@ -1643,5 +1700,6 @@ var WidgetProdutos = (function () {
     aplicarDescontoItem: aplicarDescontoItem,
     fecharAlertaDesconto: fecharAlertaDesconto,
     setCarrinho: setCarrinho,
+    setLoteMinimo: setLoteMinimo,
   };
 })();
