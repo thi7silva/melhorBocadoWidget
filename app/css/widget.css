@@ -6966,7 +6966,7 @@ body {
 /* Área de Valores */
 .pedido-card-valores {
   flex-shrink: 0;
-  width: 170px;
+  width: 177px;
   padding: 14px 18px;
   display: flex;
   flex-direction: column;
