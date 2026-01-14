@@ -7298,35 +7298,11 @@ body {
 }
 
 /* Animação de entrada para cards */
-@keyframes cardSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
+/* Animação removida conforme solicitado */
 .pedido-card {
-  animation: cardSlideIn 0.4s ease-out forwards;
-}
-
-.pedido-card:nth-child(1) {
-  animation-delay: 0.05s;
-}
-.pedido-card:nth-child(2) {
-  animation-delay: 0.1s;
-}
-.pedido-card:nth-child(3) {
-  animation-delay: 0.15s;
-}
-.pedido-card:nth-child(4) {
-  animation-delay: 0.2s;
-}
-.pedido-card:nth-child(5) {
-  animation-delay: 0.25s;
+  /* animation: cardSlideIn 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; */
+  opacity: 1;
+  transform: none;
 }
 
 /* Estilos de Validação de Formulário */
