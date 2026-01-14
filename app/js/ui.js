@@ -864,13 +864,14 @@ var WidgetUI = (function () {
   }
 
   /**
-   * Renderiza um card de pedido individual
+   * Renderiza um card de pedido individual - Layout Premium
    * @param {Object} pedido - Dados do pedido
    * @returns {string} HTML do card
    */
   function renderizarCardPedido(pedido) {
     // Determina a classe de status
     var statusClass = getStatusClass(pedido.status);
+    var statusInfo = getStatusInfo(pedido.status);
 
     // Formata valores
     var totalFormatado = formatarMoeda(pedido.totalPedido);
@@ -882,42 +883,64 @@ var WidgetUI = (function () {
     var entregaFormatada = formatarData(pedido.dataEntrega);
 
     // Monta número do pedido para exibição
-    var numeroPedidoPrincipal = pedido.numeroPedidoTotvs || "Sem número";
+    var numeroPedidoPrincipal = pedido.numeroPedidoTotvs || "-";
     var numeroPedidoCRM = pedido.numeroPedidoCRM || "";
 
+    // Determina ícone do status
+    var statusIcon = getStatusIcon(statusClass);
+
     var html =
-      '<div class="pedido-card" data-pedido-id="' +
+      '<div class="pedido-card ' +
+      statusClass +
+      '" data-pedido-id="' +
       pedido.pedidoId +
       '">' +
-      // Header com número + status + ações
+      // Container principal
+      '<div class="pedido-card-content">' +
+      // Header com número + status badge + ações
       '<div class="pedido-card-header">' +
-      '<div class="pedido-card-numeros">' +
-      '<span class="pedido-card-numero">#' +
+      // Lado esquerdo - Número e badge CRM
+      '<div class="pedido-card-identity">' +
+      '<div class="pedido-card-numero-wrapper">' +
+      '<span class="pedido-card-numero">' +
       numeroPedidoPrincipal +
       "</span>" +
       (numeroPedidoCRM
         ? '<span class="pedido-card-crm">' + numeroPedidoCRM + "</span>"
         : "") +
       "</div>" +
-      '<div class="pedido-card-header-controls">' +
-      '<span class="pedido-card-status ' +
+      "</div>" +
+      // Lado direito - Status badge premium + ações
+      '<div class="pedido-card-header-right">' +
+      '<div class="pedido-card-status-badge ' +
       statusClass +
       '">' +
+      '<span class="status-icon">' +
+      statusIcon +
+      "</span>" +
+      '<span class="status-text">' +
       pedido.status +
       "</span>" +
-      '<div class="pedido-card-actions-icons">' +
-      // Botão Visualizar
-      '<button type="button" class="action-icon-btn visualizar" title="Visualizar" onclick="WidgetApp.visualizarPedido(\'' +
-      pedido.pedidoId +
-      "')\">" +
+      "</div>" +
+      // Ações do card
+      '<div class="pedido-card-actions">' +
+      // Visualizar (Futuro - desabilitado)
+      '<button type="button" class="action-btn action-visualizar" title="Visualizar (Em breve)" disabled>' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
       '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>' +
       '<circle cx="12" cy="12" r="3"></circle>' +
       "</svg>" +
       "</button>" +
-      // Botão Editar (se permitido)
+      // Clonar (Futuro - desabilitado)
+      '<button type="button" class="action-btn action-clonar" title="Clonar (Em breve)" disabled>' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>' +
+      "</svg>" +
+      "</button>" +
+      // Editar (Implementado)
       (pedido.canEdit
-        ? '<button type="button" class="action-icon-btn editar" title="Editar" onclick="WidgetApp.editarPedido(\'' +
+        ? '<button type="button" class="action-btn action-editar" title="Editar Pedido" onclick="WidgetApp.editarPedido(\'' +
           pedido.pedidoId +
           "')\">" +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
@@ -925,59 +948,80 @@ var WidgetUI = (function () {
           '<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>' +
           "</svg>" +
           "</button>"
-        : "") +
-      // Botão Cancelar (novo)
-      '<button type="button" class="action-icon-btn cancelar" title="Cancelar" onclick="WidgetApp.cancelarPedido(\'' +
-      pedido.pedidoId +
-      "')\">" +
+        : '<button type="button" class="action-btn action-editar" title="Edição não disponível" disabled>' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+          '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>' +
+          '<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>' +
+          "</svg>" +
+          "</button>") +
+      // Cancelar (Futuro - desabilitado)
+      '<button type="button" class="action-btn action-cancelar" title="Cancelar (Em breve)" disabled>' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
       '<circle cx="12" cy="12" r="10"></circle>' +
       '<line x1="15" y1="9" x2="9" y2="15"></line>' +
       '<line x1="9" y1="9" x2="15" y2="15"></line>' +
       "</svg>" +
       "</button>" +
-      "</div>" + // fecha actions-icons
-      "</div>" + // fecha header-controls
+      "</div>" + // fecha actions
+      "</div>" + // fecha header-right
       "</div>" + // fecha header
       // Body com Info + Valores
       '<div class="pedido-card-body">' +
       // Coluna esquerda - Info
       '<div class="pedido-card-info">' +
+      '<div class="pedido-card-info-row">' +
       '<div class="pedido-card-info-item">' +
+      '<div class="info-icon">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
       '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>' +
       '<line x1="16" y1="2" x2="16" y2="6"></line>' +
       '<line x1="8" y1="2" x2="8" y2="6"></line>' +
       '<line x1="3" y1="10" x2="21" y2="10"></line>' +
       "</svg>" +
-      "<span>Criado: " +
+      "</div>" +
+      '<div class="info-content">' +
+      '<span class="info-label">Criado em</span>' +
+      '<span class="info-value">' +
       emissaoFormatada +
       "</span>" +
       "</div>" +
+      "</div>" +
       '<div class="pedido-card-info-item">' +
+      '<div class="info-icon">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
       '<rect x="1" y="3" width="15" height="13"></rect>' +
       '<polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>' +
       '<circle cx="5.5" cy="18.5" r="2.5"></circle>' +
       '<circle cx="18.5" cy="18.5" r="2.5"></circle>' +
       "</svg>" +
-      "<span>Entrega: " +
+      "</div>" +
+      '<div class="info-content">' +
+      '<span class="info-label">Entrega prevista</span>' +
+      '<span class="info-value">' +
       entregaFormatada +
       "</span>" +
       "</div>" +
+      "</div>" +
       '<div class="pedido-card-info-item">' +
+      '<div class="info-icon">' +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
       '<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>' +
       '<line x1="3" y1="6" x2="21" y2="6"></line>' +
       '<path d="M16 10a4 4 0 0 1-8 0"></path>' +
       "</svg>" +
-      "<span>" +
+      "</div>" +
+      '<div class="info-content">' +
+      '<span class="info-label">Itens</span>' +
+      '<span class="info-value">' +
       pedido.quantidadeItens +
-      " itens</span>" +
+      " produtos</span>" +
+      "</div>" +
+      "</div>" +
       "</div>" +
       "</div>" +
       // Coluna direita - Valores
       '<div class="pedido-card-valores">' +
+      '<div class="valores-container">' +
       '<div class="pedido-card-valor">' +
       '<span class="pedido-card-valor-label">Subtotal</span>' +
       '<span class="pedido-card-valor-numero">' +
@@ -988,7 +1032,7 @@ var WidgetUI = (function () {
     // Só mostra desconto se for maior que 0
     if (pedido.desconto > 0) {
       html +=
-        '<div class="pedido-card-valor">' +
+        '<div class="pedido-card-valor desconto-row">' +
         '<span class="pedido-card-valor-label">Desconto</span>' +
         '<span class="pedido-card-valor-numero desconto">-' +
         descontoFormatado +
@@ -997,9 +1041,10 @@ var WidgetUI = (function () {
     }
 
     html +=
-      '<div class="pedido-card-valor total-destaque">' +
-      '<span class="pedido-card-valor-label">Total</span>' +
-      '<span class="pedido-card-valor-numero total">' +
+      "</div>" + // fecha valores-container
+      '<div class="pedido-card-total">' +
+      '<span class="total-label">Total do Pedido</span>' +
+      '<span class="total-valor">' +
       totalFormatado +
       "</span>" +
       "</div>" +
@@ -1011,21 +1056,143 @@ var WidgetUI = (function () {
   }
 
   /**
+   * Renderiza a barra de progresso visual do pedido
+   * @param {number} currentOrder - Ordem atual do estágio (1-7)
+   * @param {string} statusClass - Classe CSS do status atual
+   * @returns {string} HTML da barra de progresso
+   */
+  function renderizarBarraProgresso(currentOrder, statusClass) {
+    // Se for cancelado ou erro, não mostra barra de progresso
+    if (statusClass === "status-cancelado" || statusClass === "status-erro") {
+      return "";
+    }
+
+    var stages = [
+      { order: 1, label: "Rascunho", short: "Rasc" },
+      { order: 2, label: "Criado", short: "Criado" },
+      { order: 3, label: "Aguardando", short: "Aguard" },
+      { order: 4, label: "Sincronizado", short: "Sinc" },
+      { order: 5, label: "Faturado", short: "Fatur" },
+      { order: 6, label: "Agendado", short: "Agend" },
+      { order: 7, label: "Entregue", short: "Entreg" },
+    ];
+
+    var html = '<div class="pedido-progress-bar">';
+
+    stages.forEach(function (stage, index) {
+      var stageClass = "";
+      if (stage.order < currentOrder) {
+        stageClass = "completed";
+      } else if (stage.order === currentOrder) {
+        stageClass = "current";
+      } else {
+        stageClass = "pending";
+      }
+
+      html +=
+        '<div class="progress-step ' +
+        stageClass +
+        '" title="' +
+        stage.label +
+        '">';
+      html += '<div class="step-dot"></div>';
+      if (index < stages.length - 1) {
+        html += '<div class="step-line"></div>';
+      }
+      html += "</div>";
+    });
+
+    html += "</div>";
+    return html;
+  }
+
+  /**
+   * Retorna o ícone SVG baseado no status
+   * @param {string} statusClass - Classe CSS do status
+   * @returns {string} SVG do ícone
+   */
+  function getStatusIcon(statusClass) {
+    var icons = {
+      "status-rascunho":
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>',
+      "status-criado":
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>',
+      "status-aguardando":
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>',
+      "status-sincronizado":
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>',
+      "status-faturado":
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>',
+      "status-agendado":
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><path d="M9 16l2 2 4-4"></path></svg>',
+      "status-entregue":
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>',
+      "status-cancelado":
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',
+      "status-erro":
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
+    };
+    return icons[statusClass] || icons["status-rascunho"];
+  }
+
+  /**
    * Retorna a classe CSS baseada no status do pedido
    * @param {string} status - Status do pedido
    * @returns {string} Classe CSS
    */
   function getStatusClass(status) {
-    if (!status) return "";
+    if (!status) return "status-rascunho";
     var s = status.toLowerCase();
 
-    if (s.indexOf("cancelado") >= 0) return "status-cancelado";
-    if (s.indexOf("pendente") >= 0) return "status-pendente";
-    if (s.indexOf("confirmado") >= 0) return "status-confirmado";
+    // Estágios: Rascunho > Criado > Aguardando Aprovação > Sincronizado > Faturado > Agendado > Entregue
+    // Estágios de erro: Cancelado, Erro
+    if (s.indexOf("rascunho") >= 0) return "status-rascunho";
+    if (s.indexOf("criado") >= 0) return "status-criado";
+    if (
+      s.indexOf("aguardando") >= 0 ||
+      s.indexOf("aprovação") >= 0 ||
+      s.indexOf("aprovacao") >= 0
+    )
+      return "status-aguardando";
+    if (s.indexOf("sincronizado") >= 0) return "status-sincronizado";
     if (s.indexOf("faturado") >= 0) return "status-faturado";
+    if (s.indexOf("agendado") >= 0) return "status-agendado";
     if (s.indexOf("entregue") >= 0) return "status-entregue";
+    if (s.indexOf("cancelado") >= 0) return "status-cancelado";
+    if (s.indexOf("erro") >= 0) return "status-erro";
+    if (s.indexOf("pendente") >= 0) return "status-criado";
+    if (s.indexOf("confirmado") >= 0) return "status-sincronizado";
 
-    return "status-pendente"; // default
+    return "status-rascunho"; // default
+  }
+
+  /**
+   * Retorna informações do estágio para exibição visual
+   * @param {string} status - Status do pedido
+   * @returns {Object} Informações do estágio (icone, ordem)
+   */
+  function getStatusInfo(status) {
+    var statusClass = getStatusClass(status);
+    var statusMap = {
+      "status-rascunho": { order: 1, icon: "edit-3", label: "Rascunho" },
+      "status-criado": { order: 2, icon: "file-plus", label: "Criado" },
+      "status-aguardando": {
+        order: 3,
+        icon: "clock",
+        label: "Aguardando Aprovação",
+      },
+      "status-sincronizado": {
+        order: 4,
+        icon: "refresh-cw",
+        label: "Sincronizado",
+      },
+      "status-faturado": { order: 5, icon: "file-text", label: "Faturado" },
+      "status-agendado": { order: 6, icon: "calendar", label: "Agendado" },
+      "status-entregue": { order: 7, icon: "check-circle", label: "Entregue" },
+      "status-cancelado": { order: 0, icon: "x-circle", label: "Cancelado" },
+      "status-erro": { order: 0, icon: "alert-triangle", label: "Erro" },
+    };
+    return statusMap[statusClass] || statusMap["status-rascunho"];
   }
 
   /**
