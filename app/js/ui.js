@@ -974,8 +974,8 @@ var WidgetUI = (function () {
           '<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>' +
           "</svg>" +
           "</button>") +
-      // Cancelar (habilitado para pedidos que não estão entregues, cancelados ou com erro)
-      (podeCancelarPedido(statusClass)
+      // Cancelar (controlado pelo canEdit da API)
+      (pedido.canEdit
         ? '<button type="button" class="action-btn action-cancelar" title="Cancelar Pedido" onclick="WidgetApp.abrirModalCancelarPedido(\'' +
           pedido.pedidoId +
           "', '" +
@@ -1228,17 +1228,6 @@ var WidgetUI = (function () {
       "status-erro": { order: 0, icon: "alert-triangle", label: "Erro" },
     };
     return statusMap[statusClass] || statusMap["status-rascunho"];
-  }
-
-  /**
-   * Verifica se um pedido pode ser cancelado baseado no status
-   * @param {string} statusClass - Classe CSS do status
-   * @returns {boolean} True se pode cancelar
-   */
-  function podeCancelarPedido(statusClass) {
-    // Não permite cancelar pedidos já entregues, cancelados ou com erro
-    var naoPermitidos = ["status-entregue", "status-cancelado", "status-erro"];
-    return naoPermitidos.indexOf(statusClass) === -1;
   }
 
   /**
