@@ -1050,6 +1050,7 @@ var WidgetUI = (function () {
       "</div>" +
       "</div>" + // fecha pedido-card-valores
       "</div>" + // fecha pedido-card-body
+      "</div>" + // fecha pedido-card-content
       "</div>"; // fecha pedido-card
 
     return html;
