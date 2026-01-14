@@ -439,6 +439,112 @@ var WidgetEntrega = (function () {
   }
 
   /**
+   * Verifica se o pedido precisa de aprovação baseado nos critérios:
+   * 1. Desconto aplicado maior que o percentual padrão do cliente (clienteDesconto)
+   * 2. Natureza do pedido é "Bonificação"
+   * 3. Quantidade de itens do pedido menor que o lote mínimo
+   * @returns {Object} Objeto com flag precisaAprovacao e motivos
+   */
+  function verificarNecessidadeAprovacao() {
+    var motivos = [];
+    var precisaAprovacao = false;
+
+    // Obtém dados do estado da aplicação
+    var appState = WidgetApp.getState();
+    var clienteDetalhe = appState.clienteDetalhe || {};
+
+    // 1. Verifica desconto aplicado vs desconto padrão do cliente
+    var clienteDesconto = parseFloat(clienteDetalhe.clienteDesconto) || 0;
+    var carrinho = WidgetProdutos.getCarrinho();
+
+    // Calcula o percentual de desconto aplicado no pedido
+    var subtotalTabela = 0;
+    var totalDesconto = 0;
+    var totalQuantidade = 0;
+
+    carrinho.forEach(function (item) {
+      var precoTabela = item.precoTabela || item.Preco || 0;
+      var subtotalTabelaItem = precoTabela * item.Quantidade;
+      subtotalTabela += subtotalTabelaItem;
+      totalQuantidade += item.Quantidade || 0;
+
+      // Calcula desconto do item
+      if (item.impostosRecalculados && item.descontoAplicadoValor > 0) {
+        var subtotalAtualItem = item.Preco * item.Quantidade;
+        totalDesconto += subtotalTabelaItem - subtotalAtualItem;
+      } else {
+        totalDesconto += (item.descontoValor || 0) * item.Quantidade;
+      }
+    });
+
+    var descontoPercentualAplicado = 0;
+    if (subtotalTabela > 0) {
+      descontoPercentualAplicado = (totalDesconto / subtotalTabela) * 100;
+    }
+
+    if (descontoPercentualAplicado > clienteDesconto) {
+      precisaAprovacao = true;
+      motivos.push(
+        "Desconto aplicado (" +
+          descontoPercentualAplicado.toFixed(2) +
+          "%) maior que o limite do cliente (" +
+          clienteDesconto.toFixed(2) +
+          "%)"
+      );
+      WidgetUI.log(
+        "Aprovação necessária: Desconto aplicado (" +
+          descontoPercentualAplicado.toFixed(2) +
+          "%) > Cliente Desconto (" +
+          clienteDesconto.toFixed(2) +
+          "%)",
+        "warning"
+      );
+    }
+
+    // 2. Verifica se a natureza é Bonificação
+    var naturezaSelecionada = "";
+    var naturezaCard = document.querySelector(
+      '.option-card[data-group="natureza"].active'
+    );
+    if (naturezaCard) {
+      naturezaSelecionada = naturezaCard.getAttribute("data-value") || "";
+    }
+
+    if (naturezaSelecionada.toLowerCase() === "bonificacao") {
+      precisaAprovacao = true;
+      motivos.push("Natureza do pedido é Bonificação");
+      WidgetUI.log("Aprovação necessária: Natureza = Bonificação", "warning");
+    }
+
+    // 3. Verifica se quantidade de itens é menor que o lote mínimo
+    var loteMinimo = parseFloat(clienteDetalhe.municipioLoteMinimo) || 0;
+
+    if (loteMinimo > 0 && totalQuantidade < loteMinimo) {
+      precisaAprovacao = true;
+      motivos.push(
+        "Quantidade de itens (" +
+          totalQuantidade +
+          ") menor que o lote mínimo (" +
+          loteMinimo +
+          ")"
+      );
+      WidgetUI.log(
+        "Aprovação necessária: Quantidade (" +
+          totalQuantidade +
+          ") < Lote Mínimo (" +
+          loteMinimo +
+          ")",
+        "warning"
+      );
+    }
+
+    return {
+      precisaAprovacao: precisaAprovacao,
+      motivos: motivos,
+    };
+  }
+
+  /**
    * Confirma a seleção de entrega e fecha o modal
    */
   function confirmarEntrega() {
@@ -449,7 +555,42 @@ var WidgetEntrega = (function () {
 
     // Captura observações de entrega
     var observacoesEl = document.getElementById("observacoes-entrega");
-    var observacoesEntrega = observacoesEl ? observacoesEl.value : "";
+    var observacoesEntrega = observacoesEl ? observacoesEl.value.trim() : "";
+
+    // Verifica se precisa de aprovação
+    var resultadoAprovacao = verificarNecessidadeAprovacao();
+
+    // Se precisa aprovação, o campo "Informações de Entrega" é obrigatório
+    if (resultadoAprovacao.precisaAprovacao && !observacoesEntrega) {
+      WidgetUI.log(
+        "Informações de Entrega é obrigatório para este pedido",
+        "error"
+      );
+
+      // Destaca o campo como obrigatório
+      if (observacoesEl) {
+        observacoesEl.classList.add("input-error");
+        observacoesEl.placeholder =
+          "OBRIGATÓRIO: Justifique - " + resultadoAprovacao.motivos.join("; ");
+        observacoesEl.focus();
+      }
+
+      // Mostra mensagem de erro
+      WidgetUI.setStatus(
+        "Preencha o campo Informações de Entrega com a justificativa",
+        "error"
+      );
+      setTimeout(function () {
+        WidgetUI.hideStatus();
+      }, 5000);
+
+      return;
+    }
+
+    // Remove destaque de erro se existir
+    if (observacoesEl) {
+      observacoesEl.classList.remove("input-error");
+    }
 
     WidgetUI.log(
       "Entrega confirmada para: " + state.dataSelecionada.dataFormatada,
@@ -459,10 +600,11 @@ var WidgetEntrega = (function () {
     // Fecha o modal
     WidgetUI.fecharModal("modal-entrega");
 
-    // Continua para finalizar o pedido
+    // Continua para finalizar o pedido (passa também o resultado da aprovação)
     WidgetApp.finalizarPedidoComEntrega(
       state.dataSelecionada,
-      observacoesEntrega
+      observacoesEntrega,
+      resultadoAprovacao
     );
   }
 

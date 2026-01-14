@@ -986,8 +986,13 @@ var WidgetApp = (function () {
    * Finaliza o pedido com a data de entrega selecionada
    * @param {Object} dataEntrega - Objeto com dados da data de entrega
    * @param {string} observacoesEntrega - Observações/informações de entrega
+   * @param {Object} resultadoAprovacao - Resultado da verificação de aprovação {precisaAprovacao, motivos}
    */
-  function finalizarPedidoComEntrega(dataEntrega, observacoesEntrega) {
+  function finalizarPedidoComEntrega(
+    dataEntrega,
+    observacoesEntrega,
+    resultadoAprovacao
+  ) {
     WidgetUI.log(
       "Finalizando pedido com entrega em: " + dataEntrega.dataFormatada,
       "success"
@@ -1211,6 +1216,17 @@ var WidgetApp = (function () {
         origemWidget: "melhor-bocado-pedido",
         versao: "1.0.0",
       },
+
+      // --- Aprovação do Pedido ---
+      // Flag indicando se o pedido precisa de aprovação da gestão
+      aprovacaoPedido:
+        resultadoAprovacao && resultadoAprovacao.precisaAprovacao
+          ? true
+          : false,
+      motivosAprovacao:
+        resultadoAprovacao && resultadoAprovacao.precisaAprovacao
+          ? resultadoAprovacao.motivos
+          : [],
     };
 
     // ============================================

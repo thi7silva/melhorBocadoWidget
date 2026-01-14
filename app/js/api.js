@@ -346,6 +346,8 @@ var WidgetAPI = (function () {
         // Outros
         bandeiraDescricao: detalhe.bandeiraDescricao || "",
         municipioLoteMinimo: detalhe.municipioLoteMinimo || 0,
+        // Percentual padrão de desconto do cliente (usado para validar aprovação)
+        clienteDesconto: parseFloat(detalhe.clienteDesconto) || 0,
 
         // Lista de Feriados/Datas Bloqueadas
         listaFeriados: detalhe.listaFeriados || [],
