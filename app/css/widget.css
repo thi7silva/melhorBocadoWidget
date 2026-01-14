@@ -6336,11 +6336,13 @@ body {
 
 /* Corpo da Listagem */
 .listagem-body {
-  flex: 1;
+  flex: 1 1 0; /* flex-grow, flex-shrink, flex-basis: 0 para garantir que encolha */
   padding: 24px;
-  overflow-y: auto;
+  padding-bottom: 24px; /* Padding embaixo para não cortar último card */
+  overflow: visible; /* Permitir que conteúdo seja visível - scroll na listagem-pedidos */
   display: flex;
   flex-direction: column;
+  min-height: 0; /* Crítico para flex shrink funcionar */
   background: linear-gradient(
     180deg,
     rgba(250, 250, 250, 0.5) 0%,
@@ -6349,17 +6351,14 @@ body {
 }
 
 /* Scrollbar Premium */
-.listagem-body::-webkit-scrollbar,
 .listagem-pedidos::-webkit-scrollbar {
   width: 6px;
 }
 
-.listagem-body::-webkit-scrollbar-track,
 .listagem-pedidos::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.listagem-body::-webkit-scrollbar-thumb,
 .listagem-pedidos::-webkit-scrollbar-thumb {
   background: linear-gradient(
     180deg,
@@ -6369,7 +6368,6 @@ body {
   border-radius: 10px;
 }
 
-.listagem-body::-webkit-scrollbar-thumb:hover,
 .listagem-pedidos::-webkit-scrollbar-thumb:hover {
   background: var(--color-primary);
 }
@@ -6437,14 +6435,22 @@ body {
   letter-spacing: 0.5px;
 }
 
-/* Lista de Pedidos */
+/* Lista de Pedidos - Container com scroll e fundo */
 .listagem-pedidos {
-  flex: 1;
-  overflow-y: auto;
+  flex: 1 1 auto; /* flex-grow, flex-shrink, flex-basis: auto */
+  overflow-y: auto !important; /* Forçar scroll */
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 4px 12px; /* Aumentado padding lateral para sombras não cortarem */
+  gap: 24px; /* Mais espaço entre cards */
+  padding: 20px;
+  padding-bottom: 24px; /* Espaço extra embaixo para último card */
+  margin: 0; /* Remover margem negativa */
+  min-height: 100px; /* Altura mínima para garantir visibilidade */
+  max-height: calc(100vh - 340px); /* Altura máxima para garantir scroll */
+  background: rgba(0, 0, 0, 0.02); /* Fundo sutil para destacar a área */
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
 }
 
 /* Loading Premium */
@@ -6530,6 +6536,7 @@ body {
   position: relative;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid rgba(0, 0, 0, 0.06);
+  flex-shrink: 0; /* Evitar que cards sejam comprimidos */
 }
 
 .pedido-card:hover {
@@ -7094,6 +7101,7 @@ body {
 
   .listagem-body {
     padding: 16px;
+    padding-bottom: 16px;
   }
 
   .btn-novo-pedido {
@@ -7102,7 +7110,12 @@ body {
   }
 
   .listagem-pedidos {
-    padding: 10px 6px;
+    padding: 12px;
+    padding-bottom: 20px;
+    gap: 16px;
+    margin: 0;
+    max-height: calc(100vh - 280px); /* Altura máxima responsiva */
+    overflow-y: auto !important;
   }
 
   /* Card de Pedido - Mobile */
