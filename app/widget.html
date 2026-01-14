@@ -68,8 +68,10 @@
     <div id="loading-overlay" class="loading-overlay hidden">
       <div class="loading-content">
         <div class="loading-spinner"></div>
-        <h3>Carregando dados do cliente</h3>
-        <p>Aguarde enquanto buscamos as informações...</p>
+        <h3 id="loading-message-title">Carregando dados do cliente</h3>
+        <p id="loading-message-subtitle">
+          Aguarde enquanto buscamos as informações...
+        </p>
       </div>
     </div>
 
@@ -1626,6 +1628,183 @@
               Finalizar Pedido
             </button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================
+         MODAL: CANCELAMENTO DE PEDIDO
+         ======================================== -->
+    <!-- ========================================
+         MODAL: CANCELAMENTO DE PEDIDO
+         ======================================== -->
+    <div id="modal-cancelar-pedido" class="modal-overlay hidden">
+      <div
+        class="modal-dialog"
+        style="
+          max-width: 500px;
+          padding: 0;
+          overflow: hidden;
+          border-radius: 12px;
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        "
+      >
+        <!-- Header -->
+        <div
+          class="modal-header"
+          style="
+            background: var(--color-primary-gradient);
+            border-bottom: none;
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+          "
+        >
+          <!-- Logo sem fundo -->
+          <img
+            src="https://melhorbocado.com.br/wp-content/uploads/2023/12/logo.png"
+            alt="Melhor Bocado"
+            style="height: 42px; width: auto"
+          />
+          <h3
+            style="margin: 0; color: white; font-size: 1.3rem; font-weight: 700"
+          >
+            Cancelar Pedido
+          </h3>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body" style="padding: 24px 24px 16px 24px">
+          <div
+            style="
+              background: #fafafa;
+              border: 1px solid #eee;
+              border-radius: 8px;
+              padding: 16px;
+              margin-bottom: 20px;
+              border-left: 4px solid var(--color-primary);
+            "
+          >
+            <p
+              style="
+                margin: 0;
+                color: var(--color-text-muted);
+                font-size: 0.9rem;
+                font-weight: 500;
+              "
+            >
+              Você está prestes a cancelar o pedido:
+            </p>
+            <div
+              id="cancelar-pedido-identificacao"
+              style="
+                font-size: 1.1rem;
+                color: var(--color-text);
+                font-weight: 700;
+                margin-top: 6px;
+                word-break: break-word;
+              "
+            >
+              -
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0">
+            <label
+              for="cancelar-motivo"
+              style="
+                display: block;
+                margin-bottom: 8px;
+                font-weight: 600;
+                color: var(--color-text);
+                font-size: 0.95rem;
+              "
+            >
+              Motivo do Cancelamento
+              <span style="color: var(--color-primary)">*</span>
+            </label>
+            <textarea
+              id="cancelar-motivo"
+              class="form-textarea"
+              rows="4"
+              placeholder="Descreva detalhadamente o motivo do cancelamento..."
+              style="
+                width: 100%;
+                resize: vertical;
+                min-height: 100px;
+                padding: 12px;
+                border-color: var(--color-border);
+                font-size: 0.95rem;
+              "
+              required
+            ></textarea>
+            <span
+              id="cancelar-motivo-erro"
+              class="field-error hidden"
+              style="
+                color: var(--color-primary);
+                font-size: 0.85rem;
+                margin-top: 6px;
+                display: none;
+                align-items: center;
+                gap: 6px;
+                font-weight: 500;
+              "
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              Por favor, informe o motivo do cancelamento.
+            </span>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div
+          class="modal-footer"
+          style="
+            padding: 16px 24px;
+            border-top: 1px solid var(--color-border);
+            background: #f9f9f9;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+          "
+        >
+          <button
+            type="button"
+            class="btn btn-secondary"
+            onclick="WidgetApp.fecharModalCancelarPedido()"
+            style="min-width: 100px; font-weight: 600"
+          >
+            Voltar
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            id="btn-confirmar-cancelar-pedido"
+            onclick="WidgetApp.confirmarCancelamentoPedido()"
+            style="
+              white-space: nowrap;
+              font-weight: 600;
+              padding-left: 20px;
+              padding-right: 20px;
+              background-color: var(--color-primary);
+              border-color: var(--color-primary);
+            "
+          >
+            Confirmar Cancelamento
+          </button>
         </div>
       </div>
     </div>

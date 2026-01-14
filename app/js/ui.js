@@ -737,10 +737,30 @@ var WidgetUI = (function () {
 
   /**
    * Mostra o loading de transição
+   * Mostra o loading de transição
+   * @param {string} [mensagem] - Mensagem personalizada (opcional)
+   * @param {string} [submensagem] - Subtítulo personalizado (opcional)
    */
-  function mostrarLoadingTransicao() {
+  function mostrarLoadingTransicao(mensagem, submensagem) {
     var overlay = document.getElementById("loading-overlay");
     if (overlay) {
+      // Atualiza mensagens se fornecidas
+      if (mensagem) {
+        var titleEl = document.getElementById("loading-message-title");
+        // Fallback se não tiver ID, tenta pegar pelo h3
+        if (!titleEl) titleEl = overlay.querySelector("h3");
+
+        if (titleEl) titleEl.textContent = mensagem;
+      }
+
+      if (submensagem) {
+        var subtitleEl = document.getElementById("loading-message-subtitle");
+        // Fallback
+        if (!subtitleEl) subtitleEl = overlay.querySelector("p");
+
+        if (subtitleEl) subtitleEl.textContent = submensagem;
+      }
+
       overlay.classList.remove("hidden");
     }
   }
@@ -954,14 +974,28 @@ var WidgetUI = (function () {
           '<path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>' +
           "</svg>" +
           "</button>") +
-      // Cancelar (Futuro - desabilitado)
-      '<button type="button" class="action-btn action-cancelar" title="Cancelar (Em breve)" disabled>' +
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
-      '<circle cx="12" cy="12" r="10"></circle>' +
-      '<line x1="15" y1="9" x2="9" y2="15"></line>' +
-      '<line x1="9" y1="9" x2="15" y2="15"></line>' +
-      "</svg>" +
-      "</button>" +
+      // Cancelar (habilitado para pedidos que não estão entregues, cancelados ou com erro)
+      (podeCancelarPedido(statusClass)
+        ? '<button type="button" class="action-btn action-cancelar" title="Cancelar Pedido" onclick="WidgetApp.abrirModalCancelarPedido(\'' +
+          pedido.pedidoId +
+          "', '" +
+          (pedido.numeroPedidoTotvs || pedido.numeroPedidoCRM || "") +
+          "', '" +
+          totalFormatado +
+          "')\">" +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+          '<circle cx="12" cy="12" r="10"></circle>' +
+          '<line x1="15" y1="9" x2="9" y2="15"></line>' +
+          '<line x1="9" y1="9" x2="15" y2="15"></line>' +
+          "</svg>" +
+          "</button>"
+        : '<button type="button" class="action-btn action-cancelar" title="Cancelamento não disponível" disabled>' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+          '<circle cx="12" cy="12" r="10"></circle>' +
+          '<line x1="15" y1="9" x2="9" y2="15"></line>' +
+          '<line x1="9" y1="9" x2="15" y2="15"></line>' +
+          "</svg>" +
+          "</button>") +
       "</div>" + // fecha actions
       "</div>" + // fecha header-right
       "</div>" + // fecha header
@@ -1194,6 +1228,17 @@ var WidgetUI = (function () {
       "status-erro": { order: 0, icon: "alert-triangle", label: "Erro" },
     };
     return statusMap[statusClass] || statusMap["status-rascunho"];
+  }
+
+  /**
+   * Verifica se um pedido pode ser cancelado baseado no status
+   * @param {string} statusClass - Classe CSS do status
+   * @returns {boolean} True se pode cancelar
+   */
+  function podeCancelarPedido(statusClass) {
+    // Não permite cancelar pedidos já entregues, cancelados ou com erro
+    var naoPermitidos = ["status-entregue", "status-cancelado", "status-erro"];
+    return naoPermitidos.indexOf(statusClass) === -1;
   }
 
   /**

@@ -1415,6 +1415,171 @@ var WidgetApp = (function () {
     window.location.reload();
   }
 
+  // ============================================
+  // FUNÇÕES DE CANCELAMENTO DE PEDIDO
+  // ============================================
+
+  // Armazena o pedido que está sendo cancelado
+  var pedidoCancelando = null;
+
+  /**
+   * Abre o modal de cancelamento de pedido
+   * @param {string} pedidoId - ID do pedido
+   * @param {string} numeroPedido - Número do pedido para exibição
+   * @param {string} valorTotal - Valor total formatado do pedido
+   */
+  function abrirModalCancelarPedido(pedidoId, numeroPedido, valorTotal) {
+    WidgetUI.log("Abrindo modal de cancelamento para pedido: " + pedidoId);
+
+    // Tenta obter o nome do cliente do estado ou do DOM
+    var nomeCliente = state.clienteSelecionado
+      ? state.clienteSelecionado.Nome
+      : "";
+    if (!nomeCliente) {
+      var clienteEl = document.getElementById("listagem-cliente-nome");
+      if (clienteEl) nomeCliente = clienteEl.textContent;
+    }
+
+    // Armazena o pedido sendo cancelado
+    pedidoCancelando = {
+      id: pedidoId,
+      numero: numeroPedido,
+      valor: valorTotal,
+      cliente: nomeCliente,
+    };
+
+    // Atualiza a identificação do pedido no modal
+    var identificacaoEl = document.getElementById(
+      "cancelar-pedido-identificacao"
+    );
+    if (identificacaoEl) {
+      if (numeroPedido && numeroPedido.trim() !== "") {
+        // Se tiver número, mostra o número
+        identificacaoEl.textContent = numeroPedido;
+      } else {
+        // Se não tiver número, mostra Nome do Cliente + Valor
+        identificacaoEl.textContent =
+          nomeCliente + " - " + (valorTotal || "R$ 0,00");
+      }
+    }
+
+    // Limpa o campo de motivo
+    var motivoEl = document.getElementById("cancelar-motivo");
+    if (motivoEl) {
+      motivoEl.value = "";
+      motivoEl.classList.remove("input-error");
+    }
+
+    // Esconde mensagem de erro
+    var erroEl = document.getElementById("cancelar-motivo-erro");
+    if (erroEl) {
+      erroEl.style.display = "none";
+    }
+
+    // Abre o modal
+    WidgetUI.abrirModal("modal-cancelar-pedido");
+  }
+
+  /**
+   * Fecha o modal de cancelamento de pedido
+   */
+  function fecharModalCancelarPedido() {
+    WidgetUI.fecharModal("modal-cancelar-pedido");
+    pedidoCancelando = null;
+  }
+
+  /**
+   * Confirma o cancelamento do pedido
+   * Valida o motivo e processa o cancelamento
+   */
+  function confirmarCancelamentoPedido() {
+    var motivoEl = document.getElementById("cancelar-motivo");
+    var erroEl = document.getElementById("cancelar-motivo-erro");
+    var btnConfirmar = document.getElementById("btn-confirmar-cancelar-pedido");
+
+    // Valida o motivo
+    var motivo = motivoEl ? motivoEl.value.trim() : "";
+
+    if (!motivo) {
+      // Mostra erro visual
+      if (erroEl) {
+        erroEl.style.display = "flex"; // Flex para alinhar ícone
+      }
+      if (motivoEl) {
+        motivoEl.focus();
+        motivoEl.classList.add("input-error");
+      }
+      return;
+    }
+
+    // Remove classe de erro se existir
+    if (motivoEl) {
+      motivoEl.classList.remove("input-error");
+    }
+    if (erroEl) {
+      erroEl.style.display = "none";
+    }
+
+    // Bloqueia botão para evitar duplo clique
+    if (btnConfirmar) {
+      btnConfirmar.disabled = true;
+      btnConfirmar.innerHTML =
+        '<span class="loading-spinner-mini"></span> Processando...';
+    }
+
+    // Pega o usuário logado
+    var usuario = state.loginUser || "Usuário não identificado";
+
+    // Por enquanto, apenas console.log (conforme solicitado)
+    console.log("=== CANCELAMENTO DE PEDIDO ===");
+    console.log(
+      "ID do Pedido:",
+      pedidoCancelando ? pedidoCancelando.id : "N/A"
+    );
+    console.log(
+      "Número do Pedido:",
+      pedidoCancelando ? pedidoCancelando.numero : "N/A"
+    );
+    console.log(
+      "Cliente:",
+      pedidoCancelando ? pedidoCancelando.cliente : "N/A"
+    );
+    console.log("Valor:", pedidoCancelando ? pedidoCancelando.valor : "N/A");
+    console.log("Motivo:", motivo);
+    console.log("Usuário:", usuario);
+    console.log("Data/Hora:", new Date().toISOString());
+    console.log("==============================");
+
+    WidgetUI.log(
+      "Cancelamento solicitado - Pedido: " +
+        (pedidoCancelando ? pedidoCancelando.id : "N/A"),
+      "success"
+    );
+
+    // Fecha o modal após um pequeno delay para feedback
+    setTimeout(function () {
+      fecharModalCancelarPedido();
+
+      // Restaura botão
+      if (btnConfirmar) {
+        btnConfirmar.disabled = false;
+        btnConfirmar.textContent = "Confirmar Cancelamento";
+      }
+
+      // UX: Mostra loading de tela cheia para suavizar a transição/reload
+      WidgetUI.mostrarLoadingTransicao(
+        "Cancelando pedido...",
+        "Aguarde enquanto processamos o cancelamento. A página será recarregada."
+      );
+      WidgetUI.setStatus("Solicitação enviada com sucesso!", "success");
+
+      // Recarrega a página após 2 segundos para dar tempo do usuário ler
+      setTimeout(function () {
+        window.location.reload();
+      }, 2000);
+    }, 800);
+  }
+
   /**
    * Obtém o valor selecionado de um grupo de option-cards
    * @param {string} group - Nome do grupo (ex: 'frete', 'natureza')
@@ -1445,6 +1610,10 @@ var WidgetApp = (function () {
     iniciarNovoPedido: iniciarNovoPedido,
     visualizarPedido: visualizarPedido,
     editarPedido: editarPedido,
+    // Funções de cancelamento de pedido
+    abrirModalCancelarPedido: abrirModalCancelarPedido,
+    fecharModalCancelarPedido: fecharModalCancelarPedido,
+    confirmarCancelamentoPedido: confirmarCancelamentoPedido,
   };
 })();
 
