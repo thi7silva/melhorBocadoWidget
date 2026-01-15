@@ -804,7 +804,7 @@ var WidgetApp = (function () {
 
     // Configurações
     document.getElementById("vis-condicao-pgto").textContent =
-      data.configuracao?.condicaoPagamentoDisplay ||
+      data.condicaoPagamentoDisplay ||
       data.configuracao?.condicaoPagamentoCodigo ||
       "-";
     document.getElementById("vis-tipo-frete").textContent = (
