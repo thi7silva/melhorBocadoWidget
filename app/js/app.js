@@ -717,6 +717,149 @@ var WidgetApp = (function () {
   }
 
   /**
+   * Clona um pedido existente
+   * @param {string} pedidoId - ID do pedido a ser clonado
+   */
+  function clonarPedido(pedidoId) {
+    WidgetUI.log("Iniciando clonagem do pedido: " + pedidoId);
+    state.modo = "clonar";
+    state.pedidoId = null; // Não armazenamos o ID pois será um novo pedido
+    state.pedidoClonadoId = pedidoId; // Guarda referência do pedido original
+    WidgetUI.setStatus("Carregando dados do pedido...", "loading");
+
+    WidgetAPI.buscarDetalhesPedido(pedidoId)
+      .then(function (detalhes) {
+        WidgetUI.log("Detalhes do pedido recebidos para clonagem", "success");
+        processarPedidoClonar(detalhes);
+      })
+      .catch(function (err) {
+        WidgetUI.log("Erro ao carregar pedido: " + err, "error");
+        WidgetUI.setStatus("Erro ao carregar pedido.", "error");
+      });
+  }
+
+  /**
+   * Processa os dados do pedido para clonagem e preenche a interface
+   * Similar ao processarPedidoEdicao mas limpa campos que devem ser preenchidos novamente
+   * @param {Object} data - Dados do pedido vindos da API
+   */
+  function processarPedidoClonar(data) {
+    // 1. Popula Cliente
+    var clienteObj = data.cliente;
+    var cliente = {
+      ID: clienteObj.idCRM || clienteObj.id,
+      Nome: clienteObj.nomeFantasia || clienteObj.razaoSocial,
+      RazaoSocial: clienteObj.razaoSocial,
+      NomeFantasia: clienteObj.nomeFantasia,
+      CPF_CNPJ: clienteObj.cnpjCpf,
+      Endereco: data.endereco.logradouro,
+    };
+
+    state.clienteSelecionado = cliente;
+    state.clienteIdReal = clienteObj.id;
+
+    // 2. Transforma detalhe para formato compatível com UI
+    var detalheSimulado = {
+      clienteRazaoSocial: cliente.RazaoSocial,
+      clienteNomeFantasia: cliente.NomeFantasia,
+
+      // Endereço
+      endereco: data.endereco.logradouro,
+      bairro: data.endereco.bairro,
+      municipio: data.endereco.municipio,
+      estado: data.endereco.estado,
+      cep: data.endereco.cep,
+      complemento: data.endereco.complemento,
+
+      // Vendedor
+      vendedorNome: data.vendedor.nome,
+      vendedorID: data.vendedor.id,
+
+      // Configurações
+      pagamentoCondicaoID: data.configuracao.condicaoPagamentoId,
+      pagamentoCondicaoCodigo: data.configuracao.condicaoPagamentoCodigo,
+      tipoFrete: data.configuracao.tipoFrete,
+      transportadoraID: data.configuracao.transportadoraId,
+      transportadoraRazao: data.configuracao.transportadoraRazao,
+
+      // Janela Entrega
+      janelaEntrega: data.entrega.janelaEntrega || [],
+      horaInicio1: data.entrega.horaInicio1,
+      horaFim1: data.entrega.horaFim1,
+      horaInicio2: data.entrega.horaInicio2,
+      horaFim2: data.entrega.horaFim2,
+      listaFeriados: [],
+    };
+
+    state.clienteDetalhe = detalheSimulado;
+
+    // 3. Renderiza Cliente e Detalhes
+    WidgetUI.mostrarEtapaPedido(cliente);
+    WidgetUI.preencherDetalheCliente(detalheSimulado);
+
+    // Atualiza nome do vendedor
+    var vEl = document.getElementById("vendedor-nome");
+    if (vEl && detalheSimulado.vendedorNome)
+      vEl.textContent = detalheSimulado.vendedorNome;
+
+    // 4. Popula Carrinho com os produtos clonados
+    var itensCarrinho = transformarItensEdicao(data.itens);
+    WidgetProdutos.setClienteId(clienteObj.id);
+    WidgetProdutos.setLoteMinimo(clienteObj.municipioLoteMinimo || 0);
+    WidgetProdutos.setCarrinho(itensCarrinho);
+
+    // 5. Configurações do Pedido
+
+    // Condição Pagamento
+    carregarCondicoesPagamentoComSelecao(data.configuracao.condicaoPagamentoId);
+
+    // Frete
+    if (data.configuracao.tipoFrete) {
+      WidgetUI.selecionarFreteAutomatico(data.configuracao.tipoFrete, false);
+    }
+
+    // Natureza
+    selecionarOpcaoCard("natureza", data.configuracao.natureza);
+
+    // 6. DIFERENÇA NA CLONAGEM: Limpar campos que devem ser preenchidos novamente
+
+    // LIMPA: Número do Pedido do Cliente (novo pedido = novo número)
+    setValorInput("numero-pedido-cliente", "");
+
+    // MANTÉM: Observações gerais (opcional - pode ser útil manter)
+    setValorInput("observacoes", data.configuracao.observacoesGerais);
+
+    // LIMPA: Observação de entrega (contexto do novo pedido)
+    setValorInput("endereco-entrega", "");
+
+    // 7. LIMPA: Data de Entrega (usuário deve selecionar nova data)
+    // Não chama setDataSelecionadaManual, deixa vazio
+    var obsEntrega = document.getElementById("observacoes-entrega");
+    if (obsEntrega) obsEntrega.value = "";
+
+    // 8. Atualiza janela de entrega para gerar datas disponíveis
+    if (data.entrega && data.entrega.janelaEntrega) {
+      WidgetEntrega.setJanelaEntrega(data.entrega.janelaEntrega);
+    }
+
+    // 9. Ajusta visualização - Inicia na aba de configuração
+    WidgetUI.switchTab("config");
+    WidgetUI.esconderTelaListagem();
+    WidgetUI.hideStatus();
+
+    // 10. Log de sucesso
+    WidgetUI.log(
+      "Pedido clonado com sucesso - preencha os dados faltantes",
+      "success"
+    );
+
+    // Renderiza preview de datas de entrega
+    setTimeout(function () {
+      WidgetEntrega.renderizarPreviewDatas();
+    }, 100);
+  }
+
+  /**
    * Seleciona um cliente e avança direto para a etapa de pedido (modo legado/direto)
    * Mantido para compatibilidade caso seja necessário pular a listagem
    */
@@ -1649,6 +1792,7 @@ var WidgetApp = (function () {
     iniciarNovoPedido: iniciarNovoPedido,
     visualizarPedido: visualizarPedido,
     editarPedido: editarPedido,
+    clonarPedido: clonarPedido,
     // Funções de cancelamento de pedido
     abrirModalCancelarPedido: abrirModalCancelarPedido,
     fecharModalCancelarPedido: fecharModalCancelarPedido,
