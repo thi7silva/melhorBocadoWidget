@@ -1,0 +1,50 @@
+/**
+ * Estilos de Scrollbar Personalizados
+ */
+
+/* Webkit (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-surface);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ccc;
+}
+
+/* Scrollbar para áreas específicas - mais fino */
+.visualizar-main::-webkit-scrollbar,
+.visualizar-sidebar::-webkit-scrollbar,
+.vis-produtos-lista::-webkit-scrollbar {
+  width: 6px;
+}
+
+.visualizar-main::-webkit-scrollbar-thumb,
+.visualizar-sidebar::-webkit-scrollbar-thumb,
+.vis-produtos-lista::-webkit-scrollbar-thumb {
+  background: rgba(233, 30, 99, 0.2);
+  border-radius: 3px;
+}
+
+.visualizar-main::-webkit-scrollbar-thumb:hover,
+.visualizar-sidebar::-webkit-scrollbar-thumb:hover,
+.vis-produtos-lista::-webkit-scrollbar-thumb:hover {
+  background: rgba(233, 30, 99, 0.4);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #ddd var(--color-surface);
+}

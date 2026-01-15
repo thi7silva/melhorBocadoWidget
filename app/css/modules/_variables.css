@@ -1,0 +1,48 @@
+/**
+ * Widget de Pedidos - Melhor Bocado
+ * Variáveis CSS (Paleta de Cores, Sombras, Espaçamentos)
+ */
+
+:root {
+  /* Cores Primárias */
+  --color-primary: #e91e63;
+  --color-primary-dark: #c2185b;
+  --color-primary-light: #f8bbd9;
+  --color-primary-gradient: linear-gradient(135deg, #e91e63 0%, #ff4081 100%);
+
+  /* Cores de Superfície */
+  --color-background: #ffffff;
+  --color-surface: #fafafa;
+  --color-surface-elevated: #ffffff;
+
+  /* Cores de Texto */
+  --color-text: #333333;
+  --color-text-light: #666666;
+  --color-text-muted: #999999;
+
+  /* Bordas */
+  --color-border: #eeeeee;
+  --color-border-focus: #e91e63;
+
+  /* Status */
+  --color-success: #4caf50;
+  --color-error: #f44336;
+  --color-warning: #ff9800;
+
+  /* Sombras */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-primary: 0 4px 14px rgba(233, 30, 99, 0.3);
+
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Transições */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+}

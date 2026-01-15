@@ -1,12 +1,113 @@
 /**
  * Widget de Pedidos - Melhor Bocado
- * Estilos Premium - Modularizado
+ * Estilos Premium
  */
 
-/* Importação de Módulos */
-@import url("modules/_variables.css");
-@import url("modules/_reset.css");
-@import url("modules/_scrollbar.css");
+/* ============================================
+   VARIÁVEIS DE COR (Paleta Melhor Bocado)
+   ============================================ */
+:root {
+  --color-primary: #e91e63;
+  --color-primary-dark: #c2185b;
+  --color-primary-light: #f8bbd9;
+  --color-primary-gradient: linear-gradient(135deg, #e91e63 0%, #ff4081 100%);
+
+  --color-background: #ffffff;
+  --color-surface: #fafafa;
+  --color-surface-elevated: #ffffff;
+
+  --color-text: #333333;
+  --color-text-light: #666666;
+  --color-text-muted: #999999;
+
+  --color-border: #eeeeee;
+  --color-border-focus: #e91e63;
+
+  --color-success: #4caf50;
+  --color-error: #f44336;
+  --color-warning: #ff9800;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-primary: 0 4px 14px rgba(233, 30, 99, 0.3);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+}
+
+/* ============================================
+   RESET E BASE
+   ============================================ */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, "Roboto",
+    sans-serif;
+  background: var(--color-surface);
+  min-height: 100vh;
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+/* ============================================
+   SCROLLBAR PERSONALIZADO
+   ============================================ */
+/* Webkit (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-surface);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ccc;
+}
+
+/* Scrollbar para áreas específicas - mais fino */
+.visualizar-main::-webkit-scrollbar,
+.visualizar-sidebar::-webkit-scrollbar,
+.vis-produtos-lista::-webkit-scrollbar {
+  width: 6px;
+}
+
+.visualizar-main::-webkit-scrollbar-thumb,
+.visualizar-sidebar::-webkit-scrollbar-thumb,
+.vis-produtos-lista::-webkit-scrollbar-thumb {
+  background: rgba(233, 30, 99, 0.2);
+  border-radius: 3px;
+}
+
+.visualizar-main::-webkit-scrollbar-thumb:hover,
+.visualizar-sidebar::-webkit-scrollbar-thumb:hover,
+.vis-produtos-lista::-webkit-scrollbar-thumb:hover {
+  background: rgba(233, 30, 99, 0.4);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #ddd var(--color-surface);
+}
 
 /* ============================================
    LAYOUT - ETAPA CLIENTE (Card Horizontal)
@@ -574,6 +675,12 @@
   background: #e8f5e9;
   color: #2e7d32;
   border: 1px solid #c8e6c9;
+}
+
+.status-message.error {
+  background: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
 }
 
 .status-message.error {
@@ -2564,8 +2671,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 20px 24px;
-  border-bottom: none;
-  background: var(--color-primary-gradient);
+  border-bottom: 1px solid var(--color-border);
+  background: linear-gradient(135deg, #fff5f8 0%, #ffffff 100%);
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
 }
 
@@ -2576,26 +2683,26 @@
 }
 
 .modal-produtos-titulo svg {
-  stroke: white;
+  stroke: var(--color-primary);
 }
 
 .modal-produtos-titulo h3 {
   font-size: 1.25rem;
   font-weight: 600;
-  color: white;
+  color: var(--color-text);
   margin-bottom: 2px;
 }
 
 .modal-produtos-titulo p {
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--color-text-muted);
 }
 
 .modal-close-btn {
   width: 40px;
   height: 40px;
   border: none;
-  background: rgba(255, 255, 255, 0.2);
+  background: transparent;
   cursor: pointer;
   border-radius: var(--radius-md);
   display: flex;
@@ -2605,11 +2712,11 @@
 }
 
 .modal-close-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(233, 30, 99, 0.1);
 }
 
 .modal-close-btn svg {
-  stroke: white;
+  stroke: var(--color-text-muted);
 }
 
 .modal-produtos-body {
@@ -3043,6 +3150,56 @@
 
 .carrinho-itens::-webkit-scrollbar-thumb:hover {
   background: var(--color-primary);
+}
+
+/* ============================================
+   MODAL DE PRODUTOS - MELHORIAS
+   ============================================ */
+.modal-produtos-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: none;
+  background: var(--color-primary-gradient);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+
+.modal-produtos-titulo svg {
+  stroke: white;
+}
+
+.modal-produtos-titulo h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 2px;
+}
+
+.modal-produtos-titulo p {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.modal-close-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.modal-close-btn svg {
+  stroke: white;
 }
 
 /* Campo de busca no modal de produtos */
