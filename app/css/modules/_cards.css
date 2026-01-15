@@ -1,0 +1,100 @@
+/**
+ * Estilos de Cards
+ */
+
+/* Cards de Seleção (Natureza/Frete) */
+.option-cards {
+  display: flex;
+  gap: 10px;
+}
+
+.option-card {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: white;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.option-card:hover {
+  border-color: var(--color-primary-light);
+}
+
+.option-card.active {
+  border-color: var(--color-primary);
+  background: #fff5f8;
+}
+
+.option-card-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.option-card-icon svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--color-text-muted);
+}
+
+.option-card.active .option-card-icon svg {
+  stroke: var(--color-primary);
+}
+
+.option-card-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.option-card.active .option-card-label {
+  color: var(--color-primary);
+}
+
+/* Option card locked/disabled */
+.option-card.locked {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+  background: var(--color-surface);
+}
+
+/* Selection Cards */
+.selection-card {
+  display: flex;
+  gap: 0;
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  max-width: 900px;
+  margin: 0 auto;
+  min-height: 480px;
+}
+
+/* Card body header */
+.card-body-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 20px;
+}
+
+.card-body-header h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.card-body-header p {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
