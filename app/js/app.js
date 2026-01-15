@@ -91,7 +91,7 @@ var WidgetApp = (function () {
    * Inicia o widget em modo online (conectado ao Zoho)
    */
   function iniciarModoOnline() {
-    WidgetUI.setStatus("Conectado! Digite para buscar clientes.", "success");
+    WidgetUI.hideStatus();
 
     // Obtém dados de inicialização do Zoho
     if (ZOHO.CREATOR && ZOHO.CREATOR.UTIL) {
@@ -494,7 +494,8 @@ var WidgetApp = (function () {
 
       // Configurações
       pagamentoCondicaoID: data.configuracao.condicaoPagamentoId,
-      pagamentoCondicaoCodigo: data.configuracao.condicaoPagamentoCodigo, // Importante manter
+      pagamentoCondicaoCodigo: data.configuracao.condicaoPagamentoCodigo,
+      pagamentoCondicaoDescricao: data.configuracao.condicaoPagamentoNome,
       tipoFrete: data.configuracao.tipoFrete,
       transportadoraID: data.configuracao.transportadoraId,
       transportadoraRazao: data.configuracao.transportadoraRazao,

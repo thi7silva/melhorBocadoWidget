@@ -8256,24 +8256,33 @@ body {
 @media (max-width: 900px) {
   .visualizar-overlay {
     padding: 0;
+    overflow-y: auto; /* Scroll no overlay se necessário */
   }
 
   .visualizar-container {
     max-width: 100%;
-    max-height: 100vh;
+    min-height: 100%; /* Ocupa pelo menos a tela toda */
+    height: auto; /* Deixa crescer */
     border-radius: 0;
-    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: visible; /* Remove scroll interno fixo */
   }
 
   /* Inverte a ordem: Sidebar (Topo) -> Main (Baixo) */
   .visualizar-content {
     flex-direction: column-reverse;
+    height: auto; /* Deixa crescer */
+    overflow: visible;
+    flex: none; /* Não tenta preencher espaço fixo */
   }
 
   .visualizar-main {
     padding: 16px;
     gap: 16px;
-    flex-shrink: 0; /* Garante que não encolha */
+    flex: none; /* Não tenta preencher espaço fixo */
+    overflow: visible; /* Scroll gerenciado pelo container/body */
+    height: auto;
   }
 
   .visualizar-sidebar {
@@ -8282,7 +8291,10 @@ body {
     border-bottom: 1px solid var(--color-border); /* Borda embaixo agora */
     padding: 16px;
     background: #fff;
-    flex-shrink: 0;
+    flex: none;
+    overflow: visible;
+    height: auto;
+    max-height: none; /* Remove limite se houver */
   }
 
   .vis-card-body {
@@ -8330,16 +8342,62 @@ body {
   }
 
   .vis-produto-item {
-    padding: 10px;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    gap: 12px;
+    padding: 12px;
+    align-items: flex-start;
+    overflow: visible;
   }
 
   .vis-produto-img {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
+    grid-row: 1 / 3; /* Ocupa altura */
+  }
+
+  .vis-produto-info {
+    min-width: 0;
+  }
+
+  .vis-produto-nome {
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+    white-space: normal; /* Permite quebrar linha se precisar */
+  }
+
+  /* Move valores para baixo da info */
+  .vis-produto-valores {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 4px;
+    padding-top: 6px;
+    border-top: 1px dashed var(--color-border);
+    width: 100%;
+  }
+
+  .vis-produto-preco {
+    font-size: 1rem;
+    font-weight: 700;
   }
 
   .vis-resumo-total .vis-resumo-valor {
     font-size: 1.15rem;
+  }
+
+  /* Ajuste do Alert Box no Mobile */
+  .alert-box {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    width: auto; /* Garante que respeite left/right */
+    min-width: 0;
+    max-width: none;
+    padding: 12px;
+    /* Evita animação de posição que pode causar "choque" */
+    transition: opacity 0.3s ease, transform 0.3s ease;
   }
 }
