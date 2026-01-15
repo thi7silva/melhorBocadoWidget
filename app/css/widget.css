@@ -7,6 +7,7 @@
 @import url("modules/_variables.css");
 @import url("modules/_reset.css");
 @import url("modules/_scrollbar.css");
+@import url("modules/_buttons.css");
 
 /* ============================================
    LAYOUT - ETAPA CLIENTE (Card Horizontal)
@@ -1474,41 +1475,6 @@
   gap: 12px;
 }
 
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 12px 24px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.btn-primary {
-  background: var(--color-primary-gradient);
-  color: white;
-  box-shadow: var(--shadow-primary);
-}
-
-.btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(233, 30, 99, 0.4);
-}
-
-.btn-secondary {
-  background: var(--color-surface);
-  color: var(--color-text);
-  border: 1px solid var(--color-border);
-}
-
-.btn-secondary:hover {
-  background: var(--color-border);
-}
-
 /* ============================================
    RESPONSIVIDADE
    ============================================ */
@@ -1716,39 +1682,6 @@
 .modal-actions .btn {
   flex: 1;
   max-width: 150px;
-}
-
-/* ============================================
-   BOTÕES ADICIONAIS
-   ============================================ */
-
-/* Botão Outline (Voltar) */
-.btn-outline {
-  background: transparent;
-  border: 2px solid var(--color-border);
-  color: var(--color-text);
-}
-
-.btn-outline:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-  background: var(--color-primary-light);
-}
-
-.btn-outline.hidden {
-  display: none;
-}
-
-/* Botão Danger (Confirmar Cancelamento) - Usando paleta primary */
-.btn-danger {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  color: white;
-}
-
-.btn-danger:hover {
-  background: var(--color-primary-dark);
-  border-color: var(--color-primary-dark);
 }
 
 /* ============================================
@@ -2761,46 +2694,6 @@
   display: flex;
   align-items: center;
   gap: 4px;
-}
-
-.btn-qtd {
-  width: 32px;
-  height: 32px;
-  border: 2px solid var(--color-border);
-  background: white;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all var(--transition-fast);
-}
-
-.btn-qtd:hover {
-  border-color: var(--color-primary-light);
-  background: var(--color-primary-light);
-}
-
-.btn-qtd svg {
-  stroke: var(--color-text-muted);
-}
-
-.btn-qtd:hover svg {
-  stroke: var(--color-primary);
-}
-
-.btn-qtd-add {
-  background: var(--color-primary-gradient);
-  border-color: var(--color-primary);
-}
-
-.btn-qtd-add svg {
-  stroke: white;
-}
-
-.btn-qtd-add:hover {
-  transform: scale(1.05);
-  box-shadow: var(--shadow-primary);
 }
 
 .input-qtd {
