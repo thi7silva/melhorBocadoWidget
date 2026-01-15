@@ -689,7 +689,9 @@ var WidgetProdutos = (function () {
     }
 
     // Atualiza o total do footer também
-    var footerTotal = document.querySelector(".total-valor");
+    var footerTotal =
+      document.getElementById("footer-total-valor") ||
+      document.querySelector(".total-valor");
     if (footerTotal) {
       footerTotal.textContent = "R$ " + formatarMoeda(totalFinal);
     }
@@ -1679,6 +1681,30 @@ var WidgetProdutos = (function () {
     );
   }
 
+  /**
+   * Limpa o carrinho e reseta os descontos
+   */
+  function limparCarrinho() {
+    state.carrinho = [];
+    state.produtosSelecionados = [];
+
+    // Reseta descontos
+    state.desconto = {
+      globalTipo: "percent",
+      globalValor: 0,
+      totalDescontoItens: 0,
+      totalDescontoGlobal: 0,
+    };
+    state.snapshotDescontos = null;
+
+    // Reseta modo edição
+    state.modoEdicao = false;
+
+    renderizarCarrinho();
+
+    WidgetUI.log("Carrinho e descontos limpos", "success");
+  }
+
   // API Pública do Módulo
   return {
     init: init,
@@ -1701,5 +1727,6 @@ var WidgetProdutos = (function () {
     fecharAlertaDesconto: fecharAlertaDesconto,
     setCarrinho: setCarrinho,
     setLoteMinimo: setLoteMinimo,
+    limparCarrinho: limparCarrinho,
   };
 })();

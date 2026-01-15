@@ -330,6 +330,28 @@ var WidgetApp = (function () {
     state.modo = null;
     state.pedidoId = null;
 
+    // Limpa estado do módulo de produtos (carrinho, descontos)
+    WidgetProdutos.limparCarrinho();
+
+    // Reset visual da edição no header
+    WidgetUI.setHeaderSubtitle("");
+    var header = document.querySelector(".app-header");
+    if (header) {
+      header.classList.remove("header-edicao");
+      var oldBadge = document.getElementById("badge-modo-edicao");
+      if (oldBadge) oldBadge.remove();
+    }
+
+    // Limpa campos de input que podem ter ficado sujos
+    setValorInput("numero-pedido-cliente", "");
+    setValorInput("observacoes", "");
+    setValorInput("endereco-entrega", "");
+
+    // Reseta entrega
+    WidgetEntrega.setDataSelecionadaManual(null);
+    var obsEntrega = document.getElementById("observacoes-entrega");
+    if (obsEntrega) obsEntrega.value = "";
+
     WidgetUI.log("Iniciando novo pedido para: " + cliente.Nome, "success");
 
     // Esconde a listagem
@@ -645,34 +667,44 @@ var WidgetApp = (function () {
     if (!Array.isArray(itensApi)) return [];
 
     return itensApi.map(function (item) {
+      var precoUnitario = parseFloat(item.precoUnitario) || 0;
+      var descontoUnitario = parseFloat(item.descontoUnitarioReal) || 0;
+
+      // Tenta obter o preço de tabela original (sem descontos)
+      // Se não vier na API, calculamos somando o preço atual + desconto
+      var precoTabela = parseFloat(item.precoTabela);
+      if (isNaN(precoTabela) || precoTabela === 0) {
+        precoTabela = precoUnitario + descontoUnitario;
+      }
+
       return {
         ID: String(item.produtoId),
         Codigo: item.produtoCodigo,
         Nome: item.produtoNome,
-        Quantidade: item.quantidade,
+        Quantidade: parseFloat(item.quantidade) || 0,
         Unidade: item.unidade,
         imagemProduto: item.imagemProduto,
 
         // Preços
-        Preco: item.precoUnitario, // Preço atual (com desconto se houver)
-        PrecoBase: item.precoBase,
-        IPI: item.ipi,
-        ST: item.st,
+        Preco: precoUnitario, // Preço atual (com desconto se houver)
+        PrecoBase: parseFloat(item.precoBase) || 0,
+        IPI: parseFloat(item.ipi) || 0,
+        ST: parseFloat(item.st) || 0,
 
-        // Valores de Tabela Originais
-        precoBaseTabela: item.precoBaseTabela,
-        ipiTabela: item.ipiTabela,
-        stTabela: item.stTabela,
-        precoTabela: item.precoTabela,
+        // Valores de Tabela Originais (para cálculo de desconto correto)
+        precoBaseTabela:
+          parseFloat(item.precoBaseTabela) || parseFloat(item.precoBase) || 0,
+        ipiTabela: parseFloat(item.ipiTabela) || parseFloat(item.ipi) || 0,
+        stTabela: parseFloat(item.stTabela) || parseFloat(item.st) || 0,
+        precoTabela: precoTabela,
 
         // Desconto
         // Se impostos recalculados, o desconto unitário real é a diferença de preço
-        // Se não, é o descontoPendente dividido pela quantidade
         // Aqui vamos confiar no descontoUnitarioReal que vem calculado
-        descontoValor: item.descontoUnitarioReal,
-        descontoPercent: item.descontoPercentual,
+        descontoValor: descontoUnitario,
+        descontoPercent: parseFloat(item.descontoPercentual) || 0,
         impostosRecalculados: item.impostosRecalculados,
-        descontoAplicadoValor: item.descontoTotal, // Total do desconto deste item
+        descontoAplicadoValor: parseFloat(item.descontoTotal) || 0, // Total do desconto deste item
       };
     });
   }
