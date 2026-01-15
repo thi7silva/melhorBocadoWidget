@@ -1,0 +1,126 @@
+/**
+ * Estilos de Formulários
+ */
+
+/* Grid de Configuração */
+.config-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* Grupo de Campo */
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 8px;
+}
+
+.form-group label svg {
+  color: var(--color-primary);
+}
+
+/* Campos de Input */
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  padding: 14px 16px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: white;
+  color: var(--color-text);
+  transition: all var(--transition-fast);
+}
+
+.form-input:hover,
+.form-select:hover,
+.form-textarea:hover {
+  border-color: var(--color-primary-light);
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(233, 30, 99, 0.1);
+}
+
+.form-input[readonly] {
+  background: linear-gradient(135deg, var(--color-surface) 0%, #f5f5f5 100%);
+  color: var(--color-text-light);
+  cursor: not-allowed;
+  border-style: dashed;
+}
+
+/* Select Customizado */
+.form-select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23e91e63' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 48px;
+}
+
+.form-select:focus {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23c2185b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+.form-select option {
+  padding: 12px;
+  background: white;
+}
+
+.form-select option:hover,
+.form-select option:focus,
+.form-select option:checked {
+  background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%);
+  color: var(--color-primary-dark);
+}
+
+/* Textarea */
+.form-textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+/* Input de Quantidade */
+.input-qtd {
+  width: 50px;
+  height: 32px;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.input-qtd:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
