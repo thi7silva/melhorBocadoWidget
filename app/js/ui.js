@@ -944,8 +944,10 @@ var WidgetUI = (function () {
       "</div>" +
       // Ações do card
       '<div class="pedido-card-actions">' +
-      // Visualizar (Futuro - desabilitado)
-      '<button type="button" class="action-btn action-visualizar" title="Visualizar (Em breve)" disabled>' +
+      // Visualizar (Implementado)
+      '<button type="button" class="action-btn action-visualizar" title="Visualizar Pedido" onclick="WidgetApp.visualizarPedido(\'' +
+      pedido.pedidoId +
+      "')\">" +
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
       '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>' +
       '<circle cx="12" cy="12" r="3"></circle>' +
@@ -1256,9 +1258,11 @@ var WidgetUI = (function () {
   function formatarData(data) {
     if (!data) return "-";
 
-    // Se for formato ISO (YYYY-MM-DD)
+    // Se for formato ISO (YYYY-MM-DD ou YYYY-MM-DDTHH:mm:ss)
     if (typeof data === "string" && data.indexOf("-") > 0) {
-      var partes = data.split("-");
+      // Remove a parte da hora se houver
+      var dataPart = data.split("T")[0];
+      var partes = dataPart.split("-");
       if (partes.length === 3) {
         return partes[2] + "/" + partes[1] + "/" + partes[0];
       }
@@ -1266,6 +1270,28 @@ var WidgetUI = (function () {
 
     // Retorna como está se não conseguir formatar
     return String(data);
+  }
+
+  /**
+   * Abre um modal pelo ID
+   * @param {string} modalId - ID do modal a ser aberto
+   */
+  function abrirModal(modalId) {
+    var modal = document.getElementById(modalId);
+    if (modal) {
+      modal.classList.remove("hidden");
+    }
+  }
+
+  /**
+   * Fecha um modal pelo ID
+   * @param {string} modalId - ID do modal a ser fechado
+   */
+  function fecharModal(modalId) {
+    var modal = document.getElementById(modalId);
+    if (modal) {
+      modal.classList.add("hidden");
+    }
   }
 
   // API Pública do Módulo
