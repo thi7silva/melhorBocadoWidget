@@ -1682,10 +1682,12 @@ body {
   }
 
   .app-header {
+    background: var(--color-primary-gradient) !important;
     padding: 16px;
     flex-direction: column;
     text-align: center;
     gap: 12px;
+    color: white;
   }
 
   .header-vendedor {
@@ -1736,6 +1738,15 @@ body {
     right: 12px;
     left: 12px;
     width: auto;
+  }
+
+  .badge-edicao {
+    order: -1;
+    margin-bottom: 8px;
+    width: 100%;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
   }
 }
 
@@ -5013,6 +5024,7 @@ body {
 
   /* Header Compacto */
   .app-header {
+    background: var(--color-primary-gradient);
     margin: 0;
     border-radius: 0;
     padding: 10px 14px;
