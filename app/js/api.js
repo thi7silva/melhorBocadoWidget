@@ -527,6 +527,33 @@ var WidgetAPI = (function () {
 
       WidgetUI.log("Pedidos encontrados: " + lista.length, "success");
 
+      // Função auxiliar para converter "dd/MM/yyyy HH:mm:ss" em objeto Date
+      var parseDate = function (dateStr) {
+        if (!dateStr || typeof dateStr !== "string") return new Date(0);
+        var parts = dateStr.split(" ");
+        if (parts.length !== 2) return new Date(0);
+        var dateParts = parts[0].split("/");
+        var timeParts = parts[1].split(":");
+        if (dateParts.length !== 3 || timeParts.length !== 3)
+          return new Date(0);
+
+        return new Date(
+          parseInt(dateParts[2], 10),
+          parseInt(dateParts[1], 10) - 1,
+          parseInt(dateParts[0], 10),
+          parseInt(timeParts[0], 10),
+          parseInt(timeParts[1], 10),
+          parseInt(timeParts[2], 10)
+        );
+      };
+
+      // Ordena por dataCriacao (decrescente)
+      lista.sort(function (a, b) {
+        var dateA = parseDate(a.dataCriacao);
+        var dateB = parseDate(b.dataCriacao);
+        return dateA - dateB;
+      });
+
       // Mapeia para formato padronizado
       return lista.map(function (item) {
         return {
@@ -534,6 +561,7 @@ var WidgetAPI = (function () {
           numeroPedidoTotvs: item.numeroPedidoTotvs || "",
           numeroPedidoCRM: item.numeroPedidoCRM || "",
           emissaoPedido: item.emissaoPedido || "",
+          dataCriacao: item.dataCriacao || "", // Adicionado campo solicitado
           dataEntrega: item.dataEntrega || "",
           status: item.status || "",
           totalPedido: parseFloat(item.totalPedido) || 0,
