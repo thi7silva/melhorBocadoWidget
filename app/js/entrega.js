@@ -409,6 +409,7 @@ var WidgetEntrega = (function () {
   function atualizarResumoEntrega() {
     var resumoEl = document.getElementById("entrega-data-selecionada");
     var btnConfirmar = document.getElementById("btn-confirmar-entrega");
+    var btnRascunho = document.getElementById("btn-rascunho-entrega");
 
     if (state.dataSelecionada) {
       if (resumoEl) {
@@ -426,6 +427,9 @@ var WidgetEntrega = (function () {
       if (btnConfirmar) {
         btnConfirmar.disabled = false;
       }
+      if (btnRascunho) {
+        btnRascunho.disabled = false;
+      }
     } else {
       if (resumoEl) {
         resumoEl.innerHTML =
@@ -434,6 +438,9 @@ var WidgetEntrega = (function () {
       }
       if (btnConfirmar) {
         btnConfirmar.disabled = true;
+      }
+      if (btnRascunho) {
+        btnRascunho.disabled = true;
       }
     }
   }
@@ -600,11 +607,77 @@ var WidgetEntrega = (function () {
     // Fecha o modal
     WidgetUI.fecharModal("modal-entrega");
 
-    // Continua para finalizar o pedido (passa também o resultado da aprovação)
+    // Continua para finalizar o pedido (passa também o resultado da aprovação e isDraft=false)
     WidgetApp.finalizarPedidoComEntrega(
       state.dataSelecionada,
       observacoesEntrega,
-      resultadoAprovacao
+      resultadoAprovacao,
+      false // isDraft
+    );
+  }
+
+  /**
+   * Confirma o pedido como rascunho
+   */
+  function confirmarRascunho() {
+    if (!state.dataSelecionada) {
+      WidgetUI.log("Nenhuma data selecionada", "error");
+      return;
+    }
+
+    // Captura observações de entrega
+    var observacoesEl = document.getElementById("observacoes-entrega");
+    var observacoesEntrega = observacoesEl ? observacoesEl.value.trim() : "";
+
+    // Verifica se precisa de aprovação (mesmo para rascunho, pois quando for efetivado, a regra valerá)
+    var resultadoAprovacao = verificarNecessidadeAprovacao();
+
+    // Se a aprovação for necessária, mantemos a exigência da justificativa para já deixar salvo
+    if (resultadoAprovacao.precisaAprovacao && !observacoesEntrega) {
+      WidgetUI.log(
+        "Informações de Entrega é obrigatório para este pedido (mesmo rascunho)",
+        "error"
+      );
+
+      // Destaca o campo como obrigatório
+      if (observacoesEl) {
+        observacoesEl.classList.add("input-error");
+        observacoesEl.placeholder =
+          "OBRIGATÓRIO: Justifique - " + resultadoAprovacao.motivos.join("; ");
+        observacoesEl.focus();
+      }
+
+      // Mostra mensagem de erro
+      WidgetUI.setStatus(
+        "Preencha o campo Informações de Entrega com a justificativa",
+        "error"
+      );
+      setTimeout(function () {
+        WidgetUI.hideStatus();
+      }, 5000);
+
+      return;
+    }
+
+    // Remove destaque de erro se existir
+    if (observacoesEl) {
+      observacoesEl.classList.remove("input-error");
+    }
+
+    WidgetUI.log(
+      "Rascunho confirmado para: " + state.dataSelecionada.dataFormatada,
+      "success"
+    );
+
+    // Fecha o modal
+    WidgetUI.fecharModal("modal-entrega");
+
+    // Continua para finalizar o pedido com isDraft=true
+    WidgetApp.finalizarPedidoComEntrega(
+      state.dataSelecionada,
+      observacoesEntrega,
+      resultadoAprovacao,
+      true // isDraft
     );
   }
 
@@ -735,7 +808,9 @@ var WidgetEntrega = (function () {
     setListaFeriados: setListaFeriados,
     abrirModalEntrega: abrirModalEntrega,
     selecionarData: selecionarData,
+    selecionarData: selecionarData,
     confirmarEntrega: confirmarEntrega,
+    confirmarRascunho: confirmarRascunho,
     getDataSelecionada: getDataSelecionada,
     renderizarPreviewDatas: renderizarPreviewDatas,
     reset: reset,
