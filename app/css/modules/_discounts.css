@@ -259,12 +259,12 @@
 
 /* Linha de resumo desconto - Discreta */
 .carrinho-table tfoot .desconto-resumo-row {
-  background: #fafafa;
+  background: transparent;
 }
 
 .carrinho-table tfoot .desconto-resumo-row td {
-  padding: 8px 12px;
-  font-size: 0.85rem;
+  padding: 0;
+  font-size: 0.9rem;
 }
 
 .desconto-resumo-label {

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
@@ -1127,17 +1127,17 @@
             <table class="carrinho-table">
               <thead>
                 <tr>
-                  <th style="width: 25%">Produto</th>
-                  <th class="text-right">Valor Unit.</th>
-                  <th class="text-right">IPI</th>
-                  <th class="text-right">ST</th>
-                  <th class="text-center" style="width: 80px">Qtd</th>
-                  <th class="text-right">Total sem Desc.</th>
-                  <th class="text-center desconto-cell" style="width: 140px">
+                  <th class="col-produto">Produto</th>
+                  <th class="text-right col-un">Valor Unit.</th>
+                  <th class="text-right col-ipi">IPI</th>
+                  <th class="text-right col-st">ST</th>
+                  <th class="text-center col-qtd">Qtd</th>
+                  <th class="text-right col-total-bruto">Total sem Desc.</th>
+                  <th class="text-center col-desc-unit desconto-cell">
                     Desconto Unit.
                   </th>
-                  <th class="text-right font-bold">Total Final</th>
-                  <th class="text-center" style="width: 40px"></th>
+                  <th class="text-right col-total-liq">Total Final</th>
+                  <th class="text-center col-actions"></th>
                 </tr>
               </thead>
               <tbody id="modal-carrinho-tbody">
@@ -1655,7 +1655,10 @@
             <button
               type="button"
               class="btn btn-primary"
-              onclick="WidgetUI.fecharModal('modal-carrinho'); WidgetUI.switchTab('config');"
+              onclick="
+                WidgetUI.fecharModal('modal-carrinho');
+                WidgetUI.switchTab('config');
+              "
               style="flex: 1"
             >
               Finalizar Pedido
