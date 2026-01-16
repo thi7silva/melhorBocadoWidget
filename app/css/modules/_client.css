@@ -288,3 +288,65 @@
   word-break: break-word;
   line-height: 1.3;
 }
+
+/* ============================================
+   SIDEBAR COLAPSÁVEL
+   ============================================ */
+.sidebar-header-toggle {
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.sidebar-header-toggle:hover {
+  background: rgba(233, 30, 99, 0.05);
+}
+
+.sidebar-header-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebar-header-info h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.sidebar-resumo {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+.sidebar-toggle-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sidebar-toggle-icon {
+  stroke: var(--color-text-muted);
+  transition: transform var(--transition-normal);
+  transform: rotate(180deg);
+}
+
+.cliente-sidebar.collapsed {
+  padding-bottom: 0;
+}
+
+.cliente-sidebar.collapsed .sidebar-header {
+  border-bottom: none;
+  padding-bottom: 16px;
+}
+
+.cliente-sidebar.collapsed .cliente-dados {
+  display: none;
+}
+
+.cliente-sidebar.collapsed .sidebar-toggle-icon {
+  transform: rotate(0deg);
+}
