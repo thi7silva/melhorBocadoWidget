@@ -1187,16 +1187,20 @@ var WidgetProdutos = (function () {
     }
     // Se o item já tinha impostos recalculados e o desconto MUDOU (mas não zerou),
     // precisa restaurar valores originais para recCalcular novamente
-    else if (
-      item.impostosRecalculados &&
-      item.valoresOriginais &&
-      descontoUnitario > 0
-    ) {
-      // Restaura valores originais para recálculo
-      item.PrecoBase = item.valoresOriginais.precoBase;
-      item.IPI = item.valoresOriginais.ipi;
-      item.ST = item.valoresOriginais.st;
-      item.Preco = item.valoresOriginais.preco;
+    else if (item.impostosRecalculados && descontoUnitario > 0) {
+      // Restaura valores originais (ou de tabela) para recálculo
+      // Se não tiver valoresOriginais (caso de clone/load), usa os de tabela
+      if (item.valoresOriginais) {
+        item.PrecoBase = item.valoresOriginais.precoBase;
+        item.IPI = item.valoresOriginais.ipi;
+        item.ST = item.valoresOriginais.st;
+        item.Preco = item.valoresOriginais.preco;
+      } else {
+        item.PrecoBase = item.precoBaseTabela || item.PrecoBase;
+        item.IPI = item.ipiTabela || item.IPI;
+        item.ST = item.stTabela || item.ST;
+        item.Preco = item.precoTabela || item.Preco;
+      }
 
       // Limpa o flag para forçar novo recálculo
       item.impostosRecalculados = false;
