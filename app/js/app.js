@@ -758,7 +758,7 @@ var WidgetApp = (function () {
           detalhes.status = pedidoLista.status;
         }
 
-        popularModalVisualizacao(detalhes);
+        popularModalVisualizacao(detalhes, pedidoId);
         WidgetUI.hideStatus();
       })
       .catch(function (err) {
@@ -770,8 +770,9 @@ var WidgetApp = (function () {
   /**
    * Popula o modal de visualização com os dados do pedido
    * @param {Object} data - Dados completos do pedido
+   * @param {string} idOriginal - ID do pedido vindo da chamada original
    */
-  function popularModalVisualizacao(data) {
+  function popularModalVisualizacao(data, idOriginal) {
     // Header - Número e Status
     document.getElementById("vis-numero-principal").textContent =
       data.numeroPedidoProtheus ||
@@ -908,8 +909,11 @@ var WidgetApp = (function () {
     }
 
     // Armazena o ID do pedido para as ações
+    // Usa o ID original passado ou tenta encontrar no objeto (fallback)
+    var idFinal = idOriginal || data.idPedido || data.pedidoID || data.id;
+
     state.pedidoVisualizando = {
-      id: data.pedidoID || data.pedidoId,
+      id: idFinal,
       numero:
         data.numeroPedidoProtheus || data.configuracao?.numeroPedidoProtheus,
       total: WidgetUI.formatarMoeda(total),
@@ -936,8 +940,9 @@ var WidgetApp = (function () {
    */
   function editarPedidoVisualizacao() {
     if (state.pedidoVisualizando) {
+      var id = state.pedidoVisualizando.id;
       fecharVisualizarPedido();
-      editarPedido(state.pedidoVisualizando.id);
+      editarPedido(id);
     }
   }
 
@@ -946,8 +951,9 @@ var WidgetApp = (function () {
    */
   function clonarPedidoVisualizacao() {
     if (state.pedidoVisualizando) {
+      var id = state.pedidoVisualizando.id;
       fecharVisualizarPedido();
-      clonarPedido(state.pedidoVisualizando.id);
+      clonarPedido(id);
     }
   }
 
@@ -956,12 +962,9 @@ var WidgetApp = (function () {
    */
   function cancelarPedidoVisualizacao() {
     if (state.pedidoVisualizando) {
+      var pedido = state.pedidoVisualizando;
       fecharVisualizarPedido();
-      abrirModalCancelarPedido(
-        state.pedidoVisualizando.id,
-        state.pedidoVisualizando.numero,
-        state.pedidoVisualizando.total
-      );
+      abrirModalCancelarPedido(pedido.id, pedido.numero, pedido.total);
     }
   }
 
