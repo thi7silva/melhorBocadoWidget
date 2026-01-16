@@ -1,0 +1,818 @@
+/**
+ * Modal Visualizar Pedido - Premium Fullscreen
+ * Estilos para modal de visualização de detalhes do pedido
+ */
+
+/* ============================================
+   MODAL: VISUALIZAÇÃO DE PEDIDO (Premium Fullscreen)
+   ============================================ */
+
+/* Overlay/Modal Principal */
+.modal-visualizar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-visualizar.hidden {
+  display: none !important;
+}
+
+.visualizar-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(248, 249, 250, 0.95);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Container Principal */
+.visualizar-container {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.25);
+  width: 100%;
+  max-width: 1100px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Header do Modal */
+.visualizar-header {
+  background: var(--color-primary-gradient);
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 20px;
+}
+
+.vis-header-left {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+/* Estilo da Imagem do Logo no Header */
+.vis-logo-img {
+  height: 48px;
+  width: auto;
+}
+
+.vis-pedido-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: 24px;
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.vis-pedido-numero {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.vis-numero-label {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vis-pedido-numero h1 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: white;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.vis-numero-crm {
+  background: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.95);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.vis-data-criacao {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+
+.vis-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Status Badge do Header */
+.vis-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(4px);
+}
+
+/* Correção do ícone de status - remove estilo de bolinha forçada */
+.vis-status-badge .status-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vis-status-badge .status-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Ajuste de cores do badge no header escuro */
+/* Cores específicas para o pontinho do status */
+.vis-status-badge.status-rascunho {
+  color: #cfd8dc;
+}
+.vis-status-badge.status-criado {
+  color: #e3f2fd;
+}
+.vis-status-badge.status-aguardando {
+  color: #ffe0b2;
+}
+.vis-status-badge.status-sincronizado {
+  color: #b2ebf2;
+}
+.vis-status-badge.status-faturado {
+  color: #d1c4e9;
+}
+.vis-status-badge.status-agendado {
+  color: #bbdefb;
+}
+.vis-status-badge.status-entregue {
+  color: #c8e6c9;
+}
+.vis-status-badge.status-cancelado {
+  color: #ffcdd2;
+}
+.vis-status-badge.status-erro {
+  color: #ffccbc;
+}
+
+/* Botão Clonar no Header */
+.vis-btn-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 36px;
+}
+
+.vis-btn-clonar-header {
+  background: white;
+  color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.vis-btn-clonar-header:hover {
+  background: #f5f5f5;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.vis-btn-clonar-header svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Botão Fechar */
+.vis-btn-fechar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.vis-btn-fechar:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.vis-btn-fechar svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Timeline Visual */
+.vis-timeline {
+  background: #fff;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+
+.vis-timeline-step {
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.7rem;
+  gap: 4px;
+}
+
+.vis-timeline-step .step-icon {
+  width: 14px;
+  height: 14px;
+}
+
+/* Conteudo Principal (2 colunas) - CORREÇÃO DE SCROLL */
+.visualizar-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  background: #f5f7fa;
+  height: 100%;
+  min-height: 0;
+}
+
+/* Coluna Principal (Esquerda) */
+.visualizar-main {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 40px;
+  min-height: 0;
+}
+
+/* Cards de Informação */
+.vis-card {
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+}
+
+.vis-card-header {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.vis-card-header svg {
+  color: var(--color-primary);
+}
+
+.vis-card-header h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vis-count-badge {
+  background: var(--color-primary);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.vis-card-body {
+  padding: 18px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+/* Linhas de Informação */
+.vis-info-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vis-info-row.full-width {
+  grid-column: span 2;
+}
+
+.vis-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vis-value {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-text);
+  word-break: break-word;
+}
+
+.vis-value.vis-highlight {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+/* Lista de Produtos */
+.vis-produtos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 0;
+}
+
+.vis-produto-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  background: #fafafa;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  transition: all 0.2s ease;
+}
+
+.vis-produto-item:hover {
+  background: #f5f5f5;
+  border-color: rgba(233, 30, 99, 0.2);
+}
+
+.vis-produto-img {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: white;
+  border: 1px solid var(--color-border);
+}
+
+.vis-produto-img-placeholder {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  background: var(--color-primary-gradient);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.vis-produto-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.vis-produto-nome {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vis-produto-codigo {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.vis-produto-valores {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.vis-produto-qtd {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-bottom: 2px;
+}
+
+.vis-produto-preco {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.vis-produto-desconto {
+  font-size: 0.75rem;
+  color: #43a047;
+  font-weight: 600;
+}
+
+/* Sidebar (Direita) */
+.visualizar-sidebar {
+  width: 340px;
+  background: white;
+  border-left: 1px solid var(--color-border);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+/* Resumo Financeiro */
+.vis-resumo-financeiro {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.vis-resumo-financeiro h4 {
+  margin: 0 0 16px 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vis-resumo-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.vis-resumo-item.desconto .vis-resumo-valor {
+  color: #43a047;
+}
+
+.vis-resumo-label {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.vis-resumo-valor {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.vis-resumo-divider {
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-border),
+    transparent
+  );
+  margin: 12px 0;
+}
+
+.vis-resumo-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0 0 0;
+}
+
+.vis-resumo-total .vis-resumo-label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.vis-resumo-total .vis-resumo-valor {
+  font-size: 1.3rem;
+  font-weight: 800;
+  background: var(--color-primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Detalhes Adicionais */
+.vis-detalhes-box {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid var(--color-border);
+}
+
+.vis-detalhes-box h4 {
+  margin: 0 0 14px 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vis-detalhe-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  border-bottom: 1px dashed var(--color-border);
+}
+
+.vis-detalhe-item:last-child {
+  border-bottom: none;
+}
+
+.vis-detalhe-item svg {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.vis-detalhe-item span {
+  flex: 1;
+}
+
+.vis-detalhe-item strong {
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+/* Ações */
+.vis-acoes-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.vis-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 20px;
+  border-radius: 10px;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.vis-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.vis-btn-editar {
+  background: linear-gradient(135deg, #f9a825 0%, #f57c00 100%);
+  color: white;
+}
+
+.vis-btn-editar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(249, 168, 37, 0.4);
+}
+
+.vis-btn-clonar {
+  background: transparent;
+  border: 2px solid var(--color-primary);
+  color: var(--color-primary);
+}
+
+.vis-btn-clonar:hover {
+  background: var(--color-primary-gradient);
+  border-color: transparent;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+}
+
+.vis-btn-cancelar {
+  background: transparent;
+  border: 2px solid #ef5350;
+  color: #ef5350;
+}
+
+.vis-btn-cancelar:hover {
+  background: #ef5350;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(239, 83, 80, 0.4);
+}
+
+/* ============================================
+   RESPONSIVO - MODAL VISUALIZAR PEDIDO
+   ============================================ */
+@media (max-width: 900px) {
+  .visualizar-overlay {
+    padding: 0;
+    overflow-y: auto;
+  }
+
+  .visualizar-container {
+    max-width: 100%;
+    min-height: 100%;
+    height: auto;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    overflow-y: visible;
+  }
+
+  /* Inverte a ordem: Sidebar (Topo) -> Main (Baixo) */
+  .visualizar-content {
+    flex-direction: column-reverse;
+    height: auto;
+    overflow: visible;
+    flex: none;
+  }
+
+  .visualizar-main {
+    padding: 16px;
+    gap: 16px;
+    flex: none;
+    overflow: visible;
+    height: auto;
+  }
+
+  .visualizar-sidebar {
+    width: 100%;
+    border-left: none;
+    border-bottom: 1px solid var(--color-border);
+    padding: 16px;
+    background: #fff;
+    flex: none;
+    overflow: visible;
+    height: auto;
+    max-height: none;
+  }
+
+  .vis-card-body {
+    grid-template-columns: 1fr;
+  }
+
+  .vis-info-row.full-width {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 600px) {
+  .visualizar-header {
+    padding: 16px 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .vis-pedido-numero h1 {
+    font-size: 1.2rem;
+  }
+
+  .vis-header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .vis-timeline {
+    padding: 12px 16px;
+    gap: 6px;
+    justify-content: flex-start;
+  }
+
+  .vis-timeline-step {
+    padding: 5px 10px;
+    font-size: 0.7rem;
+  }
+
+  .vis-timeline-connector {
+    width: 15px;
+  }
+
+  .vis-produtos-lista {
+    max-height: none;
+  }
+
+  .vis-produto-item {
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    gap: 12px;
+    padding: 12px;
+    align-items: flex-start;
+    overflow: visible;
+  }
+
+  .vis-produto-img {
+    width: 48px;
+    height: 48px;
+    grid-row: 1 / 3;
+  }
+
+  .vis-produto-info {
+    min-width: 0;
+  }
+
+  .vis-produto-nome {
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+    white-space: normal;
+  }
+
+  /* Move valores para baixo da info */
+  .vis-produto-valores {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 4px;
+    padding-top: 6px;
+    border-top: 1px dashed var(--color-border);
+    width: 100%;
+  }
+
+  .vis-produto-preco {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .vis-resumo-total .vis-resumo-valor {
+    font-size: 1.15rem;
+  }
+}
