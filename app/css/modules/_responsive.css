@@ -726,14 +726,14 @@
 
   /* Fix de scroll para modal no mobile */
   .modal-overlay {
-    align-items: flex-start;
-    overflow-y: auto;
-    padding: 20px 0;
+    align-items: stretch; /* Ocupa tela toda */
+    overflow: hidden; /* Remove scroll do overlay, mantém só interno */
+    padding: 0;
   }
 
   .modal-sucesso-container,
   .modal-dialog {
-    margin: 20px auto;
+    margin: auto;
   }
 
   .desconto-item-input {
@@ -743,6 +743,63 @@
     text-align: right;
     font-weight: 600;
     font-size: 1rem;
+  }
+
+  /* Modal de carrinho fullscreen mobile */
+  .modal-lg {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 100vh;
+    height: 100vh;
+    margin: 0;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal-lg .modal-content {
+    height: 100%;
+    max-height: none;
+    border-radius: 0;
+  }
+
+  /* Corpo com scroll */
+  .modal-lg .modal-body {
+    flex: 1;
+    overflow-y: hidden; /* Scroll fica no wrapper da tabela */
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Wrapper da tabela com scroll */
+  .carrinho-table-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    padding-bottom: 20px;
+    max-height: none; /* Remove limite do desktop */
+  }
+
+  /* Footer Fixo e Estilizado */
+  .modal-footer {
+    flex-shrink: 0; /* Não encolhe */
+    background: white;
+    border-top: 1px solid var(--color-border);
+    padding: 12px 16px;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 20;
+    display: flex;
+    gap: 12px;
+  }
+
+  .modal-footer .btn {
+    flex: 1;
+    height: 48px;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   /* Total Final destacado */
@@ -821,22 +878,6 @@
 
   .modal-produtos-footer .btn-primary {
     order: 1;
-  }
-
-  /* Modal de carrinho fullscreen mobile */
-  .modal-lg {
-    width: 100% !important;
-    max-width: 100% !important;
-    max-height: 100vh;
-    height: 100vh;
-    margin: 0;
-    border-radius: 0;
-  }
-
-  .modal-lg .modal-body {
-    max-height: calc(100vh - 180px);
-    overflow-y: auto;
-    padding: 16px;
   }
 
   /* Barra de limite de desconto */

@@ -283,6 +283,7 @@
 .desconto-resumo-value {
   color: var(--color-primary);
   font-weight: 600;
+  white-space: nowrap;
 }
 
 /* Alerta de Limite - Simples */
