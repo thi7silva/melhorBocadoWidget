@@ -1,0 +1,214 @@
+/**
+ * Layout - Estruturas principais de layout
+ * Estilos para wrappers e containers de etapas
+ */
+
+/* ============================================
+   LAYOUT - ETAPA CLIENTE (Card Horizontal)
+   ============================================ */
+.step-cliente-wrapper {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.step-cliente-wrapper.hidden {
+  display: none;
+}
+
+/* Card Horizontal (lado a lado) */
+.selection-card {
+  display: flex;
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  width: 100%;
+  max-width: 900px;
+  height: calc(100vh - 40px);
+  max-height: 600px;
+}
+
+/* Lado Esquerdo: Branding */
+.card-branding {
+  width: 340px;
+  flex-shrink: 0;
+  background: var(--color-primary-gradient);
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-branding::before {
+  content: "";
+  position: absolute;
+  top: -80px;
+  right: -80px;
+  width: 250px;
+  height: 250px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+}
+
+.card-branding::after {
+  content: "";
+  position: absolute;
+  bottom: -100px;
+  left: -100px;
+  width: 200px;
+  height: 200px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+}
+
+.card-branding-logo {
+  height: 60px;
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.card-branding h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.card-branding p {
+  font-size: 1rem;
+  opacity: 0.9;
+  max-width: 240px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Lado Direito: Formulário */
+.card-body {
+  flex: 1;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* Lista de clientes cresce para ocupar espaço */
+.card-body .client-list {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* ============================================
+   LAYOUT - ETAPA PEDIDO (Footer Fixo)
+   ============================================ */
+.step-pedido-wrapper {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 20px;
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.step-pedido-wrapper.hidden {
+  display: none;
+}
+
+/* ============================================
+   CONTROLE DE ETAPAS
+   ============================================ */
+.step-content {
+  animation: fadeIn 0.3s ease;
+}
+
+.step-content.hidden {
+  display: none;
+}
+
+/* Etapa Centralizada (Seleção de Cliente) */
+.step-centered {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Etapa Full Width (Pedido) */
+.step-fullwidth {
+  width: 100%;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   LAYOUT DO PEDIDO (Sidebar + Main)
+   ============================================ */
+.pedido-layout {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 20px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Área Principal do Pedido */
+.pedido-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ============================================
+   PLACEHOLDER DE PRODUTOS
+   ============================================ */
+.pedido-placeholder {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.pedido-placeholder svg {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 20px;
+  opacity: 0.4;
+  stroke: var(--color-primary);
+}
+
+.pedido-placeholder p {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+
+.pedido-placeholder .hint {
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
