@@ -40,7 +40,7 @@ var WidgetProdutos = (function () {
    */
   function getProductImageUrl(produto) {
     var imageUrl = extractFirstImageUrl(
-      produto.imagemProduto || produto.ImagemProduto || ""
+      produto.imagemProduto || produto.ImagemProduto || "",
     );
     return imageUrl || DEFAULT_PRODUCT_IMAGE;
   }
@@ -204,8 +204,8 @@ var WidgetProdutos = (function () {
         <div class="categoria-card" onclick="WidgetProdutos.selecionarCategoria('${
           cat.ID
         }', '${cat.Nome}')" data-id="${
-        cat.ID
-      }" data-nome="${cat.Nome.toLowerCase()}">
+          cat.ID
+        }" data-nome="${cat.Nome.toLowerCase()}">
           <div class="categoria-icon" style="background: ${cores[corIndex]}">
             ${iniciais}
           </div>
@@ -360,8 +360,8 @@ var WidgetProdutos = (function () {
         <div class="produto-card ${classeIndisponivel}" data-id="${prod.ID}">
           <div class="produto-imagem">
             <img src="${imagemUrl}" alt="${
-        prod.Nome
-      }" onerror="this.src='${DEFAULT_PRODUCT_IMAGE}'" />
+              prod.Nome
+            }" onerror="this.src='${DEFAULT_PRODUCT_IMAGE}'" />
           </div>
           <div class="produto-info">
             <div class="produto-codigo">${prod.Codigo}</div>
@@ -374,8 +374,8 @@ var WidgetProdutos = (function () {
             </div>
             <div class="produto-quantidade">
               <button class="btn-qtd" ${disabledAttr} onclick="WidgetProdutos.alterarQuantidade('${
-        prod.ID
-      }', -1)">
+                prod.ID
+              }', -1)">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
@@ -383,11 +383,11 @@ var WidgetProdutos = (function () {
               <input type="number" id="qtd-${
                 prod.ID
               }" value="0" min="0" class="input-qtd" ${disabledAttr} onchange="WidgetProdutos.atualizarQuantidade('${
-        prod.ID
-      }', this.value)" />
+                prod.ID
+              }', this.value)" />
               <button class="btn-qtd btn-qtd-add" ${disabledAttr} onclick="WidgetProdutos.alterarQuantidade('${
-        prod.ID
-      }', 1)">
+                prod.ID
+              }', 1)">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
                   <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -429,11 +429,11 @@ var WidgetProdutos = (function () {
    */
   function atualizarSelecao(produtoId, quantidade) {
     // Remove se existir
-    state.produtosSelecionados = state.produtosSelecionados.filter(function (
-      p
-    ) {
-      return p.ID !== produtoId;
-    });
+    state.produtosSelecionados = state.produtosSelecionados.filter(
+      function (p) {
+        return p.ID !== produtoId;
+      },
+    );
 
     // Adiciona se quantidade > 0
     if (quantidade > 0) {
@@ -452,7 +452,7 @@ var WidgetProdutos = (function () {
 
     // Atualiza visual do card
     var card = document.querySelector(
-      '.produto-card[data-id="' + produtoId + '"]'
+      '.produto-card[data-id="' + produtoId + '"]',
     );
     if (card) {
       if (quantidade > 0) {
@@ -500,7 +500,7 @@ var WidgetProdutos = (function () {
     WidgetUI.log(
       state.produtosSelecionados.length +
         " produto(s) adicionado(s) ao carrinho",
-      "success"
+      "success",
     );
 
     // Fecha o modal
@@ -622,9 +622,9 @@ var WidgetProdutos = (function () {
       var precoExibido;
       if (temDesconto) {
         precoExibido = `<span style="text-decoration: line-through; color: #999; font-size: 0.7rem;">R$ ${formatarMoeda(
-          subtotalTabelaItem
+          subtotalTabelaItem,
         )}</span> <span style="color: var(--color-primary);">R$ ${formatarMoeda(
-          subtotalLiquido
+          subtotalLiquido,
         )}</span>`;
       } else {
         precoExibido = `R$ ${formatarMoeda(subtotalTabelaItem)}`;
@@ -634,8 +634,8 @@ var WidgetProdutos = (function () {
         <div class="carrinho-item">
           <div class="carrinho-item-imagem">
             <img src="${imagemUrl}" alt="${
-        item.Nome
-      }" onerror="this.src='${DEFAULT_PRODUCT_IMAGE}'" />
+              item.Nome
+            }" onerror="this.src='${DEFAULT_PRODUCT_IMAGE}'" />
           </div>
           <div class="carrinho-item-info">
             <span class="carrinho-item-nome">${item.Nome}</span>
@@ -762,7 +762,7 @@ var WidgetProdutos = (function () {
           quantidade: item.Quantidade,
           impostosRecalculados: item.impostosRecalculados || false,
         };
-      })
+      }),
     );
   }
 
@@ -867,8 +867,8 @@ var WidgetProdutos = (function () {
             <div class="carrinho-modal-produto">
               <div class="carrinho-modal-imagem">
                 <img src="${imagemUrl}" alt="${
-        item.Nome
-      }" onerror="this.src='${DEFAULT_PRODUCT_IMAGE}'" />
+                  item.Nome
+                }" onerror="this.src='${DEFAULT_PRODUCT_IMAGE}'" />
               </div>
               <div>
                 <div class="font-bold">${item.Nome}</div>
@@ -881,7 +881,7 @@ var WidgetProdutos = (function () {
             {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
-            }
+            },
           )}</td>
           <td class="text-right" data-label="IPI">
              ${
@@ -975,7 +975,7 @@ var WidgetProdutos = (function () {
           <td class="text-right font-bold" data-label="Total Final">
             <span style="color: var(--color-primary);">R$ ${subtotalFinal.toLocaleString(
               "pt-BR",
-              { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+              { minimumFractionDigits: 2, maximumFractionDigits: 2 },
             )}</span>
           </td>
           <td class="text-center" data-label="">
@@ -1044,11 +1044,14 @@ var WidgetProdutos = (function () {
       var precoBase = item.precoBaseTabela || item.PrecoBase || 0;
       subtotalSemImpostos += precoBase * item.Quantidade;
 
-      // Soma tanto o desconto pendente (descontoValor) quanto o já aplicado (descontoAplicadoValor)
-      var descontoPendente = (item.descontoValor || 0) * item.Quantidade;
-      var descontoJaAplicado =
-        (item.descontoAplicadoValor || 0) * item.Quantidade;
-      descontoUsado += descontoPendente + descontoJaAplicado;
+      // Soma o desconto efutivo (pendente OU já aplicado)
+      // Se houver valor no campo de edição (descontoValor), ele prevalece
+      // Caso contrário, usa o valor já aplicado (descontoAplicadoValor)
+      var descontoUnitarioEfetivo =
+        item.descontoValor || item.descontoAplicadoValor || 0;
+      var descontoTotalItem = descontoUnitarioEfetivo * item.Quantidade;
+
+      descontoUsado += descontoTotalItem;
     });
 
     var limiteMaximo =
@@ -1151,7 +1154,7 @@ var WidgetProdutos = (function () {
           WidgetConfig.DESCONTO.LIMITE_PERCENTUAL +
           "% do valor das mercadorias (R$ " +
           formatarMoeda(totaisAtuais.limiteMaximo) +
-          ")."
+          ").",
       );
 
       // Calcula o máximo que pode aplicar neste item
@@ -1313,7 +1316,7 @@ var WidgetProdutos = (function () {
       "Recalculando impostos de " +
         itensPendentesRecalculo.length +
         " item(ns)...",
-      "success"
+      "success",
     );
     mostrarLoadingRecalculo(true);
 
@@ -1411,7 +1414,7 @@ var WidgetProdutos = (function () {
           "%" +
           "\n     → % sobre Total (COM ST/IPI): " +
           item.descontoPercentSobreTotal.toFixed(2) +
-          "%"
+          "%",
       );
     });
     console.log("=".repeat(60));
@@ -1491,7 +1494,7 @@ var WidgetProdutos = (function () {
                 itemCarrinho.descontoAplicadoPercent.toFixed(2) +
                 "% (R$" +
                 itemCarrinho.descontoAplicadoValor.toFixed(2) +
-                ")"
+                ")",
             );
           }
         });
@@ -1578,7 +1581,7 @@ var WidgetProdutos = (function () {
               renderizarCarrinho();
               renderizarCarrinhoModal();
             }
-          }
+          },
         );
         return;
       }
@@ -1611,7 +1614,7 @@ var WidgetProdutos = (function () {
           renderizarCarrinho();
           renderizarCarrinhoModal(); // Se estiver aberto
         }
-      }
+      },
     );
   }
 
@@ -1646,7 +1649,7 @@ var WidgetProdutos = (function () {
   function filtrarProdutos(termo) {
     termo = termo.toLowerCase().trim();
     var cards = document.querySelectorAll(
-      "#modal-produtos-lista .produto-card"
+      "#modal-produtos-lista .produto-card",
     );
 
     cards.forEach(function (card) {
@@ -1678,7 +1681,7 @@ var WidgetProdutos = (function () {
 
     WidgetUI.log(
       "Carrinho atualizado com " + novosItens.length + " itens",
-      "success"
+      "success",
     );
   }
 

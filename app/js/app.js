@@ -122,13 +122,13 @@ var WidgetApp = (function () {
                 .then(function (apiResponse) {
                   WidgetUI.log(
                     "usuarioLogado: " + JSON.stringify(apiResponse),
-                    "success"
+                    "success",
                   );
                 })
                 .catch(function (apiErr) {
                   WidgetUI.log(
                     "Erro usuarioLogado: " + JSON.stringify(apiErr),
-                    "error"
+                    "error",
                   );
                 });
             } else {
@@ -154,7 +154,7 @@ var WidgetApp = (function () {
             if (idPedido) {
               WidgetUI.log(
                 "Modo Edição Detectado. Pedido: " + idPedido,
-                "success"
+                "success",
               );
               carregarPedidoEdicao(idPedido);
             }
@@ -200,7 +200,7 @@ var WidgetApp = (function () {
           WidgetUI.hideStatus();
           WidgetUI.log(
             "Encontrados " + clientes.length + " clientes",
-            "success"
+            "success",
           );
         })
         .catch(function (err) {
@@ -234,7 +234,7 @@ var WidgetApp = (function () {
       WidgetAPI.buscarCondicoesPagamento()
         .then(function (condicoes) {
           WidgetUI.log(
-            "Condições de pagamento carregadas: " + condicoes.length
+            "Condições de pagamento carregadas: " + condicoes.length,
           );
           WidgetUI.renderPaymentConditions(condicoes);
         })
@@ -564,7 +564,7 @@ var WidgetApp = (function () {
     // Campos de texto
     setValorInput(
       "numero-pedido-cliente",
-      data.configuracao.numeroPedidoCliente
+      data.configuracao.numeroPedidoCliente,
     );
     setValorInput("observacoes", data.configuracao.observacoesGerais);
     setValorInput("endereco-entrega", data.endereco.observacaoEntrega);
@@ -651,7 +651,7 @@ var WidgetApp = (function () {
     // Apenas garantimos que o WidgetEntrega saiba da janela do cliente para quando for abrir o modal
     WidgetUI.log(
       "Pedido carregado para edição e janela de entrega atualizada",
-      "success"
+      "success",
     );
 
     // Renderiza preview de datas de entrega (mesmo comportamento do fluxo normal)
@@ -704,7 +704,7 @@ var WidgetApp = (function () {
         descontoValor: descontoUnitario,
         descontoPercent: parseFloat(item.descontoPercentual) || 0,
         impostosRecalculados: item.impostosRecalculados,
-        descontoAplicadoValor: parseFloat(item.descontoTotal) || 0, // Total do desconto deste item
+        descontoAplicadoValor: descontoUnitario, // Valor unitário para consistência com produtos.js
       };
     });
   }
@@ -718,7 +718,7 @@ var WidgetApp = (function () {
   function selecionarOpcaoCard(group, valor) {
     if (!valor) return;
     var cards = document.querySelectorAll(
-      '.option-card[data-group="' + group + '"]'
+      '.option-card[data-group="' + group + '"]',
     );
     cards.forEach(function (card) {
       if (card.getAttribute("data-value") === valor) {
@@ -750,7 +750,7 @@ var WidgetApp = (function () {
       .then(function (detalhes) {
         WidgetUI.log(
           "Detalhes do pedido recebidos para visualização",
-          "success"
+          "success",
         );
 
         // Se o detalhe não trouxe status mas temos na lista, usa o da lista
@@ -979,7 +979,7 @@ var WidgetApp = (function () {
     } else if (numeros.length === 14) {
       return numeros.replace(
         /(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,
-        "$1.$2.$3/$4-$5"
+        "$1.$2.$3/$4-$5",
       );
     }
     return doc;
@@ -1213,7 +1213,7 @@ var WidgetApp = (function () {
     // Mostra loading de transição para evitar "choque" visual
     WidgetUI.mostrarLoadingTransicao(
       "Clonando Pedido",
-      "Carregando dados e preparando novo pedido..."
+      "Carregando dados e preparando novo pedido...",
     );
 
     // Cria uma promise de delay mínimo de 1.5 segundos
@@ -1319,7 +1319,7 @@ var WidgetApp = (function () {
 
     // Frete
     if (data.configuracao.tipoFrete) {
-      WidgetUI.selecionarFreteAutomatico(data.configuracao.tipoFrete, false);
+      WidgetUI.selecionarFreteAutomatico(data.configuracao.tipoFrete, true);
     }
 
     // Natureza
@@ -1330,8 +1330,8 @@ var WidgetApp = (function () {
     // LIMPA: Número do Pedido do Cliente (novo pedido = novo número)
     setValorInput("numero-pedido-cliente", "");
 
-    // MANTÉM: Observações gerais (opcional - pode ser útil manter)
-    setValorInput("observacoes", data.configuracao.observacoesGerais);
+    // LIMPA: Observações gerais (novo contexto)
+    setValorInput("observacoes", "");
 
     // LIMPA: Observação de entrega (contexto do novo pedido)
     setValorInput("endereco-entrega", "");
@@ -1354,7 +1354,7 @@ var WidgetApp = (function () {
     // 10. Log de sucesso
     WidgetUI.log(
       "Pedido clonado com sucesso - preencha os dados faltantes",
-      "success"
+      "success",
     );
 
     // Renderiza preview de datas de entrega
@@ -1420,11 +1420,11 @@ var WidgetApp = (function () {
 
           // Log para debug
           WidgetUI.log(
-            "Condição de Pagamento ID: " + detalhe.pagamentoCondicaoID
+            "Condição de Pagamento ID: " + detalhe.pagamentoCondicaoID,
           );
           WidgetUI.log("Tipo de Frete: " + detalhe.tipoFrete);
           WidgetUI.log(
-            "Janela de Entrega: " + JSON.stringify(detalhe.janelaEntrega)
+            "Janela de Entrega: " + JSON.stringify(detalhe.janelaEntrega),
           );
 
           // Define a janela de entrega no módulo de entrega
@@ -1488,7 +1488,7 @@ var WidgetApp = (function () {
       WidgetAPI.buscarCondicoesPagamento()
         .then(function (condicoes) {
           WidgetUI.log(
-            "Condições de pagamento carregadas: " + condicoes.length
+            "Condições de pagamento carregadas: " + condicoes.length,
           );
           WidgetUI.renderPaymentConditions(condicoes, condicaoID);
         })
@@ -1571,11 +1571,11 @@ var WidgetApp = (function () {
       if (carrinho.length === 0) {
         WidgetUI.log(
           "Carrinho vazio - adicione produtos antes de continuar",
-          "error"
+          "error",
         );
         WidgetUI.setStatus(
           "Adicione produtos ao carrinho antes de continuar",
-          "error"
+          "error",
         );
         setTimeout(function () {
           WidgetUI.hideStatus();
@@ -1639,7 +1639,7 @@ var WidgetApp = (function () {
     dataEntrega,
     observacoesEntrega,
     resultadoAprovacao,
-    isDraft
+    isDraft,
   ) {
     // Default isDraft to false if not provided
     isDraft = isDraft === true;
@@ -1649,7 +1649,7 @@ var WidgetApp = (function () {
         (isDraft ? "(RASCUNHO) " : "") +
         "com entrega em: " +
         dataEntrega.dataFormatada,
-      "success"
+      "success",
     );
 
     // ... (keeps existing cart and calculation logic) ...
@@ -1853,7 +1853,7 @@ var WidgetApp = (function () {
         descontoTotalValor:
           Math.round(
             (totalDescontoItens + (descontoState.totalDescontoGlobal || 0)) *
-              100
+              100,
           ) / 100,
 
         // Descontos - PERCENTUAL (%)
@@ -1895,7 +1895,7 @@ var WidgetApp = (function () {
     console.log(
       "📦 DADOS DO PEDIDO " +
         (isDraft ? "(RASCUNHO) " : "") +
-        "PARA ENVIO À API"
+        "PARA ENVIO À API",
     );
     console.log("=".repeat(60));
     console.log("\n📋 JSON COMPLETO:");
@@ -1904,7 +1904,7 @@ var WidgetApp = (function () {
     console.log("📊 RESUMO:");
     console.log(
       "  • Cliente:",
-      dadosPedido.cliente.nomeFantasia || dadosPedido.cliente.razaoSocial
+      dadosPedido.cliente.nomeFantasia || dadosPedido.cliente.razaoSocial,
     );
     // ... (rest of logging code) ...
     // Log no painel de debug
@@ -2046,7 +2046,7 @@ var WidgetApp = (function () {
         // Mostra mensagem de erro para o usuário
         alert(
           "Erro ao enviar pedido. Por favor, tente novamente.\n\nDetalhes: " +
-            (error.message || error)
+            (error.message || error),
         );
       });
 
@@ -2097,7 +2097,7 @@ var WidgetApp = (function () {
 
     // Atualiza a identificação do pedido no modal
     var identificacaoEl = document.getElementById(
-      "cancelar-pedido-identificacao"
+      "cancelar-pedido-identificacao",
     );
     if (identificacaoEl) {
       if (numeroPedido && numeroPedido.trim() !== "") {
@@ -2208,7 +2208,7 @@ var WidgetApp = (function () {
           // Mostra loading de transição para o reload
           WidgetUI.mostrarLoadingTransicao(
             "Cancelando pedido...",
-            "Aguarde enquanto processamos o cancelamento. A página será recarregada."
+            "Aguarde enquanto processamos o cancelamento. A página será recarregada.",
           );
 
           // Mensagem final e reload
@@ -2250,7 +2250,7 @@ var WidgetApp = (function () {
    */
   function getSelectedOption(group) {
     var activeCard = document.querySelector(
-      '.option-card.active[data-group="' + group + '"]'
+      '.option-card.active[data-group="' + group + '"]',
     );
     return activeCard ? activeCard.getAttribute("data-value") : "";
   }
