@@ -102,7 +102,7 @@
 
 /* Coluna de Desconto na Tabela - Melhorada */
 .carrinho-table .desconto-cell {
-  min-width: 160px;
+  min-width: 140px;
 }
 
 .desconto-item-container {
@@ -341,27 +341,25 @@
    BADGE DE DESCONTO APLICADO
    ============================================ */
 .desconto-aplicado-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
+  display: block; /* Alterado de flex para block para melhor controle de truncate */
   margin-top: 6px;
-  padding: 4px 8px;
+  padding: 4px 6px;
   background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
   border: 1px solid #a5d6a7;
   border-radius: var(--radius-sm);
   font-size: 0.7rem;
   font-weight: 600;
   color: #2e7d32;
-  white-space: normal;
-  word-wrap: break-word;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   max-width: 100%;
   box-sizing: border-box;
+  text-align: center;
 }
 
 .desconto-aplicado-badge svg {
-  stroke: #2e7d32;
-  flex-shrink: 0;
+  display: none !important;
 }
 
 /* ============================================

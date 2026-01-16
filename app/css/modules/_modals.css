@@ -228,3 +228,12 @@
 .modal-body.no-padding {
   padding: 0 !important;
 }
+
+/* ============================================
+   AJUSTES ESPECÍFICOS: MODAL CARRINHO
+   ============================================ */
+#modal-carrinho .modal-dialog {
+  max-width: 1080px; /* Largura reduzida para 1080px */
+  padding: 20px;
+  width: 95%; /* Aumentado levemente para aproveitar a tela em monitores menores */
+}

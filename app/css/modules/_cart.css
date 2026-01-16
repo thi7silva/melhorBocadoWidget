@@ -461,28 +461,32 @@
 }
 
 .carrinho-table .col-un {
-  width: 90px;
+  width: 85px;
 }
 .carrinho-table .col-ipi {
-  width: 65px;
+  width: 55px;
 }
 .carrinho-table .col-st {
-  width: 65px;
+  width: 55px;
 }
 .carrinho-table .col-qtd {
-  width: 80px;
+  width: 75px;
 }
 .carrinho-table .col-total-bruto {
-  width: 110px;
+  width: 105px;
 }
 .carrinho-table .col-desc-unit {
-  width: 150px;
+  width: 140px;
 }
 .carrinho-table .col-total-liq {
-  width: 110px;
+  width: 105px;
 }
 .carrinho-table .col-actions {
-  width: 40px;
+  width: 50px;
+}
+
+.carrinho-table td:last-child {
+  padding: 0 8px; /* Reduz padding lateral para caber o botão */
 }
 
 .carrinho-table tr:last-child td {
@@ -552,10 +556,12 @@
 }
 
 .carrinho-modal-produto .font-bold {
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2; /* Standard property */
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
-  display: block;
+  white-space: normal;
 }
 
 /* ============================================
