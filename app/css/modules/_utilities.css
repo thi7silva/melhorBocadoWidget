@@ -236,3 +236,33 @@
   color: var(--color-primary);
   background: white;
 }
+
+/* ============================================
+   TEXT UTILITIES
+   ============================================ */
+.text-right {
+  text-align: right;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-xs {
+  font-size: 0.75rem;
+}
+
+.text-lg {
+  font-size: 1.1rem;
+}
+
+.font-bold {
+  font-weight: 600;
+}
+
+/* ============================================
+   BACKGROUND UTILITIES
+   ============================================ */
+.bg-gray {
+  background-color: #f9fafb;
+}
