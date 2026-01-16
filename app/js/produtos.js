@@ -519,6 +519,9 @@ var WidgetProdutos = (function () {
     var subtotalEl = document.getElementById("carrinho-subtotal");
     var totalEl = document.getElementById("carrinho-total");
     var editBtn = document.getElementById("carrinho-edit-btn");
+    var footerTotal =
+      document.getElementById("footer-total-valor") ||
+      document.querySelector(".total-valor");
 
     if (countEl) {
       countEl.textContent = state.carrinho.length;
@@ -689,9 +692,7 @@ var WidgetProdutos = (function () {
     }
 
     // Atualiza o total do footer também
-    var footerTotal =
-      document.getElementById("footer-total-valor") ||
-      document.querySelector(".total-valor");
+
     if (footerTotal) {
       footerTotal.textContent = "R$ " + formatarMoeda(totalFinal);
     }
