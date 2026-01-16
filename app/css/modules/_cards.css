@@ -59,12 +59,26 @@
   color: var(--color-primary);
 }
 
-/* Option card locked/disabled */
+/* Option card locked/disabled via Request of User */
 .option-card.locked {
-  opacity: 0.6;
+  background: #fafafa;
+  border-color: var(--color-primary-light);
+  color: var(--color-text);
   cursor: not-allowed;
-  pointer-events: none;
-  background: var(--color-surface);
+  /* pointer-events: none; REMOVED per user request to show cursor */
+}
+
+.option-card.locked * {
+  cursor: not-allowed !important;
+}
+
+.option-card.locked.active {
+  background: #fafafa;
+  border-color: var(--color-primary-light);
+}
+
+.option-card.locked:not(.active) {
+  opacity: 0.6;
 }
 
 /* Selection Cards */

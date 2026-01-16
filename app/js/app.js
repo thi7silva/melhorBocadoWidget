@@ -555,7 +555,7 @@ var WidgetApp = (function () {
 
     // Frete
     if (data.configuracao.tipoFrete) {
-      WidgetUI.selecionarFreteAutomatico(data.configuracao.tipoFrete, false); // false = não travar hard, permitir edição se quiser
+      WidgetUI.selecionarFreteAutomatico(data.configuracao.tipoFrete, true); // true = travar para manter consistência com pagamento
     }
 
     // Natureza
@@ -1209,15 +1209,35 @@ var WidgetApp = (function () {
     state.modo = "clonar";
     state.pedidoId = null; // Não armazenamos o ID pois será um novo pedido
     state.pedidoClonadoId = pedidoId; // Guarda referência do pedido original
-    WidgetUI.setStatus("Carregando dados do pedido...", "loading");
 
-    WidgetAPI.buscarDetalhesPedido(pedidoId)
-      .then(function (detalhes) {
+    // Mostra loading de transição para evitar "choque" visual
+    WidgetUI.mostrarLoadingTransicao(
+      "Clonando Pedido",
+      "Carregando dados e preparando novo pedido..."
+    );
+
+    // Cria uma promise de delay mínimo de 1.5 segundos
+    var delayPromise = new Promise(function (resolve) {
+      setTimeout(resolve, 1000);
+    });
+
+    // Executa a busca e o delay em paralelo
+    Promise.all([WidgetAPI.buscarDetalhesPedido(pedidoId), delayPromise])
+      .then(function (results) {
+        // O primeiro resultado é o retorno da API
+        var detalhes = results[0];
         WidgetUI.log("Detalhes do pedido recebidos para clonagem", "success");
+
         processarPedidoClonar(detalhes);
+
+        // Esconde o loading de transição após processar
+        WidgetUI.esconderLoadingTransicao();
       })
       .catch(function (err) {
         WidgetUI.log("Erro ao carregar pedido: " + err, "error");
+        WidgetUI.status("Erro ao carregar pedido.", "error"); // Use status instead of setStatus if setStatus is not available/working, but keeping setStatus if it was there. Wait, previous code used setStatus.
+        // Actually, let's keep setStatus, but also hide transition
+        WidgetUI.esconderLoadingTransicao();
         WidgetUI.setStatus("Erro ao carregar pedido.", "error");
       });
   }

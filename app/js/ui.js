@@ -430,6 +430,11 @@ var WidgetUI = (function () {
    * Seleciona option card (genérico para frete, natureza, etc.)
    */
   function selectOption(element) {
+    // Verifica se o elemento está travado
+    if (element.classList.contains("locked")) {
+      return;
+    }
+
     var group = element.getAttribute("data-group");
     var value = element.getAttribute("data-value");
 
@@ -697,10 +702,16 @@ var WidgetUI = (function () {
       // Se deve travar, adiciona classe locked e remove onclick
       if (travar) {
         card.classList.add("locked");
+        // card.style.pointerEvents = "none"; // REMOVIDO para permitir cursor not-allowed via CSS
         card.onclick = function (e) {
+          e.preventDefault();
           e.stopPropagation();
-          // Não faz nada - está travado
+          return false;
         };
+      } else {
+        card.classList.remove("locked");
+        card.style.pointerEvents = "auto"; // Garante reset
+        card.onclick = null;
       }
     });
   }
