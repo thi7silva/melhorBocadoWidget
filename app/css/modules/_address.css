@@ -1,0 +1,320 @@
+/**
+ * Address - Seção de endereço
+ * Estilos para formulários de endereço, grid, expand/collapse e estados
+ */
+
+/* ============================================
+   SEÇÃO DE ENDEREÇO COM VISUAL PREMIUM
+   Fundo cinza neutro para conteúdo informativo
+   ============================================ */
+.form-section {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 0;
+}
+
+.form-section.full-width {
+  grid-column: 1 / -1;
+}
+
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.section-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #78909c 0%, #90a4ae 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(120, 144, 156, 0.3);
+}
+
+.section-icon svg {
+  stroke: white;
+}
+
+.section-title h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 4px;
+}
+
+.section-title p {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* Grid de Endereço */
+.address-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 16px;
+}
+
+/* Campos do endereço com tamanhos específicos */
+.address-street {
+  grid-column: span 12;
+}
+
+.address-neighborhood {
+  grid-column: span 6;
+}
+
+.address-city {
+  grid-column: span 4;
+}
+
+.address-state {
+  grid-column: span 2;
+}
+
+.address-zip {
+  grid-column: span 4;
+}
+
+.address-complement {
+  grid-column: span 8;
+}
+
+/* Campos readonly dentro da seção de endereço */
+.form-section .form-input[readonly] {
+  background: white;
+  border: 1px solid var(--color-border);
+  border-style: solid;
+  cursor: default;
+}
+
+.form-section .form-input[readonly]:hover {
+  border-color: var(--color-primary-light);
+}
+
+/* Labels dentro da seção */
+.form-section .form-group label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--color-primary);
+  margin-bottom: 6px;
+}
+
+/* ============================================
+   SISTEMA DE EXPANDIR/COLAPSAR ENDEREÇO
+   ============================================ */
+.section-header-clickable {
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  border-radius: var(--radius-md);
+  margin: -12px -12px 0 -12px;
+  padding: 12px;
+}
+
+.section-header-clickable:hover {
+  background: rgba(233, 30, 99, 0.05);
+}
+
+.section-toggle {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: rgba(233, 30, 99, 0.1);
+  transition: all var(--transition-fast);
+}
+
+.section-toggle .toggle-icon {
+  stroke: var(--color-primary);
+  transition: transform var(--transition-normal);
+}
+
+.section-header-clickable:hover .section-toggle {
+  background: var(--color-primary);
+}
+
+.section-header-clickable:hover .section-toggle .toggle-icon {
+  stroke: white;
+}
+
+/* Estado colapsado */
+.form-section.collapsed .section-header-clickable {
+  margin-bottom: 0;
+}
+
+/* Endereço resumido */
+.endereco-resumo-container {
+  margin-top: 16px;
+}
+
+.endereco-resumo-input {
+  background: white !important;
+  font-weight: 500;
+  color: var(--color-text) !important;
+}
+
+/* Estado expandido */
+.form-section.expanded .endereco-resumo-container {
+  display: none;
+}
+
+.form-section.expanded .address-grid {
+  display: grid !important;
+  margin-top: 20px;
+}
+
+/* ============================================
+   CAMPOS TRAVADOS (LOCKED) - Visual Desabilitado
+   ============================================ */
+.custom-select-wrapper.locked {
+  cursor: not-allowed;
+}
+
+.custom-select-wrapper.locked * {
+  cursor: not-allowed !important;
+}
+
+.custom-select-wrapper.locked .custom-select-trigger {
+  background: #fafafa;
+  border-color: var(--color-primary-light);
+  color: var(--color-text);
+  cursor: not-allowed;
+}
+
+.custom-select-wrapper.locked .selected-value {
+  color: var(--color-text);
+}
+
+.custom-select-wrapper.locked .custom-select-arrow {
+  opacity: 0.5;
+  stroke: var(--color-primary);
+}
+
+/* Option cards travados */
+.option-card.locked {
+  cursor: not-allowed;
+}
+
+.option-card.locked * {
+  cursor: not-allowed !important;
+}
+
+.option-card.locked:not(.active) {
+  opacity: 0.4;
+}
+
+.option-card.locked.active {
+  background: #fafafa;
+  border-color: var(--color-primary-light);
+}
+
+.option-card.locked.active .option-card-icon svg {
+  stroke: var(--color-primary);
+  opacity: 0.7;
+}
+
+.option-card.locked.active .option-card-label {
+  color: var(--color-text);
+}
+
+/* ============================================
+   CAMPOS DE ENDEREÇO DESABILITADOS
+   ============================================ */
+.form-section .form-input[readonly] {
+  background: #fafafa;
+  border-color: var(--color-primary-light);
+  color: var(--color-text);
+  cursor: not-allowed;
+}
+
+.form-section .form-input[readonly]:hover {
+  border-color: var(--color-primary-light);
+}
+
+.form-section .form-input[readonly]::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* Endereço resumido - estilo especial */
+.endereco-resumo-input[readonly] {
+  background: #fafafa !important;
+  border-color: var(--color-primary-light) !important;
+  color: var(--color-text) !important;
+}
+
+/* Seção de endereço desabilitada */
+.form-section.disabled {
+  opacity: 0.95;
+}
+
+.form-section.disabled .section-header-clickable {
+  cursor: default;
+}
+
+.form-section.disabled .section-header-clickable:hover {
+  background: transparent;
+}
+
+.form-section.disabled .section-toggle {
+  opacity: 0.5;
+}
+
+/* Responsividade para endereço */
+@media (max-width: 768px) {
+  .address-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .address-street {
+    grid-column: span 2;
+  }
+
+  .address-neighborhood {
+    grid-column: span 2;
+  }
+
+  .address-city {
+    grid-column: span 1;
+  }
+
+  .address-state {
+    grid-column: span 1;
+  }
+
+  .address-zip {
+    grid-column: span 1;
+  }
+
+  .address-complement {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .address-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .address-street,
+  .address-neighborhood,
+  .address-city,
+  .address-state,
+  .address-zip,
+  .address-complement {
+    grid-column: span 1;
+  }
+}
