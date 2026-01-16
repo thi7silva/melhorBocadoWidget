@@ -1,0 +1,767 @@
+/**
+ * Modal de Seleção de Entrega
+ * Estilos para o modal de seleção de datas de entrega e preview inline
+ */
+
+/* ============================================
+   MODAL DE SELEÇÃO DE ENTREGA
+   ============================================ */
+
+.modal-entrega-container {
+  background: white;
+  border-radius: var(--radius-xl);
+  width: 90%;
+  max-width: 700px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-lg);
+  animation: modalSlideIn 0.3s ease;
+  overflow: hidden;
+}
+
+/* Header do Modal Entrega */
+.modal-entrega-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 28px;
+  background: var(--color-primary-gradient);
+  color: white;
+}
+
+.modal-entrega-titulo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.modal-entrega-icon {
+  width: 56px;
+  height: 56px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+}
+
+.modal-entrega-icon svg {
+  stroke: white;
+}
+
+.modal-entrega-titulo h3 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.modal-entrega-titulo p {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.modal-entrega-header .modal-close-btn {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.modal-entrega-header .modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.modal-entrega-header .modal-close-btn svg {
+  stroke: white;
+}
+
+/* Corpo do Modal Entrega */
+.modal-entrega-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 28px 40px;
+  background: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Info Box */
+.entrega-info-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: var(--color-primary-light);
+  border-radius: var(--radius-md);
+  margin-bottom: 24px;
+  border: 1px solid var(--color-primary);
+}
+
+.entrega-info-box svg {
+  stroke: var(--color-primary-dark);
+  flex-shrink: 0;
+}
+
+.entrega-info-box span {
+  font-size: 0.85rem;
+  color: var(--color-primary-dark);
+  font-weight: 500;
+}
+
+/* Grid de Datas */
+.entrega-datas-grid {
+  min-height: 200px;
+}
+
+.entrega-loading,
+.entrega-vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.entrega-vazio svg {
+  opacity: 0.4;
+  margin-bottom: 16px;
+}
+
+.entrega-vazio p {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-text);
+  margin-bottom: 4px;
+}
+
+.entrega-vazio span {
+  font-size: 0.85rem;
+}
+
+/* Grupo de Mês */
+.entrega-mes-grupo {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid transparent;
+}
+
+.entrega-mes-grupo:last-child {
+  margin-bottom: 35px;
+}
+
+.entrega-mes-titulo {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.entrega-mes-titulo::before {
+  content: "";
+  width: 4px;
+  height: 20px;
+  background: var(--color-primary-gradient);
+  border-radius: 2px;
+}
+
+/* Lista de Datas */
+.entrega-datas-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Card de Data */
+.entrega-data-card {
+  width: 72px;
+  padding: 14px 8px;
+  background: white;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  text-align: center;
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.entrega-data-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: transparent;
+  transition: background var(--transition-fast);
+}
+
+.entrega-data-card:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(233, 30, 99, 0.2);
+}
+
+.entrega-data-card:hover::before {
+  background: var(--color-primary-gradient);
+}
+
+.entrega-data-card.selecionada {
+  background: var(--color-primary-gradient);
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-primary);
+}
+
+.entrega-data-card.selecionada::before {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.entrega-data-dia {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.2;
+  margin-bottom: 4px;
+  transition: color var(--transition-fast);
+}
+
+.entrega-data-card.selecionada .entrega-data-dia {
+  color: white;
+}
+
+.entrega-data-semana {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: color var(--transition-fast);
+}
+
+.entrega-data-card.selecionada .entrega-data-semana {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Data Bloqueada (Feriado) */
+.entrega-data-card.bloqueada {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  cursor: not-allowed;
+  opacity: 0.65;
+  position: relative;
+}
+
+.entrega-data-card.bloqueada::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 4px,
+    rgba(0, 0, 0, 0.03) 4px,
+    rgba(0, 0, 0, 0.03) 8px
+  );
+  pointer-events: none;
+}
+
+.entrega-data-card.bloqueada:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: var(--color-border);
+}
+
+.entrega-data-card.bloqueada .entrega-data-dia {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+  text-decoration-color: var(--color-error);
+}
+
+.entrega-data-card.bloqueada .entrega-data-semana {
+  color: var(--color-text-muted);
+}
+
+.entrega-data-badge {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-error);
+  color: white;
+  font-size: 0.45rem;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+/* Campo de Observações de Entrega */
+.entrega-observacoes {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border);
+  margin-bottom: 32px;
+}
+
+.entrega-observacoes label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 8px;
+}
+
+.entrega-observacoes textarea {
+  width: 100%;
+  padding: 12px 16px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: white;
+  resize: vertical;
+  min-height: 80px;
+  transition: all var(--transition-fast);
+}
+
+.entrega-observacoes textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px var(--color-primary-light);
+}
+
+.entrega-observacoes textarea::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* Footer do Modal Entrega */
+.modal-entrega-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: white;
+  border-top: 1px solid var(--color-border);
+  gap: 16px;
+}
+
+.entrega-resumo {
+  flex: 1;
+}
+
+.entrega-resumo-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.entrega-data-selecionada {
+  padding: 12px 16px;
+  background: var(--color-surface);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  transition: all var(--transition-fast);
+}
+
+.entrega-data-selecionada.ativa {
+  background: var(--color-primary-light);
+  border: 2px solid var(--color-primary);
+}
+
+.texto-placeholder {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.entrega-resumo-data {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.entrega-resumo-dia {
+  width: 48px;
+  height: 48px;
+  background: var(--color-primary-gradient);
+  color: white;
+  font-size: 1.4rem;
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.entrega-resumo-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.entrega-resumo-semana {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.entrega-resumo-mes {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.entrega-acoes {
+  display: flex;
+  gap: 12px;
+}
+
+.entrega-acoes .btn {
+  min-width: 140px;
+}
+
+.entrega-acoes .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Scrollbar do modal */
+.modal-entrega-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-entrega-body::-webkit-scrollbar-track {
+  background: var(--color-surface);
+  border-radius: 3px;
+}
+
+.modal-entrega-body::-webkit-scrollbar-thumb {
+  background: var(--color-primary-light);
+  border-radius: 3px;
+}
+
+.modal-entrega-body::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+/* ============================================
+   SEÇÃO DE DATAS DE ENTREGA NA CONFIGURAÇÃO
+   ============================================ */
+
+.entrega-preview-section {
+  margin-top: 16px;
+}
+
+.entrega-preview-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.entrega-preview-header svg {
+  stroke: var(--color-primary);
+}
+
+.entrega-preview-header h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.entrega-preview-header span {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  background: var(--color-primary-light);
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+}
+
+.entrega-preview-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.entrega-preview-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+}
+
+.entrega-preview-card .dia-numero {
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.entrega-preview-card .dia-semana {
+  color: var(--color-text-muted);
+}
+
+/* Preview card bloqueado (feriado) */
+.entrega-preview-card.bloqueada {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  opacity: 0.7;
+  position: relative;
+}
+
+.entrega-preview-card.bloqueada .dia-numero {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+  text-decoration-color: var(--color-error);
+}
+
+.entrega-preview-card.bloqueada .dia-semana {
+  color: var(--color-text-muted);
+}
+
+.preview-badge-feriado {
+  background: var(--color-error);
+  color: white;
+  font-size: 0.55rem;
+  font-weight: 600;
+  padding: 1px 4px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  margin-left: 2px;
+}
+
+.entrega-preview-mais {
+  padding: 8px 16px;
+  background: var(--color-primary-light);
+  border: 1px dashed var(--color-primary);
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+  color: var(--color-primary-dark);
+  font-weight: 500;
+}
+
+/* ============================================
+   PREVIEW INLINE DE DATAS (NÃO SELECIONÁVEL)
+   ============================================ */
+
+.entrega-preview-box {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+
+.entrega-preview-header-inline {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.entrega-preview-header-inline svg {
+  stroke: white;
+}
+
+.entrega-preview-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #78909c 0%, #90a4ae 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(120, 144, 156, 0.3);
+}
+
+.entrega-preview-icon svg {
+  stroke: white;
+}
+
+.entrega-preview-titulo-wrapper {
+  flex: 1;
+}
+
+.entrega-preview-titulo-wrapper h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 4px;
+}
+
+.entrega-preview-titulo-wrapper p {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.entrega-preview-titulo {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.entrega-loading-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+}
+
+.loading-spinner-small {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--color-primary-light);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.entrega-loading-inline span {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+/* ============================================
+   MODAL ENTREGA - SCROLL INTERNO
+   ============================================ */
+
+.entrega-datas-scroll {
+  width: 100%;
+  display: block;
+}
+
+.entrega-datas-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.entrega-datas-scroll::-webkit-scrollbar-track {
+  background: var(--color-surface);
+  border-radius: 3px;
+}
+
+.entrega-datas-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-primary-light);
+  border-radius: 3px;
+}
+
+.entrega-datas-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+/* Campo de Info Fixo */
+.modal-entrega-info-fixo {
+  padding: 16px 28px;
+  background: white;
+  border-top: 1px solid var(--color-border);
+}
+
+.modal-entrega-info-fixo label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 8px;
+}
+
+.modal-entrega-info-fixo label svg {
+  stroke: var(--color-primary);
+}
+
+.modal-entrega-info-fixo .form-input {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+/* Estado de erro para o campo obrigatório */
+.modal-entrega-info-fixo .form-input.input-error {
+  border-color: #d32f2f !important;
+  box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.2) !important;
+  background-color: #fff5f5 !important;
+}
+
+.modal-entrega-info-fixo .form-input.input-error::placeholder {
+  color: #d32f2f;
+  font-weight: 500;
+}
+
+/* ============================================
+   RESPONSIVIDADE - MODAL ENTREGA
+   ============================================ */
+
+@media (max-width: 600px) {
+  .modal-entrega-container {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .modal-entrega-header {
+    padding: 20px;
+  }
+
+  .modal-entrega-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .modal-entrega-titulo h3 {
+    font-size: 1.1rem;
+  }
+
+  .modal-entrega-body {
+    padding: 16px;
+  }
+
+  .entrega-data-card {
+    width: 60px;
+    padding: 10px 6px;
+  }
+
+  .entrega-data-dia {
+    font-size: 1.3rem;
+  }
+
+  .modal-entrega-footer {
+    flex-direction: column;
+    padding: 16px;
+  }
+
+  .entrega-acoes {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .entrega-acoes .btn {
+    flex: 1;
+    min-width: unset;
+  }
+}
