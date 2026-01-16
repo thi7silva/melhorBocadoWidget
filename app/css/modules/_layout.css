@@ -212,3 +212,12 @@
   font-size: 0.85rem;
   opacity: 0.7;
 }
+
+/* Layout Full Width (sem sidebar do cliente) */
+.pedido-layout-full {
+  grid-template-columns: 1fr;
+}
+
+.pedido-main-full {
+  max-width: 100%;
+}

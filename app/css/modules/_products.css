@@ -435,6 +435,291 @@
   border-radius: 0 0 var(--radius-xl) var(--radius-xl);
 }
 
+/* ============================================
+   IMAGENS DE PRODUTOS
+   ============================================ */
+
+/* Imagem do produto no modal de seleção */
+.produto-imagem {
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.produto-imagem img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-fast);
+}
+
+.produto-card:hover .produto-imagem img {
+  transform: scale(1.05);
+}
+
+/* Imagem do produto no carrinho sidebar */
+.carrinho-item-imagem {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.carrinho-item-imagem img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Imagem do produto no modal do carrinho (tabela) */
+.carrinho-modal-produto {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.carrinho-modal-imagem {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.carrinho-modal-imagem img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ============================================
+   DETALHES DE PRODUTO E INDISPONIBILIDADE
+   ============================================ */
+
+/* Composição de Preço */
+.produto-composicao {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.produto-composicao span {
+  white-space: nowrap;
+}
+
+/* Produto Indisponível */
+.produto-card.indisponivel {
+  background-color: #f9f9f9;
+  border-color: #eee;
+  opacity: 0.7;
+  pointer-events: none;
+  position: relative;
+}
+
+.produto-card.indisponivel .produto-nome {
+  color: #999;
+  text-decoration: line-through;
+}
+
+.produto-card.indisponivel .produto-preco {
+  color: #999;
+}
+
+.badge-indisponivel {
+  display: inline-block;
+  background-color: #e0e0e0;
+  color: #666;
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-left: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+/* ============================================
+   BUSCA NO MODAL DE PRODUTOS
+   ============================================ */
+.modal-produtos-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+  transition: all var(--transition-fast);
+}
+
+.modal-produtos-search:focus-within {
+  background: white;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(233, 30, 99, 0.1);
+}
+
+.modal-produtos-search svg {
+  stroke: var(--color-text-muted);
+}
+
+.modal-produtos-search input {
+  border: none;
+  background: transparent;
+  width: 100%;
+  font-size: 1rem;
+  color: var(--color-text);
+  outline: none;
+}
+
+.modal-produtos-search input::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* Correção de Categoria (Imagem grudada) */
+.categoria-card {
+  padding: 16px 20px;
+  gap: 16px;
+}
+
+/* ============================================
+   LOTE MÍNIMO BADGE
+   ============================================ */
+.lote-minimo-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: white;
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-border);
+  font-size: 0.9rem;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+.lote-minimo-badge.hidden {
+  display: none !important;
+}
+
+.lote-label {
+  color: var(--color-text-light);
+  font-weight: 500;
+}
+
+.lote-valor {
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+.lote-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.lote-status .status-icon {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* Status Colors */
+.lote-status.status-ok {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+.lote-status.status-error {
+  background: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+}
+
+.lote-status.status-pending {
+  background: #f5f5f5;
+  color: #757575;
+  border: 1px solid #e0e0e0;
+}
+
+/* ============================================
+   LOTE MÍNIMO BADGE (MINI - INLINE)
+   ============================================ */
+.header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+/* Remove margem inferior do h2 para alinhar */
+.header-title-row h2 {
+  margin-bottom: 0 !important;
+}
+
+.badge-mini {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  background: #f5f5f5;
+  color: #666;
+  border: 1px solid #e0e0e0;
+  white-space: nowrap;
+}
+
+.badge-mini.hidden {
+  display: none !important;
+}
+
+/* Status Colors */
+
+/* OK / Verde */
+.badge-mini.status-ok {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border-color: #a5d6a7;
+}
+
+/* Erro / Vermelho */
+.badge-mini.status-error {
+  background-color: #ffebee;
+  color: #c62828;
+  border-color: #ef9a9a;
+}
+
+/* Pendente / Neutro */
+.badge-mini.status-pending {
+  background-color: #f5f5f5;
+  color: #757575;
+  border-color: #e0e0e0;
+}
+
 /* Responsividade de Produtos */
 @media (max-width: 900px) {
   .produtos-layout {

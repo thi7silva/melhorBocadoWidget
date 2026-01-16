@@ -108,6 +108,18 @@
 .vendedor-nome {
   font-size: 0.9rem;
   font-weight: 600;
+  line-height: 1.2;
+}
+
+/* Razão Social no header */
+.header-cliente-razao {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: -2px;
 }
 
 /* ============================================

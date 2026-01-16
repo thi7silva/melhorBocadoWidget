@@ -155,3 +155,70 @@
 .modal-close-btn svg {
   stroke: white;
 }
+
+/* ============================================
+   VARIAÇÕES DE MODAL
+   ============================================ */
+
+.modal-lg {
+  max-width: 900px;
+  width: 95%;
+  position: relative; /* Para loading overlay */
+}
+
+/* Modal clean header override */
+.modal-header.clean-header {
+  background-color: var(--color-background); /* White */
+  color: var(--color-text);
+  border-bottom: 1px solid var(--color-border);
+  padding: 16px 24px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.modal-header.clean-header h3 {
+  color: var(--color-text-emphasis);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.modal-header.clean-header .btn-close-modal {
+  background: transparent;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+  color: var(--color-text-muted);
+  border: none;
+  cursor: pointer;
+}
+
+.modal-header.clean-header .btn-close-modal:hover {
+  background-color: var(--color-surface);
+  color: var(--color-error);
+}
+
+.modal-icon-wrapper.secondary {
+  background-color: var(--color-surface);
+  color: var(--color-primary);
+  border: 1px solid var(--color-border);
+}
+
+.modal-icon-wrapper.rounded-icon {
+  border-radius: 50%;
+}
+
+/* Modal Carrinho - Garantir Scroll Flexível */
+.modal-lg .modal-body.no-padding {
+  flex: 1; /* Ocupa o espaço restante do modal */
+  min-height: 0; /* Permite encolher em flexbox */
+  overflow: hidden; /* Remove scroll do modal-body, o scroll fica no carrinho-table-wrapper */
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-body.no-padding {
+  padding: 0 !important;
+}

@@ -1,0 +1,952 @@
+/**
+ * Responsive - Media Queries e Responsividade
+ * Estilos responsivos para diferentes tamanhos de tela
+ */
+
+/* ============================================
+   RESPONSIVIDADE - MAX 900px
+   ============================================ */
+@media (max-width: 900px) {
+  /* Card horizontal empilha */
+  .selection-card {
+    flex-direction: column;
+    max-width: 480px;
+    min-height: auto;
+  }
+
+  .card-branding {
+    width: 100%;
+    padding: 28px 24px;
+  }
+
+  .card-branding-logo {
+    height: 45px;
+    margin-bottom: 16px;
+  }
+
+  .card-branding h1 {
+    font-size: 1.4rem;
+  }
+
+  .pedido-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .cliente-sidebar {
+    position: static;
+  }
+
+  .config-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .header-vendedor {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+/* ============================================
+   RESPONSIVIDADE - MAX 600px (Mobile)
+   ============================================ */
+@media (max-width: 600px) {
+  .step-cliente-wrapper {
+    padding: 20px 16px;
+  }
+
+  .selection-card {
+    max-width: 100%;
+    border-radius: var(--radius-md);
+  }
+
+  .card-branding {
+    padding: 20px;
+  }
+
+  .card-body {
+    padding: 20px;
+  }
+
+  .step-pedido-wrapper {
+    padding: 12px;
+  }
+
+  .app-header {
+    background: var(--color-primary-gradient) !important;
+    padding: 16px;
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+    color: white;
+  }
+
+  .header-vendedor {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .app-header h1 {
+    font-size: 1.4rem;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .pedido-layout {
+    gap: 16px;
+  }
+
+  .tabs-nav {
+    flex-direction: column;
+  }
+
+  .tab-content {
+    padding: 16px;
+  }
+
+  .pedido-footer {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+
+  .footer-info {
+    align-items: center;
+  }
+
+  .footer-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  .alert-box {
+    right: 12px;
+    left: 12px;
+    width: auto;
+  }
+
+  .badge-edicao {
+    order: -1;
+    margin-bottom: 8px;
+    width: 100%;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* ============================================
+   MOBILE - 600px AVANÇADO
+   ============================================ */
+@media (max-width: 600px) {
+  .header-logo {
+    max-height: 28px;
+    width: auto;
+    object-fit: contain;
+    margin-top: 16px;
+    margin-bottom: 8px;
+  }
+
+  .app-header h1 {
+    font-size: 0.9rem;
+    margin: 0;
+    display: none;
+  }
+
+  .header-vendedor {
+    display: none;
+  }
+
+  /* Etapa Pedido - Header do Cliente */
+  .app-header-pedido {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 0;
+    background: white;
+  }
+
+  .header-text {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .header-cliente {
+    max-width: none;
+    background: white;
+    box-shadow: none;
+    padding: 10px 16px;
+    border: none;
+    border-bottom: 1px solid var(--color-border);
+    border-radius: 0;
+  }
+
+  .header-cliente-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+  }
+
+  .header-cliente-nome {
+    font-size: 0.9rem;
+  }
+
+  /* Nav Tabs - Scroll Horizontal */
+  .tabs-nav {
+    overflow-x: auto;
+    white-space: nowrap;
+    justify-content: flex-start;
+    padding: 8px 12px;
+    gap: 8px;
+    background: white;
+    border-bottom: 1px solid var(--color-border);
+    border-radius: 0;
+    margin-bottom: 0;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tab-btn {
+    flex: 0 0 auto;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    border: 1px solid var(--color-border);
+  }
+
+  .tab-btn.active {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+    color: var(--color-primary-dark);
+  }
+
+  /* Conteúdo das Abas */
+  .tab-content {
+    border-radius: 0;
+    box-shadow: none;
+    padding: 16px;
+    height: auto;
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 16px;
+  }
+
+  /* Produtos - Layout Mobile */
+  .produtos-layout {
+    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding-bottom: 0;
+  }
+
+  .produtos-main {
+    flex: 1;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .produtos-header {
+    padding: 12px;
+    background: white;
+    border-bottom: 1px solid var(--color-border);
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .produtos-search {
+    width: 100%;
+  }
+
+  .categorias-grid {
+    padding: 12px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    align-content: start;
+    flex: 1;
+    min-height: 200px;
+    overflow-y: auto;
+    padding-bottom: 12px;
+  }
+
+  /* Ajuste no card de categoria mobile */
+  .categoria-card {
+    flex-direction: column;
+    height: auto;
+    min-height: 140px;
+    max-height: none;
+    padding: 24px 16px;
+    text-align: center;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  .categoria-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+
+  .categoria-info h4 {
+    font-size: 0.9rem;
+    white-space: normal;
+    line-height: 1.3;
+  }
+
+  .categoria-info span {
+    display: none;
+  }
+
+  .categoria-arrow {
+    display: none;
+  }
+
+  /* Lista de Produtos (Modal) */
+  .modal-produtos-container {
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal-produtos-header {
+    border-radius: 0;
+    padding: 12px 16px;
+  }
+
+  .modal-produtos-body {
+    padding: 12px;
+  }
+
+  .produto-card {
+    padding: 12px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  /* Se houver imagem */
+  .produto-imagem {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+  }
+
+  .produto-info {
+    width: 100%;
+    text-align: left;
+  }
+
+  .produto-codigo {
+    font-size: 0.7rem;
+    color: var(--color-primary);
+    margin-bottom: 2px;
+  }
+
+  .produto-nome {
+    font-size: 1rem;
+    line-height: 1.4;
+    white-space: normal;
+    margin-bottom: 4px;
+    display: block;
+    width: 100%;
+  }
+
+  .produto-unidade {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    margin-bottom: 8px;
+  }
+
+  /* Container para Preço e Quantidade (lado a lado no final) */
+  .produto-acoes-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding-top: 10px;
+    border-top: 1px solid var(--color-border);
+    margin-top: auto;
+    margin-left: 0;
+  }
+
+  /* Ajusta o .produto-preco existente para se comportar bem no mobile */
+  .produto-preco {
+    width: auto;
+    font-size: 1.2rem;
+    text-align: left;
+    margin: 0;
+    padding: 0;
+    border: none;
+    flex: 0 0 auto;
+  }
+
+  .produto-quantidade {
+    margin: 0;
+    flex: 0 0 auto;
+  }
+
+  .btn-qtd {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+  }
+
+  .input-qtd {
+    width: 48px;
+    height: 44px;
+    font-size: 1.1rem;
+  }
+
+  /* Carrinho Sidebar - Vira Floating ou Drawer */
+  .carrinho-sidebar {
+    display: none;
+  }
+
+  /* Footer Fixo Mobile */
+  .pedido-footer {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 0;
+    border-top: 1px solid var(--color-border);
+    padding: 10px 16px;
+    z-index: 900;
+    margin: 0;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Header do Footer simplificado */
+  .footer-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .total-label {
+    font-size: 0.7rem;
+  }
+
+  .total-valor {
+    font-size: 1.1rem;
+  }
+
+  .footer-actions {
+    width: auto;
+    gap: 8px;
+    flex-direction: row;
+  }
+
+  .btn {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    height: 42px;
+    width: auto;
+    white-space: nowrap;
+  }
+
+  .btn-outline {
+    display: none;
+  }
+
+  /* Ajustes de Espaçamento para o Footer Fixo */
+  .tab-content,
+  .produtos-layout {
+    padding-bottom: 90px !important;
+  }
+
+  /* Ajuste de Modais Gerais */
+  .modal-content {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal-body {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  /* Ajustes de Formulário */
+  .config-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .form-section {
+    padding: 16px;
+    border-radius: var(--radius-md);
+  }
+
+  .address-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .address-grid > div {
+    grid-column: 1 / -1 !important;
+  }
+
+  /* Cards de Opção (Frete/Natureza) */
+  .option-cards {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .option-card {
+    justify-content: flex-start;
+    padding: 12px;
+  }
+
+  /* Header Cliente Compacto */
+  .header-cliente-doc,
+  .header-cliente-razao {
+    display: none !important;
+  }
+
+  /* Ajustes Gerais de Layout */
+  .step-cliente-wrapper {
+    align-items: flex-start;
+    padding: 10px;
+    height: 100%;
+    overflow-y: auto;
+  }
+
+  .selection-card {
+    height: auto;
+    max-height: none;
+    min-height: 100vh;
+    border-radius: 0;
+  }
+
+  .step-pedido-wrapper {
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+/* ============================================
+   RESPONSIVIDADE - MAX 360px (iPhone SE)
+   ============================================ */
+@media (max-width: 360px) {
+  .categorias-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .app-header h1 {
+    font-size: 1rem;
+  }
+
+  .btn {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+  }
+}
+
+/* ============================================
+   RESPONSIVIDADE - MAX 768px (Tablet/Mobile)
+   ============================================ */
+@media (max-width: 768px) {
+  /* Transformar tabela do carrinho em cards */
+  .carrinho-table {
+    display: block;
+    border: none;
+  }
+
+  .carrinho-table thead {
+    display: none;
+  }
+
+  .carrinho-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 16px;
+  }
+
+  .carrinho-table tbody tr {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 0;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+  }
+
+  /* Cabeçalho do card com produto */
+  .carrinho-table tbody td[data-label="Produto"] {
+    background: linear-gradient(135deg, #fce4ec 0%, #fff 100%);
+    padding: 16px;
+    padding-right: 48px;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .carrinho-table tbody td[data-label="Produto"]::before {
+    display: none;
+  }
+
+  .carrinho-modal-produto {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .carrinho-modal-imagem {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+  }
+
+  /* Linhas de valores - estilo lista */
+  .carrinho-table tbody td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    border: none;
+    border-bottom: 1px solid #f5f5f5;
+    font-size: 0.9rem;
+  }
+
+  .carrinho-table tbody td::before {
+    content: attr(data-label);
+    font-weight: 500;
+    font-size: 0.8rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  /* Botão de remover - canto superior direito */
+  .carrinho-table tbody td[data-label=""] {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 0;
+    border: none;
+    background: transparent;
+  }
+
+  .carrinho-table tbody td[data-label=""]::before {
+    display: none;
+  }
+
+  .btn-icon-remove {
+    background: #fff;
+    border: 1px solid #ffcdd2;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #e53935;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Célula de desconto - seção especial */
+  .desconto-cell {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 16px !important;
+    background: #fafafa;
+    border-bottom: none !important;
+  }
+
+  .desconto-cell::before {
+    display: block;
+    margin-bottom: 12px;
+    text-align: center;
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+
+  .desconto-item-container {
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .desconto-item-row {
+    flex: 1 1 45%;
+    min-width: 120px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 8px 12px;
+  }
+
+  /* Badge de desconto aplicado - embaixo dos inputs */
+  .desconto-aplicado-badge {
+    flex-basis: 100% !important;
+    width: 100%;
+    margin-top: 8px;
+    justify-content: center;
+    font-size: 0.75rem;
+    padding: 8px 12px;
+  }
+
+  .desconto-item-label {
+    font-weight: 600;
+    color: var(--color-primary);
+    font-size: 0.85rem;
+  }
+
+  /* Fix de scroll para modal no mobile */
+  .modal-overlay {
+    align-items: flex-start;
+    overflow-y: auto;
+    padding: 20px 0;
+  }
+
+  .modal-sucesso-container,
+  .modal-dialog {
+    margin: 20px auto;
+  }
+
+  .desconto-item-input {
+    flex: 1;
+    border: none !important;
+    background: transparent !important;
+    text-align: right;
+    font-weight: 600;
+    font-size: 1rem;
+  }
+
+  /* Total Final destacado */
+  .carrinho-table tbody td[data-label="Total Final"] {
+    background: linear-gradient(135deg, #e8f5e9 0%, #fff 100%);
+    border-bottom: none;
+    padding: 12px 16px;
+  }
+
+  .carrinho-table tbody td[data-label="Total Final"]::before {
+    font-weight: 700;
+    color: #2e7d32;
+  }
+
+  /* QTD com botões centralizados */
+  .carrinho-table tbody td[data-label="Qtd"] .qtd-wrapper {
+    justify-content: flex-end;
+  }
+
+  .carrinho-table tbody td[data-label="Qtd"] .btn-micro {
+    width: 32px;
+    height: 32px;
+    font-size: 1.1rem;
+  }
+
+  .carrinho-table tbody td[data-label="Qtd"] .input-micro {
+    width: 40px;
+    font-size: 1rem;
+  }
+
+  /* tfoot também precisa virar cards */
+  .carrinho-table tfoot {
+    display: block;
+  }
+
+  .carrinho-table tfoot tr {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .carrinho-table tfoot td {
+    display: inline;
+    border: none;
+  }
+
+  .carrinho-table tfoot td[colspan] {
+    flex: 1;
+  }
+
+  /* FAB sobre o conteúdo - acima do botão Gerar Pedido */
+  .fab-carrinho {
+    position: fixed !important;
+    bottom: 100px !important;
+    right: 16px !important;
+    z-index: 1001 !important;
+  }
+
+  /* Footer do modal de produtos */
+  .modal-produtos-footer {
+    flex-direction: column;
+    padding: 12px 16px;
+    gap: 8px;
+  }
+
+  .modal-produtos-footer .btn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 16px;
+  }
+
+  .modal-produtos-footer .btn-secondary {
+    order: 2;
+  }
+
+  .modal-produtos-footer .btn-primary {
+    order: 1;
+  }
+
+  /* Modal de carrinho fullscreen mobile */
+  .modal-lg {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 100vh;
+    height: 100vh;
+    margin: 0;
+    border-radius: 0;
+  }
+
+  .modal-lg .modal-body {
+    max-height: calc(100vh - 180px);
+    overflow-y: auto;
+    padding: 16px;
+  }
+
+  /* Barra de limite de desconto */
+  .desconto-limit-bar {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .limit-progress {
+    width: 100%;
+    order: 3;
+    margin-top: 8px;
+  }
+
+  /* Seção de grupos de produtos - pegar mais espaço E ter scroll */
+  .categorias-section {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-bottom: 100px;
+  }
+
+  .categorias-grid {
+    max-height: none;
+    overflow: visible;
+    padding-bottom: 20px;
+  }
+
+  /* Remover padding extra do footer */
+  .footer-pedido {
+    padding: 12px 16px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 999;
+  }
+
+  /* Container principal de produtos - SCROLL */
+  .produtos-main {
+    flex: 1;
+    overflow-y: auto;
+    max-height: calc(100vh - 280px);
+    padding-bottom: 20px;
+  }
+
+  .tab-content {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  #tab-produtos {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .produtos-layout {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Header de produtos info */
+  .produtos-header-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .lote-minimo-badge {
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+}
+
+/* ============================================
+   RESPONSIVIDADE - MAX 480px (Extra pequeno)
+   ============================================ */
+@media (max-width: 480px) {
+  .carrinho-table tbody tr {
+    padding: 0;
+  }
+
+  .carrinho-modal-imagem {
+    width: 50px;
+    height: 50px;
+  }
+
+  .desconto-item-input {
+    min-width: 60px;
+    padding: 6px 8px;
+    font-size: 0.85rem;
+  }
+
+  .produtos-main {
+    max-height: calc(100vh - 250px);
+  }
+
+  .header-title-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .header-title-row h2 {
+    font-size: 1.1rem;
+  }
+}
